@@ -158,7 +158,15 @@ class Login extends React.Component {
         level: 'warning',
         autoDismiss: 5
       });
-    } else {
+    }else if (!this.state.phonenumber.startsWith('254')) {
+      this.setState({ registering: false, show_progress_status: false  });
+
+      notification.addNotification({
+        message: 'Please enter a valid phone number. It should start with 254',
+        level: 'warning',
+        autoDismiss: 5
+      });
+    }else {
 
       let params = {};
       params["firstname"] = this.state.firstname;
