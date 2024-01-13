@@ -1,0 +1,13 @@
+.Picker {
+    font-family: sans-serif;
+    text-align: center;
+  }
+  
+  .react-datepicker-wrapper,
+  .react-datepicker__input-container,
+  .react-datepicker__input-container input {
+    display: block;
+    width: 100%;
+    color: black;
+    background-color: white
+  }

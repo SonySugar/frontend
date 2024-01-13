@@ -1,0 +1,16 @@
+.nav-tabs .nav-link {
+    background-color: #bbc1b4;
+    color: #FFFFFF !important;
+    border-top: none !important;
+    border-left: none !important;
+    border-right: none !important;
+  }
+  
+  .nav-tabs .nav-link.active {
+    border-bottom: solid 4px #336601 !important;
+    background-color: #804000;
+  }
+  .nav-tabs > a,
+  .nav-tabs > a:hover {
+    background-color: grey;
+  }

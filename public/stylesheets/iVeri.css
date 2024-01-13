@@ -1,0 +1,68 @@
+@charset "utf-8";
+/* CSS Document */
+
+.alphacube_buttons input {
+	width: 40%;
+}
+
+#container #story_inside #aForm table tr td #sectiontitle {
+	border-bottom-width: 1px;
+	border-bottom-style: solid;
+	border-bottom-color: #CCF;
+	font-size: 12px;
+	font-weight: 600;
+}
+
+#container #story_inside #aForm table {
+	font-family: Arial, Helvetica, sans-serif;
+}
+
+#error {
+	color: #FF0000;
+	padding: 11px;
+}
+
+.error {
+	color: #FF0000;
+	padding: 11px;
+}
+
+.result {
+	color: #FF0000;
+	font-size:20px;
+	font-weight:bold;
+	letter-spacing:2px;
+}
+
+.footer {
+	padding:0 0 0 10px;
+	letter-spacing:2px;
+}
+
+.asterik {
+	padding:0 0 0 5px;
+	color:#FF0000;
+	font-size:18px;
+	font-weight:bold;
+}
+
+.instructions {
+	padding:0 0 0 10px;
+	font-size:12px;
+	font-family:Verdana, Arial, Helvetica, sans-serif;
+}
+
+.instructions a{
+	color:#0080FF;
+	text-decoration:none;
+}
+
+body {
+	font-size: 12px;
+}
+
+#container{margin-top:50px;}
+#container #story_inside #aForm #sectiontitle {
+	font-size: 12px;
+	font-weight: bold;
+}
