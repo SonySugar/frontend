@@ -621,9 +621,9 @@ class Dashboard extends React.Component {
                 <NotificationSystem ref={this.notificationSystem} style={custom_notification_style} />
                
                 <Row>
-                    <Col md={6} xl={4}>
-                        
-                     </Col>
+                   
+                        <h5 style={{color: 'red'}}>Service configuration error! Please try again later</h5>
+                     
                 </Row>
                 <Dialog
                     open={this.state.closesession}
