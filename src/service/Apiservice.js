@@ -198,6 +198,7 @@ class APIService {
   }
   async _buildHeader() {
     let token = "";
+    let bearerProfile = "custBearer";
     if (JSON.stringify(AuthenticationService.getUser()) == "{}" && JSON.stringify(CustomerAuthenticationService.getCustomer()) == "{}") {
       return {
         "Content-Type": "application/json",
@@ -213,6 +214,7 @@ class APIService {
       }
       if(Object.keys(AuthenticationService.getUser()).length > 0){
         token = (await AuthenticationService.getUser().data.jwtToken) || "";
+        bearerProfile = "SysBearer"
       }
       
 
@@ -222,7 +224,7 @@ class APIService {
         accept: "application/json",
         "cache-control": "no-cache",
         pragma: "no-cache",
-        Authorization: "CustBearer " + token
+        Authorization: `${bearerProfile} ${token}`
 
       }
     }

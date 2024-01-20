@@ -63,12 +63,12 @@ place-items: center;
 z-index: 10;
 `;
 const headers = [
-    { label: "Full Name", key: "name" },
+    { label: "Full Name", key: "full_name" },
     { label: "Email", key: "email" },
-    { label: "Phone Number", key: "mobilenumber" },
-    { label: "Merchant", key: "merchant" },
+    { label: "Phone Number", key: "phone_number" },
+    { label: "Staff Id", key: "staff_id" },
+    { label: "Department", key: "department" },
     { label: "Role", key: "role" },
-    { label: "Api user", key: "apiuser" },
     { label: "Created by", key: "created_by" },
     { label: "Last updated by", key: "last_update_by" },
 
@@ -81,7 +81,10 @@ class Users extends React.Component {
             sysusers: [],
             users_temp: [],
             sysroles: [],
-            merchants: [],
+            role_privileges: [],
+            all_privileges: [],
+            selected_privileges: [],
+            compare_role_privileges: [],
             openView: false,
             openAdd: false,
             hover: false,
@@ -91,7 +94,7 @@ class Users extends React.Component {
             openUpdate: false,
             updateopen: false,
             email: '',
-            merchant: '',
+            staff_id: '',
             phonenumber: '',
             full_names: '',
             updated_fullnames: '',
@@ -103,7 +106,7 @@ class Users extends React.Component {
             updated_full_name: '',
             updated_staff_id: '',
             updated_phone_number: '',
-            updated_merchant: '',
+            updated_dept: '',
             updated_email: '',
             updated_hover: false,
             open: false,
@@ -128,7 +131,6 @@ class Users extends React.Component {
         this.checkLogin();
         await this.getSystemusers(0);
         await this.getSystemusersReport();
-        await this.getMerchants();
         this.setState({ show_progress_status: false });
     }
     checkLogin() {
@@ -161,7 +163,7 @@ class Users extends React.Component {
         } else {
 
             this.setState({ sysusers: apiResponse, users_temp: apiResponse });
- 
+
 
 
 
@@ -170,7 +172,7 @@ class Users extends React.Component {
     async getSystemusersReport() {
         //call API
         const notification = this.notificationSystem.current;
-        let apiResponse = await APIService.makeApiGetRequest("users/report");
+        let apiResponse = await APIService.makeApiGetRequest("users_report");
 
         if (apiResponse.status == 403) {
             this.setState({ closesession: true });
@@ -183,18 +185,19 @@ class Users extends React.Component {
         } else {
 
             await this.getSystemroles();
+            await this.getDepartments();
             //create report
 
             apiResponse.forEach(r => {
                 let params = {};
-                params["name"] = r.name;
+                params["full_name"] = r.full_name;
                 params["email"] = r.email;
-                params["mobilenumber"] = r.mobilenumber;
-                params["merchant"] = r.merchants.name;
-                params["apiuser"] = r.apiuser;
-                params["role"] = r.roles.name;
-                params["created_by"] = r.createdby;
-                params["last_update_by"] = r.dateupdated;
+                params["phone_number"] = r.phone_number;
+                params["staff_id"] = r.staff_id;
+                params["department"] = r.department.dept_name;
+                params["role"] = r.roles.role_name;
+                params["created_by"] = r.created_by;
+                params["last_update_by"] = r.last_update_by;
                 this.state.report.push(params);
 
             });
@@ -218,26 +221,7 @@ class Users extends React.Component {
         } else {
             if (apiResponse.length != 0) {
                 this.setState({ sysroles: apiResponse });
-            }
-        }
-
-    }
-    async getMerchants() {
-        //call API
-        const notification = this.notificationSystem.current;
-        let apiResponse = await APIService.makeApiGetRequest("merchants/active");
-
-        if (apiResponse.status == 403) {
-            this.setState({ closesession: true });
-            notification.addNotification({
-                message: apiResponse.message,
-                level: 'error',
-                autoDismiss: 5
-            });
-
-        } else {
-            if (apiResponse.length != 0) {
-                this.setState({ merchants: apiResponse });
+                await this.getAllPrivileges();
             }
         }
 
@@ -247,7 +231,21 @@ class Users extends React.Component {
         this.setState({ show_progress_status: true });
         const notification = this.notificationSystem.current;
         //check permissions
-       
+        let privilegeList = [];
+        let privileges = Authenticatonservice.getUser().data.user.roles.privileges;
+        for (let k in privileges) {
+
+            privilegeList.push(privileges[k].mprivileges.privilege_name);
+        }
+
+        if (!privilegeList.includes("update_user")) {
+            this.setState({ show_progress_status: false });
+            notification.addNotification({
+                message: "You do not have the rights to make system user updates. Please contact your Systems Administrator",
+                level: 'error',
+                autoDismiss: 5
+            });
+        } else {
 
             if (this.state.updated_full_name == null || this.state.updated_full_name === '') {
                 this.setState({ show_progress_status: false });
@@ -277,13 +275,14 @@ class Users extends React.Component {
 
                 let params = {};
                 params["id"] = this.state.updated_user_id;
-                params["name"] = this.state.updated_full_name;
-                params["mobilenumber"] = this.state.updated_phone_number;
+                params["full_name"] = this.state.updated_full_name;
+                params["phone_number"] = this.state.updated_phone_number;
+                params["staff_id"] = this.state.updated_staff_id;
                 params["email"] = this.state.updated_email;
-                params["role_id"] = this.state.updated_role;
-                params["merchant_id"] = this.state.updated_merchant;
+                params["role"] = this.state.updated_role;
+                params["dept"] = this.state.updated_dept;
 
-                let result = await APIService.makePostRequest("user/update", params);
+                let result = await APIService.makePostRequest("users/update", params);
                 if (result.success) {
                     notification.addNotification({
                         message: 'System user updated',
@@ -296,8 +295,8 @@ class Users extends React.Component {
                         updated_phone_number: '',
                         updated_staff_id: '',
                         updated_email: '',
-                        updated_role_id: '',
-                        merchant_id: '',
+                        updated_role: '',
+                        updated_dept: '',
 
                     });
                     this.getSystemusers(0);
@@ -311,14 +310,29 @@ class Users extends React.Component {
                     });
                 }
             }
-        
+        }
     }
     async saveUsers() {
         this.closeAddDialog();
         this.setState({ show_progress_status: true });
         const notification = this.notificationSystem.current;
 
-      
+        //check permissions
+        let privilegeList = [];
+        let privileges = Authenticatonservice.getUser().data.user.roles.privileges;
+        for (let k in privileges) {
+
+            privilegeList.push(privileges[k].mprivileges.privilege_name);
+        }
+
+        if (!privilegeList.includes("update_api_configurations")) {
+            this.setState({ show_progress_status: false });
+            notification.addNotification({
+                message: "You do not have the rights to create a system user. Please contact your Systems Administrator",
+                level: 'error',
+                autoDismiss: 5
+            });
+        } else {
             if (this.state.full_names == null || this.state.full_names === '') {
                 this.setState({ show_progress_status: false });
 
@@ -346,13 +360,14 @@ class Users extends React.Component {
             } else {
 
                 let params = {};
-                params["name"] = this.state.full_names;
-                params["mobilenumber"] = this.state.phonenumber;
+                params["full_name"] = this.state.full_names;
+                params["phone_number"] = this.state.phonenumber;
+                params["staff_id"] = this.state.staff_id;
                 params["email"] = this.state.email;
-                params["roleid"] = this.state.role;
-                params["merchantid"] = this.state.merchant;
+                params["role"] = this.state.role;
+                params["dept"] = this.state.dept_id;
 
-                let result = await APIService.makePostRequest("user/save", params);
+                let result = await APIService.makePostRequest("users/create", params);
                 if (result.success) {
                     notification.addNotification({
                         message: 'System user saved',
@@ -379,7 +394,7 @@ class Users extends React.Component {
                     });
                 }
             }
-        
+        }
 
     }
     async onClickUserActivattion(row, flag) {
@@ -390,12 +405,12 @@ class Users extends React.Component {
         let params = {};
         const notification = this.notificationSystem.current;
         // let flag = "Active";
-    
+
         params["id"] = row.id;
-        params["activate"] = flag == "Active" ? true : false;
+        params["flag"] = flag;
 
 
-        let result = await APIService.makePostRequest("user/activate", params);
+        let result = await APIService.makePostRequest("users/activate_deactivate", params);
         if (result.success) {
             notification.addNotification({
                 message: result.message,
@@ -536,6 +551,16 @@ class Users extends React.Component {
     cellButton(row) {
         const { classes } = this.props;
         return (
+
+            /*<Button
+                size="sm"
+                variant="primary"
+                onClick={() =>
+                    this.onClickUserSelected(row)
+                }
+            >
+                Update
+            </Button>*/
             <IconButton onClick={() =>
                 this.onClickUserSelected(row)
             } >
@@ -544,50 +569,47 @@ class Users extends React.Component {
 
         );
     }
-    cellApiUser(row) {
-        if(row.apiuser){
-            return (
-                <div>
-                    <p>Yes</p>
-                </div>
-    
-            );
-        }else{
-            return (
-                <div>
-                    <p>No</p>
-                </div>
-    
-            );
-        }
-    }
     cellActivateDeativate(row) {
-        let disabled = false;
-        let disabledMessage = "Not applicable for an API user"
-        if(row.apiuser){
-            disabled = true
-        }
-        if (row.active) {
-            if(!disabled){
-                disabledMessage = "Deactivate system user"
-            }
+
+        if (row.status === 'Active') {
             return (
+
+                /*<Button
+                    size="sm"
+                    // variant="primary"
+
+                    style={{ color: "#fff", backgroundColor: "#1e4388" }}
+                    disabled={this.state.disabled}
+                    onClick={() =>
+                        this.onClickUserActivattion(row, "Inactive")
+                    }
+                >
+                    DeActivate
+                </Button>*/
                 <IconButton onClick={() =>
                     this.onClickUserActivattion(row, "Inactive")
-                } disabled={disabled}>
+                }>
                     <CloseIcon style={{ color: "orange" }} titleAccess='Deactivate system user' />
                 </IconButton>
 
             );
 
         } else {
-            if(!disabled){
-                disabledMessage = "Activate system user"
-            }
             return (
+
+                /* <Button
+                     size="sm"
+                     style={{ color: "#fff", backgroundColor: "green" }}
+                     disabled={this.state.disabled}
+                     onClick={() =>
+                         this.onClickUserActivattion(row, "Active")
+                     }
+                 >
+                     Activate
+                 </Button>*/
                 <IconButton onClick={() =>
                     this.onClickUserActivattion(row, "Active")
-                } disabled={disabled}>
+                }>
                     <DoneIcon style={{ color: "green" }} titleAccess='Activate system user' />
                 </IconButton>
 
@@ -622,26 +644,63 @@ class Users extends React.Component {
         );
     }
     handlerRoleChanges(e) {
+        while (this.state.role_privileges.length > 0) {
+            this.state.role_privileges.pop();
+
+        }
+
         this.setState({
             role: e.target.value
         });
+        if (e.target.value == null || e.target.value === "") {
+            this.setState({
+                hover: false
+            });
+        } else {
+            let filteredRoles = this.state.sysroles.filter(r => {
+                return r.id == e.target.value;
+            });
+
+            let extracted_privileges = filteredRoles[0].privileges;
+            for (let k in extracted_privileges) {
+                this.state.role_privileges.push(extracted_privileges[k].mprivileges.description);
+            }
+            this.setState({
+                hover: true
+            });
+        }
     }
     handlerRoleUpdateChanges(e) {
+        while (this.state.role_privileges.length > 0) {
+            this.state.role_privileges.pop();
+
+        }
 
         this.setState({
             updated_role: e.target.value
         });
+        if (e.target.value == null || e.target.value === "") {
+            this.setState({
+                updated_hover: false
+            });
+        } else {
+            let filteredRoles = this.state.sysroles.filter(r => {
+                return r.id == e.target.value;
+            });
+
+            let extracted_privileges = filteredRoles[0].privileges;
+            for (let k in extracted_privileges) {
+                this.state.role_privileges.push(extracted_privileges[k].mprivileges.description);
+            }
+            this.setState({
+                updated_hover: true
+            });
+        }
     }
 
-    handlerMerchantUpdateChanges(e){
+    handlerDeptChanges(e) {
         this.setState({
-            updated_merchant: e.target.value
-        });
-    }
-
-    handlerMerchantChanges(e) {
-        this.setState({
-            merchant: e.target.value
+            dept_id: e.target.value
         })
     }
 
@@ -651,26 +710,56 @@ class Users extends React.Component {
         })
     }
 
+    async getDepartments() {
+        //call API
+        const notification = this.notificationSystem.current;
+        let apiResponse = await APIService.makeApiGetRequest("dept/list");
+        if (apiResponse.status == 403) {
+            this.setState({ closesession: true });
+            notification.addNotification({
+                message: apiResponse.message,
+                level: 'error',
+                autoDismiss: 5
+            });
+        } else {
+            if (apiResponse.length != 0) {
+                this.setState({ dept_list: apiResponse });
 
+            }
+        }
+
+    }
     onClickUserSelected(row) {
         this.setState({
             updated_user_id: row.id,
-            updated_full_name: row.name,
+            updated_full_name: row.full_name,
             updated_email: row.email,
-            updated_phone_number: row.mobilenumber,
-            updated_role: row.role_id,
-            updated_merchant: row.merchant_id,
+            updated_phone_number: row.phone_number,
+            updated_role: row.role,
+            updated_dept: row.dept,
+            updated_staff_id: row.staff_id,
             openUpdate: true,
             updated_hover: true,
         });
+        while (this.state.role_privileges.length > 0) {
+            this.state.role_privileges.pop();
+
+        }
+        let filteredRoles = this.state.sysroles.filter(r => {
+            return r.id == row.role;
+        });
+        let extracted_privileges = filteredRoles[0].privileges;
+        for (let k in extracted_privileges) {
+            this.state.role_privileges.push(extracted_privileges[k].mprivileges.description);
+        }
     }
 
     handleUserSearch(e) {
         let value = e.target.value;
-        console.log(this.state.sysusers)
+
         //lets do a filter
         let searchResult = this.state.sysusers.filter(s => {
-            return s.email.includes(value.toLowerCase()) || s.roles.name.includes(value.toUpperCase()) || s.merchants.name.includes(value) || s.name.includes(value);
+            return s.email.includes(value.toLowerCase()) || s.department.dept_name.includes(value.toUpperCase()) || s.roles.role_name.includes(value.toUpperCase()) || s.full_name.includes(value.toUpperCase()) || s.staff_id.includes(value.toLowerCase());
         });
         this.setState({
             users_temp: searchResult
@@ -686,20 +775,20 @@ class Users extends React.Component {
         doc.setFontSize(9);
 
         // define the columns we want and their titles
-        const tableColumn = ["Full Name", "Email", "Phone Number", "Merchant", "Api user", "Role", "Created by"];
+        const tableColumn = ["Full Name", "Email", "Phone Number", "Staff Id", "Department", "Role"];
         // define an empty array of rows
         const tableRows = [];
 
         // for each ticket pass all its data into an array
         this.state.report.forEach(ticket => {
             const ticketData = [
-                ticket.name,
+                ticket.full_name,
                 ticket.email,
-                ticket.mobilenumber,
-                ticket.merchant,
-                ticket.apiuser,
+                ticket.phone_number,
+                ticket.staff_id,
+                ticket.department,
                 ticket.role,
-                ticket.created_by,
+                //ticket.created_by,
                 //ticket.last_update_by,
                 // called date-fns to format the date on the ticket
                 //format(new Date(ticket.updated_at), "yyyy-MM-dd")
@@ -711,7 +800,7 @@ class Users extends React.Component {
 
         // startY is basically margin-top
         doc.autoTable(tableColumn, tableRows, { startY: 20 });
-        doc.text("System Users", 14, 15);
+        doc.text("Kentrade System Users", 14, 15);
         const date = Date().split(" ");
         // we use a date string to generate our filename.
         const dateStr = date[0] + date[1] + date[2] + date[3] + date[4];
@@ -768,7 +857,7 @@ class Users extends React.Component {
                     }>
                         <FaUserPlus style={{ color: "#04a9f5" }} size={50} title='Add user' />
                     </IconButton>
-                    <CSVLink data={this.state.report} headers={headers} filename='System_Users.csv'>
+                    <CSVLink data={this.state.report} headers={headers} filename='Company_System_Users.csv'>
 
                         <FaFileExcel size={50} color='green' title='Download users' />
                     </CSVLink>
@@ -789,18 +878,19 @@ class Users extends React.Component {
                         <ArrowForward style={{ color: "green" }} titleAccess='Next' />
                     </IconButton>
                     <div className="input-group mb-3">
-                        <input type="text" className="form-control" style={{ color: '#000000' }} placeholder="You can search by Email or Full names or Role or Merchant" onChange={e => this.handleUserSearch(e)} />
+                        <input type="text" className="form-control" style={{ color: '#000000' }} placeholder="You can search by Staff Id or Email or Full names or Role or Department" onChange={e => this.handleUserSearch(e)} />
                     </div>
                     <p>Page {this.state.pageCount}</p>
                     <Table>
                         <Thead>
                             <Tr style={{ border: '1px solid' }}>
                                 <Th>Full Name</Th>
-                                <Th>Merchant</Th>
+                                <Th>Status</Th>
+                                <Th>Department</Th>
                                 <Th>Role</Th>
-                                <Th>Active</Th>
                                 <Th>Update</Th>
                                 <Th>Activate/Deactivate</Th>
+                                <Th>Delete</Th>
 
                             </Tr>
 
@@ -814,17 +904,20 @@ class Users extends React.Component {
                                 (u, index) => (
                                     <Tr style={{ border: '1px solid' }} key={index}>
                                         <Td>
-                                            {u.name}
+                                            {u.full_name}
                                         </Td>
                                         <Td>
-                                            {u.merchants.name}
+                                            {u.status}
                                         </Td>
                                         <Td>
-                                            {u.roles.name}
+                                            {u.department.dept_name}
                                         </Td>
-                                        <Td>{u.active ? 'Yes' : 'No'}</Td>
+                                        <Td>
+                                            {u.roles.role_name}
+                                        </Td>
                                         <Td>{this.cellButton(u)}</Td>
                                         <Td>{this.cellActivateDeativate(u)}</Td>
+                                        <Td>{this.deleteButton(u)}</Td>
                                     </Tr>
                                 )
                             )}
@@ -915,6 +1008,10 @@ class Users extends React.Component {
                                     </div>
 
                                     <div className="input-group mb-3">
+                                        <input type="text" className="form-control" style={{ color: '#000000' }} placeholder="Staff Id" value={this.state.staff_id} onChange={e => this.handleChange(e, "staff_id")} />
+                                    </div>
+
+                                    <div className="input-group mb-3">
                                         <input type="text" className="form-control" style={{ color: '#000000' }} placeholder="Phone number" value={this.state.phonenumber} onChange={e => this.handleChange(e, "phonenumber")} />
                                     </div>
                                     <div className="input-group mb-3">
@@ -934,7 +1031,7 @@ class Users extends React.Component {
                                                         key={index}
                                                         value={r.id}
                                                     >
-                                                        {r.name}
+                                                        {r.role_name}
                                                     </option>
                                                 )
                                             )}
@@ -944,28 +1041,48 @@ class Users extends React.Component {
                                     <div className="input-group mb-3">
                                         <select
                                             className="form-control"
-                                            value={this.state.merchant}
-                                            onChange={this.handlerMerchantChanges.bind(
+                                            value={this.state.dept_id}
+                                            onChange={this.handlerDeptChanges.bind(
                                                 this
                                             )}
                                         >
                                             <option value="">
-                                                Select Merchant
+                                                Select Department
                                             </option>
-                                            {this.state.merchants.map(
+                                            {this.state.dept_list.map(
                                                 (r, index) => (
                                                     <option
                                                         key={index}
                                                         value={r.id}
                                                     >
-                                                        {r.name}
+                                                        {r.dept_name}
                                                     </option>
                                                 )
                                             )}
                                         </select>
+
                                     </div>
 
                                 </Col>
+                                {this.state.hover ? <Col>
+
+                                    <h3>
+                                        <b>Role privileges</b>
+                                    </h3>
+                                    <Table style={{ textAlign: 'left' }}>
+
+                                        {this.state.role_privileges.map(
+                                            (privi, index) => (
+                                                <Tr style={{ border: '1px solid' }}>
+                                                    <Td>{privi}</Td>
+
+                                                </Tr>
+                                            )
+                                        )}
+
+                                    </Table>
+
+                                </Col> : null}
                             </Row>
 
 
@@ -1005,6 +1122,14 @@ class Users extends React.Component {
                 >
 
                     <div className="card">
+                        <center>
+                            <Lottie
+                                loop
+                                animationData={lottieJson}
+                                play
+                                style={{ width: 50, height: 50 }}
+                            />
+                        </center>
 
                         <div className="card-body text-center">
                             <h3>{this.state.user_name}</h3>
@@ -1062,6 +1187,10 @@ class Users extends React.Component {
                                     </div>
 
                                     <div className="input-group mb-3">
+                                        <input type="text" className="form-control" style={{ color: '#000000' }} placeholder="Staff Id" value={this.state.updated_staff_id} onChange={e => this.handleChange(e, "updated_staff_id")} />
+                                    </div>
+
+                                    <div className="input-group mb-3">
                                         <input type="text" className="form-control" style={{ color: '#000000' }} placeholder="Phone number" value={this.state.updated_phone_number} onChange={e => this.handleChange(e, "updated_phone_number")} />
                                     </div>
                                     <div className="input-group mb-3">
@@ -1081,38 +1210,57 @@ class Users extends React.Component {
                                                         key={index}
                                                         value={r.id}
                                                     >
-                                                        {r.name}
+                                                        {r.role_name}
                                                     </option>
                                                 )
                                             )}
                                         </select>
                                     </div>
+
                                     <div className="input-group mb-3">
                                         <select
                                             className="form-control"
-                                            value={this.state.updated_merchant}
-                                            onChange={this.handlerMerchantUpdateChanges.bind(
+                                            value={this.state.updated_dept}
+                                            onChange={this.handlerDeptUpdateChanges.bind(
                                                 this
                                             )}
                                         >
                                             <option value="">
-                                                Select Merchant
+                                                Select Department
                                             </option>
-                                            {this.state.merchants.map(
+                                            {this.state.dept_list.map(
                                                 (r, index) => (
                                                     <option
                                                         key={index}
                                                         value={r.id}
                                                     >
-                                                        {r.name}
+                                                        {r.dept_name}
                                                     </option>
                                                 )
                                             )}
                                         </select>
+
                                     </div>
 
-
                                 </Col>
+                                {this.state.updated_hover ? <Col>
+
+                                    <h3>
+                                        <b>Role privileges</b>
+                                    </h3>
+                                    <Table style={{ textAlign: 'left' }} striped={true} bordered={true} hover>
+                                        {this.state.role_privileges.map(
+                                            (privi, index) => (
+                                                <Tr style={{ border: '1px solid' }}>
+
+                                                    <td>{privi}</td>
+
+                                                </Tr>
+                                            )
+                                        )}
+                                    </Table>
+
+                                </Col> : null}
                             </Row>
 
                             <Row key={0}>
