@@ -214,21 +214,21 @@ class Roles extends React.Component {
         const notification = this.notificationSystem.current;
 
         //check permissions
-        let privilegeList = [];
-        let privileges = Authenticatonservice.getUser().data.user.roles.privileges;
-        for (let k in privileges) {
+        // let privilegeList = [];
+        // let privileges = Authenticatonservice.getUser().data.user.role.privileges;
+        // for (let k in privileges) {
 
-            privilegeList.push(privileges[k].mprivileges.privilege_name);
-        }
+        //     privilegeList.push(privileges[k].mprivileges.privilege_name);
+        // }
 
-        if (!privilegeList.includes("create_role")) {
-            this.setState({ show_progress_status: false });
-            notification.addNotification({
-                message: "You do not have the rights to create a role. Please contact your Systems Administrator",
-                level: 'error',
-                autoDismiss: 5
-            });
-        } else {
+        // if (!privilegeList.includes("create_role")) {
+        //     this.setState({ show_progress_status: false });
+        //     notification.addNotification({
+        //         message: "You do not have the rights to create a role. Please contact your Systems Administrator",
+        //         level: 'error',
+        //         autoDismiss: 5
+        //     });
+        // } else {
             if (this.state.new_role_name == null || this.state.new_role_name === '') {
                 this.setState({ show_progress_status: false });
 
@@ -263,7 +263,7 @@ class Roles extends React.Component {
 
 
 
-                let result = await APIService.makePostRequest("roles/create", params);
+                let result = await APIService.makePostRequest("role/save", params);
                 if (result.success) {
                     notification.addNotification({
                         message: 'Role saved',
@@ -292,7 +292,7 @@ class Roles extends React.Component {
 
                 }
             }
-        }
+       // }
 
     }
     async deleteRole() {
@@ -302,7 +302,7 @@ class Roles extends React.Component {
 
         //check permissions
         let privilegeList = [];
-        let privileges = Authenticatonservice.getUser().data.user.roles.privileges;
+        let privileges = Authenticatonservice.getUser().data.user.role.privileges;
         for (let k in privileges) {
 
             privilegeList.push(privileges[k].mprivileges.privilege_name);
@@ -351,21 +351,21 @@ class Roles extends React.Component {
         const notification = this.notificationSystem.current;
 
         //check permissions
-        let privilegeList = [];
-        let privileges = Authenticatonservice.getUser().data.user.roles.privileges;
-        for (let k in privileges) {
+        // let privilegeList = [];
+        // let privileges = Authenticatonservice.getUser().data.user.role.privileges;
+        // for (let k in privileges) {
 
-            privilegeList.push(privileges[k].mprivileges.privilege_name);
-        }
+        //     privilegeList.push(privileges[k].mprivileges.privilege_name);
+        // }
 
-        if (!privilegeList.includes("update_api_configurations")) {
-            this.setState({ show_progress_status: false });
-            notification.addNotification({
-                message: "You do not have the rights to make role updates. Please contact your Systems Administrator",
-                level: 'error',
-                autoDismiss: 5
-            });
-        } else {
+        // if (!privilegeList.includes("update_api_configurations")) {
+        //     this.setState({ show_progress_status: false });
+        //     notification.addNotification({
+        //         message: "You do not have the rights to make role updates. Please contact your Systems Administrator",
+        //         level: 'error',
+        //         autoDismiss: 5
+        //     });
+        // } else {
             let list = [];
             for (let k in this.state.all_privileges) {
                 if (this.state.all_privileges[k].checked) {
@@ -378,7 +378,7 @@ class Roles extends React.Component {
             params["privileges"] = list;
 
 
-            let result = await APIService.makePostRequest("roles/update", params);
+            let result = await APIService.makePostRequest("role/update", params);
             if (result.success) {
                 notification.addNotification({
                     message: 'Role updated',
@@ -400,7 +400,7 @@ class Roles extends React.Component {
                 });
             }
 
-        }
+       // }
     }
     //clear all items from the privileges array
     removeItemAll() {

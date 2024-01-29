@@ -172,7 +172,7 @@ class Users extends React.Component {
     async getSystemusersReport() {
         //call API
         const notification = this.notificationSystem.current;
-        let apiResponse = await APIService.makeApiGetRequest("users_report");
+        let apiResponse = await APIService.makeApiGetRequest("users/report");
 
         if (apiResponse.status == 403) {
             this.setState({ closesession: true });
