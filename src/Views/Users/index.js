@@ -1,5 +1,5 @@
 import React from 'react';
-import { Row, Col } from 'react-bootstrap';
+import { Row, Col, Button } from 'react-bootstrap';
 import Card from "../../App/components/MainCard";
 import Aux from "../../hoc/_Aux";
 import AuthenticationService from "../../service/Authenticatonservice";
@@ -190,10 +190,10 @@ class Users extends React.Component {
 
             apiResponse.forEach(r => {
                 let params = {};
-                params["full_name"] = r.full_name;
+                params["full_name"] = r.fullname;
                 params["email"] = r.email;
-                params["phone_number"] = r.phone_number;
-                params["staff_id"] = r.staff_id;
+                params["phone_number"] = r.phonenumber;
+                params["staff_id"] = r.staffid;
                 params["department"] = r.department.dept_name;
                 params["role"] = r.roles.role_name;
                 params["created_by"] = r.created_by;
@@ -232,20 +232,20 @@ class Users extends React.Component {
         const notification = this.notificationSystem.current;
         //check permissions
         let privilegeList = [];
-        let privileges = Authenticatonservice.getUser().data.user.roles.privileges;
-        for (let k in privileges) {
+        //let privileges = Authenticatonservice.getUser().data.user.roles.privileges;
+        //for (let k in privileges) {
 
-            privilegeList.push(privileges[k].mprivileges.privilege_name);
-        }
+        //     privilegeList.push(privileges[k].mprivileges.privilege_name);
+        // }
 
-        if (!privilegeList.includes("update_user")) {
-            this.setState({ show_progress_status: false });
-            notification.addNotification({
-                message: "You do not have the rights to make system user updates. Please contact your Systems Administrator",
-                level: 'error',
-                autoDismiss: 5
-            });
-        } else {
+        // if (!privilegeList.includes("update_user")) {
+        //     this.setState({ show_progress_status: false });
+        //     notification.addNotification({
+        //         message: "You do not have the rights to make system user updates. Please contact your Systems Administrator",
+        //         level: 'error',
+        //         autoDismiss: 5
+        //     });
+        // } else {
 
             if (this.state.updated_full_name == null || this.state.updated_full_name === '') {
                 this.setState({ show_progress_status: false });
@@ -275,14 +275,14 @@ class Users extends React.Component {
 
                 let params = {};
                 params["id"] = this.state.updated_user_id;
-                params["full_name"] = this.state.updated_full_name;
-                params["phone_number"] = this.state.updated_phone_number;
-                params["staff_id"] = this.state.updated_staff_id;
+                params["fullname"] = this.state.updated_full_name;
+                params["phonenumber"] = this.state.updated_phone_number;
+                params["staffid"] = this.state.updated_staff_id;
                 params["email"] = this.state.updated_email;
                 params["role"] = this.state.updated_role;
                 params["dept"] = this.state.updated_dept;
 
-                let result = await APIService.makePostRequest("users/update", params);
+                let result = await APIService.makePostRequest("user/update", params);
                 if (result.success) {
                     notification.addNotification({
                         message: 'System user updated',
@@ -310,7 +310,7 @@ class Users extends React.Component {
                     });
                 }
             }
-        }
+        //}
     }
     async saveUsers() {
         this.closeAddDialog();
@@ -407,10 +407,10 @@ class Users extends React.Component {
         // let flag = "Active";
 
         params["id"] = row.id;
-        params["flag"] = flag;
+        params["activate"] = flag === "Inactive"?0:1;
 
 
-        let result = await APIService.makePostRequest("users/activate_deactivate", params);
+        let result = await APIService.makePostRequest("user/activate", params);
         if (result.success) {
             notification.addNotification({
                 message: result.message,
@@ -571,7 +571,7 @@ class Users extends React.Component {
     }
     cellActivateDeativate(row) {
 
-        if (row.status === 'Active') {
+        if (row.active == true) {
             return (
 
                 /*<Button
@@ -713,7 +713,7 @@ class Users extends React.Component {
     async getDepartments() {
         //call API
         const notification = this.notificationSystem.current;
-        let apiResponse = await APIService.makeApiGetRequest("dept/list");
+        let apiResponse = await APIService.makeApiGetRequest("departments");
         if (apiResponse.status == 403) {
             this.setState({ closesession: true });
             notification.addNotification({
@@ -732,12 +732,12 @@ class Users extends React.Component {
     onClickUserSelected(row) {
         this.setState({
             updated_user_id: row.id,
-            updated_full_name: row.full_name,
+            updated_full_name: row.fullname,
             updated_email: row.email,
-            updated_phone_number: row.phone_number,
+            updated_phone_number: row.phonenumber,
             updated_role: row.role,
             updated_dept: row.dept,
-            updated_staff_id: row.staff_id,
+            updated_staff_id: row.staffid,
             openUpdate: true,
             updated_hover: true,
         });
@@ -852,11 +852,15 @@ class Users extends React.Component {
 
                     <br />
                     <br />
-                    <IconButton onClick={() =>
-                        this.openAddDialog()
-                    }>
-                        <FaUserPlus style={{ color: "#04a9f5" }} size={50} title='Add user' />
-                    </IconButton>
+                    <Button
+                size="sm"
+                variant="secondary"
+                onClick={() =>
+                    this.openAddDialog()
+                }
+            >
+                Create User
+            </Button>
                     <CSVLink data={this.state.report} headers={headers} filename='Company_System_Users.csv'>
 
                         <FaFileExcel size={50} color='green' title='Download users' />
@@ -904,13 +908,13 @@ class Users extends React.Component {
                                 (u, index) => (
                                     <Tr style={{ border: '1px solid' }} key={index}>
                                         <Td>
-                                            {u.full_name}
+                                            {u.fullname}
                                         </Td>
                                         <Td>
-                                            {u.status}
+                                            {u.active == true ? "Active" : "Deactivated"}
                                         </Td>
                                         <Td>
-                                            {u.department.dept_name}
+                                            {u.department.department_name}
                                         </Td>
                                         <Td>
                                             {u.roles.role_name}
@@ -1055,7 +1059,7 @@ class Users extends React.Component {
                                                         key={index}
                                                         value={r.id}
                                                     >
-                                                        {r.dept_name}
+                                                        {r.department_name}
                                                     </option>
                                                 )
                                             )}
@@ -1234,7 +1238,7 @@ class Users extends React.Component {
                                                         key={index}
                                                         value={r.id}
                                                     >
-                                                        {r.dept_name}
+                                                        {r.department_name}
                                                     </option>
                                                 )
                                             )}
@@ -1265,15 +1269,27 @@ class Users extends React.Component {
 
                             <Row key={0}>
                                 <Col>
-                                    <IconButton onClick={() => { this.closeUpdateDialog() }}>
-
-                                        <FaTimes size={50} title='Cancel' color='red' />
-                                    </IconButton>
+                                    <Button
+                size="sm"
+                variant="secondary"
+                onClick={() =>
+                    this.closeUpdateDialog()
+                }
+            >
+                Dismiss
+            </Button>
                                 </Col>
                                 <Col>
-                                    <IconButton onClick={() => { this.updateUsers() }}>
-                                        <FaSave color='green' size={50} title='Save' />
-                                    </IconButton>
+                                <Button
+                size="sm"
+                variant="primary"
+                onClick={() =>
+                    this.updateUsers()
+                }
+            >
+                Save
+            </Button>
+
                                 </Col>
                             </Row>
 
