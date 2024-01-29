@@ -82,7 +82,32 @@ export default {
          ]
         },
 
+        {
+            id: 'departments-settings',
+            title: 'Department management',
+            type: 'group',
+            icon: 'icon-pages',
+            children: [
+                {
+                    id: 'basic_dept',
+                    title: 'Departments',
+                    type: 'collapse',
+                    icon: 'feather icon-box',
+            children: [
 
+                {
+                    id: 'dept-page',
+                    title: 'Departments',
+                    type: 'item',
+                    url: '/department',
+                    classes: 'nav-item',
+                    icon: 'feather icon-box'
+                },
+                
+            ]
+        }
+    ]
+        },
 
 
     ]

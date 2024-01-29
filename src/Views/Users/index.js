@@ -1094,15 +1094,26 @@ class Users extends React.Component {
                                 <Tbody>
                                     <Tr key={0}>
                                         <Td>
-                                            <IconButton onClick={() => { this.closeAddDialog() }}>
-
-                                                <FaTimes size={50} title='Cancel' color='red' />
-                                            </IconButton>
+                                        <Button
+                size="sm"
+                variant="secondary"
+                onClick={() =>
+                    this.closeAddDialog()
+                }
+            >
+                Dismiss
+            </Button>
                                         </Td>
                                         <Td>
-                                            <IconButton onClick={() => { this.saveUsers() }} >
-                                                <FaSave color='green' size={50} title='Save' />
-                                            </IconButton>
+                                        <Button
+                size="sm"
+                variant="primary"
+                onClick={() =>
+                    this.saveUsers()
+                }
+            >
+                Save
+            </Button>
                                         </Td>
                                     </Tr>
                                 </Tbody>
@@ -1146,13 +1157,24 @@ class Users extends React.Component {
 
 
                             <Row key={0}>
-                                <Col><IconButton onClick={() => { this.closeDeleteDialog() }}>
-
-                                    <FaTimes size={50} title='Cancel' color='green' />
-                                </IconButton></Col>
-                                <Col> <IconButton onClick={() => { this.deleteUser() }}>
-                                    <FaSave color='red' size={50} title='Save' />
-                                </IconButton></Col>
+                                <Col>                    <Button
+                size="sm"
+                variant="secondary"
+                onClick={() =>
+                    this.closeDeleteDialog()
+                }
+            >
+                Create User
+            </Button></Col>
+                                <Col>                     <Button
+                size="sm"
+                variant="primary"
+                onClick={() =>
+                    this.deleteUser()
+                }
+            >
+                Delete User
+            </Button></Col>
                             </Row>
 
 

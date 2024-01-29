@@ -393,15 +393,26 @@ class SmtpConfigs extends React.Component {
                           
                                     <Row key={0}>
                                         <Col>
-                                            <IconButton onClick={() => { this.closeUpdateDialog() }}>
-
-                                                <FaTimes size={50} title='Cancel' color='red' />
-                                            </IconButton>
+                                        <Button
+                size="sm"
+                variant="secondary"
+                onClick={() =>
+                    this.closeUpdateDialog()
+                }
+            >
+                Dismiss
+            </Button>
                                         </Col>
                                         <Col>
-                                            <IconButton onClick={() => { this.updateConfigs() }}>
-                                                <FaSave color='green' size={50} title='Save' />
-                                            </IconButton>
+                                        <Button
+                size="sm"
+                variant="primary"
+                onClick={() =>
+                    this.updateConfigs()
+                }
+            >
+                Save
+            </Button>
                                         </Col>
                                     </Row>
                                
