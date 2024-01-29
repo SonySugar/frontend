@@ -434,7 +434,7 @@ class Users extends React.Component {
     }
     onUserDelete(row) {
         const notification = this.notificationSystem.current;
-        if (row.id == AuthenticationService.getUser().data.user.id) {
+        if (row.id == AuthenticationService.getUser().data.systemUser.id) {
             notification.addNotification({
                 message: 'You are not allowed to delete your own record',
                 level: 'error',
@@ -443,7 +443,7 @@ class Users extends React.Component {
         } else {
             this.setState({
                 user_id: row.id,
-                user_name: row.full_name,
+                user_name: row.fullname,
                 openDelete: true
 
             });
@@ -956,14 +956,7 @@ class Users extends React.Component {
                 >
 
                     <div className="card">
-                        <center>
-                            <Lottie
-                                loop
-                                animationData={lottieJson}
-                                play
-                                style={{ width: 50, height: 50 }}
-                            />
-                        </center>
+
                         <div className="card-body text-center">
                             <h3>Your session has expired</h3>
                             <br />
@@ -1137,14 +1130,6 @@ class Users extends React.Component {
                 >
 
                     <div className="card">
-                        <center>
-                            <Lottie
-                                loop
-                                animationData={lottieJson}
-                                play
-                                style={{ width: 50, height: 50 }}
-                            />
-                        </center>
 
                         <div className="card-body text-center">
                             <h3>{this.state.user_name}</h3>

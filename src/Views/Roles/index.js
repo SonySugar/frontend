@@ -1,5 +1,5 @@
 import React from 'react';
-import { Row, Col } from 'react-bootstrap';
+import { Row, Col, Button } from 'react-bootstrap';
 import Card from "../../App/components/MainCard";
 import Aux from "../../hoc/_Aux";
 import AuthenticationService from "../../service/Authenticatonservice";
@@ -670,11 +670,15 @@ class Roles extends React.Component {
                         <Card title='System roles' isOption>
 
                           
-                            <IconButton  onClick={() =>
-                                    this.openAddDialog()
-                                }>
-                                <FaPlusCircle  style={{ color: "#04a9f5" }} size={50} title='Add role'/>
-                            </IconButton>
+                        <Button
+                size="sm"
+                variant="secondary"
+                onClick={() =>
+                    this.openAddDialog()
+                }
+            >
+                Create Role
+            </Button>
                            
 
                     
@@ -769,12 +773,6 @@ class Roles extends React.Component {
 
                     <div className="card">
                         <center>
-                            <Lottie
-                                loop
-                                animationData={lottieJson}
-                                play
-                                style={{ width: 50, height: 50 }}
-                            />
                         </center>
                         <div className="card-body text-center">
                             <h3>{this.state.role_name}</h3>
@@ -784,13 +782,24 @@ class Roles extends React.Component {
 
                          
                                     <Row key={0}>
-                                        <Col><IconButton onClick={() => { this.closeDeleteDialog() }}>
-
-                                            <FaTimes size={50} title='Cancel' color='green' />
-                                        </IconButton></Col>
-                                        <Col> <IconButton onClick={() => { this.deleteRole() }}>
-                                            <FaSave color='red' size={50} title='Save' />
-                                        </IconButton></Col>
+                                        <Col>                    <Button
+                size="sm"
+                variant="secondary"
+                onClick={() =>
+                    this.closeDeleteDialog()
+                }
+            >
+                Dismiss
+            </Button></Col>
+                                        <Col>                     <Button
+                size="sm"
+                variant="primary"
+                onClick={() =>
+                    this.deleteRole()
+                }
+            >
+                Delete role
+            </Button></Col>
                                     </Row>
                                 
 
@@ -856,15 +865,26 @@ class Roles extends React.Component {
                             
                                     <Row key={0}>
                                         <Col>
-                                        <IconButton onClick={() => { this.closeUpdateDialog() }}>
-
-<FaTimes size={50} title='Cancel' color='red' />
-</IconButton>
+                                        <Button
+                size="sm"
+                variant="secondary"
+                onClick={() =>
+                    this.closeUpdateDialog()
+                }
+            >
+                Dismiss
+            </Button>
                                         </Col>
                                         <Col>
-                                        <IconButton onClick={() => { this.updateRole() }}>
-                                        <FaSave color='green' size={50} title='Save' />
-                                    </IconButton>
+                                        <Button
+                size="sm"
+                variant="primary"
+                onClick={() =>
+                    this.updateRole()
+                }
+            >
+                Save
+            </Button>
                                         </Col>
                                     </Row>
                                
@@ -939,15 +959,26 @@ class Roles extends React.Component {
                             <div className="card-body text-center">
                             <Row>
                             <Col>
-                                    <IconButton onClick={() => { this.closeAddDialog() }}>
-
-                                        <FaTimes size={50} title='Cancel' color='red' />
-                                    </IconButton>
+                            <Button
+                size="sm"
+                variant="secondary"
+                onClick={() =>
+                    this.closeAddDialog()
+                }
+            >
+                Dismiss
+            </Button>
                                 </Col>
                                 <Col>
-                                    <IconButton onClick={() => { this.saveRole() }}>
-                                        <FaSave color='green' size={50} title='Save' />
-                                    </IconButton>
+                                <Button
+                size="sm"
+                variant="primary"
+                onClick={() =>
+                    this.saveRole()
+                }
+            >
+                Create role
+            </Button>
                                 </Col>
                                 </Row>
                                 </div>

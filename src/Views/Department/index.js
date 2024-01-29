@@ -197,7 +197,7 @@ class Departments extends React.Component {
 
          //check permissions
          let privilegeList = [];
-         let privileges = Authenticatonservice.getUser().data.user.roles.privileges;
+         let privileges = Authenticatonservice.getUser().data.systemUser.roles.privileges;
          for(let k in privileges){
             
              privilegeList.push(privileges[k].mprivileges.privilege_name);
@@ -222,7 +222,7 @@ class Departments extends React.Component {
         }else {
     
           let params = {};
-          params["department_name"] = this.state.new_dept_name
+          params["dept_name"] = this.state.new_dept_name
     
           let result = await APIService.makePostRequest("department/save", params);
           if (result.success) {
@@ -255,7 +255,7 @@ class Departments extends React.Component {
 
          //check permissions
          let privilegeList = [];
-         let privileges = Authenticatonservice.getUser().data.user.roles.privileges;
+         let privileges = Authenticatonservice.getUser().data.systemUser.roles.privileges;
          for(let k in privileges){
             
              privilegeList.push(privileges[k].mprivileges.privilege_name);
@@ -315,7 +315,7 @@ class Departments extends React.Component {
 
           //check permissions
         let privilegeList = [];
-        let privileges = Authenticatonservice.getUser().data.user.roles.privileges;
+        let privileges = Authenticatonservice.getUser().data.systemUser.roles.privileges;
         for(let k in privileges){
            
             privilegeList.push(privileges[k].mprivileges.privilege_name);
@@ -332,7 +332,7 @@ class Departments extends React.Component {
           let params = {};
           params["id"] = this.state.delete_dept_id;
     
-          let result = await APIService.makePostRequest("dept/delete", params);
+          let result = await APIService.makePostRequest("departmentt/delete", params);
           if (result.success) {
             notification.addNotification({
                 message: 'Department deleted',
@@ -571,14 +571,7 @@ class Departments extends React.Component {
                 >
 
                     <div className="card">
-                    <center>
-                  <Lottie
-                    loop
-                    animationData={lottieJson}
-                    play
-                    style={{ width: 50, height: 50 }}
-                  />
-                </center>
+
                         <div className="card-body text-center">
                             <h3>{this.state.delete_dept_name}</h3>
                             <br />
