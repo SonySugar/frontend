@@ -332,7 +332,7 @@ class Departments extends React.Component {
           let params = {};
           params["id"] = this.state.delete_dept_id;
     
-          let result = await APIService.makePostRequest("departmentt/delete", params);
+          let result = await APIService.makePostRequest("department/delete", params);
           if (result.success) {
             notification.addNotification({
                 message: 'Department deleted',

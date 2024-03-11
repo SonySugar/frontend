@@ -11,6 +11,7 @@ const Users = React.lazy(() => import('./Views/Users'));
 const Roles = React.lazy(() => import('./Views/Roles'));
 const SmtpConfigs = React.lazy(() => import('./Views/Smtpconfigs'));
 const Department = React.lazy(() => import('./Views/Department'));
+const AppUsers = React.lazy(() => import('./Views/AppUsers'));
 
 
 const routes = [
@@ -19,6 +20,7 @@ const routes = [
     { path: '/roles', exact: true, name: 'Roles', component: Roles },
     { path: '/settings/smtp', exact: true, name: 'SmtpConfigs', component: SmtpConfigs },
     { path: '/department', exact: true, name: 'Department', component: Department },
+    { path: '/farmers', exact: true, name: 'AppUsers', component: AppUsers },
 ];
 
 export default routes;

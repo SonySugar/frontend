@@ -318,21 +318,21 @@ class Users extends React.Component {
         const notification = this.notificationSystem.current;
 
         //check permissions
-        let privilegeList = [];
-        let privileges = Authenticatonservice.getUser().data.user.roles.privileges;
-        for (let k in privileges) {
+        // let privilegeList = [];
+        // let privileges = Authenticatonservice.getUser().data.user.roles.privileges;
+        // for (let k in privileges) {
 
-            privilegeList.push(privileges[k].mprivileges.privilege_name);
-        }
+        //     privilegeList.push(privileges[k].mprivileges.privilege_name);
+        // }
 
-        if (!privilegeList.includes("update_api_configurations")) {
-            this.setState({ show_progress_status: false });
-            notification.addNotification({
-                message: "You do not have the rights to create a system user. Please contact your Systems Administrator",
-                level: 'error',
-                autoDismiss: 5
-            });
-        } else {
+        // if (!privilegeList.includes("update_api_configurations")) {
+        //     this.setState({ show_progress_status: false });
+        //     notification.addNotification({
+        //         message: "You do not have the rights to create a system user. Please contact your Systems Administrator",
+        //         level: 'error',
+        //         autoDismiss: 5
+        //     });
+        // } else {
             if (this.state.full_names == null || this.state.full_names === '') {
                 this.setState({ show_progress_status: false });
 
@@ -367,7 +367,7 @@ class Users extends React.Component {
                 params["role"] = this.state.role;
                 params["dept"] = this.state.dept_id;
 
-                let result = await APIService.makePostRequest("users/create", params);
+                let result = await APIService.makePostRequest("user/save", params);
                 if (result.success) {
                     notification.addNotification({
                         message: 'System user saved',
@@ -394,7 +394,7 @@ class Users extends React.Component {
                     });
                 }
             }
-        }
+        //}
 
     }
     async onClickUserActivattion(row, flag) {
@@ -800,7 +800,7 @@ class Users extends React.Component {
 
         // startY is basically margin-top
         doc.autoTable(tableColumn, tableRows, { startY: 20 });
-        doc.text("Kentrade System Users", 14, 15);
+        doc.text("Sonysugar System Users", 14, 15);
         const date = Date().split(" ");
         // we use a date string to generate our filename.
         const dateStr = date[0] + date[1] + date[2] + date[3] + date[4];

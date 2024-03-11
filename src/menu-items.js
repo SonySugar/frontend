@@ -75,6 +75,14 @@ export default {
                     url: '/users',
                     classes: 'nav-item',
                     icon: 'feather icon-users'
+                },
+                {
+                    id: 'farmer-page',
+                    title: 'Farmers',
+                    type: 'item',
+                    url: '/farmers',
+                    classes: 'nav-item',
+                    icon: 'feather icon-users'
                 }
                 
             ]
