@@ -92,8 +92,8 @@ class Login extends React.Component {
   async loginUser() {
 
     this.setState({ loggingIn: true,disabled:true, show_progress_status: true });
-    let endpoint = "";
-    this.state.loginType === 'customer' ? endpoint = "authentication/customer" : endpoint = "authentication"
+    let endpoint = "authentication";
+    //this.state.loginType === 'customer' ? endpoint = "authentication/customer" : endpoint = "authentication"
     const notification = this.notificationSystem.current;
     if (this.state.username == null || this.state.username === '') {
       this.setState({ loggingIn: false, show_progress_status: false  });
@@ -118,9 +118,7 @@ class Login extends React.Component {
 
       let result = await APIService.makePostRequest(endpoint, params);
       if (result.success) {
-        console.log(this.state.loginType === 'customer' ? 'Farmer login successful' : 'Admin login successful')
-        this.state.loginType === 'customer' ? CustomerAuthenticationservice.setCustomer(result):AuthenticationService.setUser(result);
-
+        AuthenticationService.setUser(result);
         const { from } = this.props.location.state || {
           from: { pathname: "/dashboard" }
         };
@@ -145,65 +143,65 @@ class Login extends React.Component {
       disabled:false,
     })  
   }
-  async registerUser() {
+  // async registerUser() {
 
-    this.setState({ registering: true,disabledReg:true, show_progress_status: true });
-    let endpoint = "customer/save";
-    const notification = this.notificationSystem.current;
-    if (this.state.newpassword !== this.state.confirmpassword) {
-      this.setState({ registering: false, show_progress_status: false  });
+  //   this.setState({ registering: true,disabledReg:true, show_progress_status: true });
+  //   let endpoint = "customer/save";
+  //   const notification = this.notificationSystem.current;
+  //   if (this.state.newpassword !== this.state.confirmpassword) {
+  //     this.setState({ registering: false, show_progress_status: false  });
 
-      notification.addNotification({
-        message: 'Password mismatch!',
-        level: 'warning',
-        autoDismiss: 5
-      });
-    }else if (!this.state.phonenumber.startsWith('254')) {
-      this.setState({ registering: false, show_progress_status: false  });
+  //     notification.addNotification({
+  //       message: 'Password mismatch!',
+  //       level: 'warning',
+  //       autoDismiss: 5
+  //     });
+  //   }else if (!this.state.phonenumber.startsWith('254')) {
+  //     this.setState({ registering: false, show_progress_status: false  });
 
-      notification.addNotification({
-        message: 'Please enter a valid phone number. It should start with 254',
-        level: 'warning',
-        autoDismiss: 5
-      });
-    }else {
+  //     notification.addNotification({
+  //       message: 'Please enter a valid phone number. It should start with 254',
+  //       level: 'warning',
+  //       autoDismiss: 5
+  //     });
+  //   }else {
 
-      let params = {};
-      params["firstname"] = this.state.firstname;
-      params["lastname"] = this.state.lastname;
-      params["surname"] = this.state.surname;
-      params["email"] = this.state.email;
-      params["phonenumber"] = this.state.phonenumber;
-      params["companykrapin"] = this.state.companykrapin;
-      params["companyname"] = this.state.companyname;
-      params["password"] = this.state.newpassword;
-      let result = await APIService.makePostRequest(endpoint, params);
-      if (result.success) {
-        notification.addNotification({
-          message: result.message,
-          level: 'success',
-          autoDismiss: 5,
+  //     let params = {};
+  //     params["firstname"] = this.state.firstname;
+  //     params["lastname"] = this.state.lastname;
+  //     params["surname"] = this.state.surname;
+  //     params["email"] = this.state.email;
+  //     params["phonenumber"] = this.state.phonenumber;
+  //     params["companykrapin"] = this.state.companykrapin;
+  //     params["companyname"] = this.state.companyname;
+  //     params["password"] = this.state.newpassword;
+  //     let result = await APIService.makePostRequest(endpoint, params);
+  //     if (result.success) {
+  //       notification.addNotification({
+  //         message: result.message,
+  //         level: 'success',
+  //         autoDismiss: 5,
           
-        });
-        this.closeRegDialog();
-        this.setState({ registering: false,disabledReg:true, show_progress_status: false });
-      } else {
-        this.setState({ registering: false, show_progress_status: false });
-        notification.addNotification({
-          message: result.message,
-          level: 'error',
-          autoDismiss: 5,
+  //       });
+  //       this.closeRegDialog();
+  //       this.setState({ registering: false,disabledReg:true, show_progress_status: false });
+  //     } else {
+  //       this.setState({ registering: false, show_progress_status: false });
+  //       notification.addNotification({
+  //         message: result.message,
+  //         level: 'error',
+  //         autoDismiss: 5,
           
-        });
-        this.setState({
-          disabledReg:false,
-        }) 
-      }
-    }
-    this.setState({
-      disabledReg:false,
-    })  
-  }
+  //       });
+  //       this.setState({
+  //         disabledReg:false,
+  //       }) 
+  //     }
+  //   }
+  //   this.setState({
+  //     disabledReg:false,
+  //   })  
+  // }
   closeDialog() {
     this.setState({ open: false });
   };
@@ -293,34 +291,6 @@ class Login extends React.Component {
 
           <Card.Body>
           <div className="auth-content">
-          <Tabs defaultActiveKey="customer" activeTab={this.state.activeTab} onSelect={this.handleTabSelect} transition={Fade} fill>
-          <Tab eventKey="customer" title="CUSTOMER LOGIN"> 
-             
-                <div className="mb-4">
-                  <i className="feather icon-unlock auth-icon" />
-                </div>
-                <h3 className="mb-4">Login</h3>
-               
-                <div className="input-group mb-3">
-                  <input type="number" className="form-control" style={{ color: '#000000' }} placeholder="Phone number (254...)" value={this.state.username} onChange={e => this.handleChange(e, "username")} />
-                </div>
-                <div className="input-group mb-4">
-                  <input type="password" className="form-control" placeholder="password" value={this.state.password} onChange={e => this.handleChange(e, "password")} />
-                </div>
-                <div className="form-group text-left">
-                  <div className="checkbox checkbox-fill d-inline">
-                    <input type="checkbox" name="checkbox-fill-1" id="checkbox-fill-a1" />
-                  </div>
-                </div>
-                <p className="mb-2 text-muted">Forgot password? <a href="#" onClick={() => { this.openDialog() }}>Reset</a></p>
-                <button className="btn btn-primary shadow-2 mb-4" onClick={() => { this.loginUser() }}>Login</button>
-                {this.state.loggingIn && (<img src="data:image/gif;base64,R0lGODlhEAAQAPIAAP///wAAAMLCwkJCQgAAAGJiYoKCgpKSkiH/C05FVFNDQVBFMi4wAwEAAAAh/hpDcmVhdGVkIHdpdGggYWpheGxvYWQuaW5mbwAh+QQJCgAAACwAAAAAEAAQAAADMwi63P4wyklrE2MIOggZnAdOmGYJRbExwroUmcG2LmDEwnHQLVsYOd2mBzkYDAdKa+dIAAAh+QQJCgAAACwAAAAAEAAQAAADNAi63P5OjCEgG4QMu7DmikRxQlFUYDEZIGBMRVsaqHwctXXf7WEYB4Ag1xjihkMZsiUkKhIAIfkECQoAAAAsAAAAABAAEAAAAzYIujIjK8pByJDMlFYvBoVjHA70GU7xSUJhmKtwHPAKzLO9HMaoKwJZ7Rf8AYPDDzKpZBqfvwQAIfkECQoAAAAsAAAAABAAEAAAAzMIumIlK8oyhpHsnFZfhYumCYUhDAQxRIdhHBGqRoKw0R8DYlJd8z0fMDgsGo/IpHI5TAAAIfkECQoAAAAsAAAAABAAEAAAAzIIunInK0rnZBTwGPNMgQwmdsNgXGJUlIWEuR5oWUIpz8pAEAMe6TwfwyYsGo/IpFKSAAAh+QQJCgAAACwAAAAAEAAQAAADMwi6IMKQORfjdOe82p4wGccc4CEuQradylesojEMBgsUc2G7sDX3lQGBMLAJibufbSlKAAAh+QQJCgAAACwAAAAAEAAQAAADMgi63P7wCRHZnFVdmgHu2nFwlWCI3WGc3TSWhUFGxTAUkGCbtgENBMJAEJsxgMLWzpEAACH5BAkKAAAALAAAAAAQABAAAAMyCLrc/jDKSatlQtScKdceCAjDII7HcQ4EMTCpyrCuUBjCYRgHVtqlAiB1YhiCnlsRkAAAOwAAAAAAAAAAAA==" />)}
-                <p className="mb-2 text-muted">Are you new here? <a href="#" onClick={() => { this.openRegDialog() }}>Create account</a></p>
-                
-            </Tab>
-            <Tab eventKey="admin" title="ADMINISTRATOR LOGIN"> 
-             
-
              <div className="mb-4">
                <i className="feather icon-unlock auth-icon" />
              </div>
@@ -340,16 +310,12 @@ class Login extends React.Component {
              <button className="btn btn-primary shadow-2 mb-4" onClick={() => { this.loginUser() }}>Login</button>
              {this.state.loggingIn && (<img src="data:image/gif;base64,R0lGODlhEAAQAPIAAP///wAAAMLCwkJCQgAAAGJiYoKCgpKSkiH/C05FVFNDQVBFMi4wAwEAAAAh/hpDcmVhdGVkIHdpdGggYWpheGxvYWQuaW5mbwAh+QQJCgAAACwAAAAAEAAQAAADMwi63P4wyklrE2MIOggZnAdOmGYJRbExwroUmcG2LmDEwnHQLVsYOd2mBzkYDAdKa+dIAAAh+QQJCgAAACwAAAAAEAAQAAADNAi63P5OjCEgG4QMu7DmikRxQlFUYDEZIGBMRVsaqHwctXXf7WEYB4Ag1xjihkMZsiUkKhIAIfkECQoAAAAsAAAAABAAEAAAAzYIujIjK8pByJDMlFYvBoVjHA70GU7xSUJhmKtwHPAKzLO9HMaoKwJZ7Rf8AYPDDzKpZBqfvwQAIfkECQoAAAAsAAAAABAAEAAAAzMIumIlK8oyhpHsnFZfhYumCYUhDAQxRIdhHBGqRoKw0R8DYlJd8z0fMDgsGo/IpHI5TAAAIfkECQoAAAAsAAAAABAAEAAAAzIIunInK0rnZBTwGPNMgQwmdsNgXGJUlIWEuR5oWUIpz8pAEAMe6TwfwyYsGo/IpFKSAAAh+QQJCgAAACwAAAAAEAAQAAADMwi6IMKQORfjdOe82p4wGccc4CEuQradylesojEMBgsUc2G7sDX3lQGBMLAJibufbSlKAAAh+QQJCgAAACwAAAAAEAAQAAADMgi63P7wCRHZnFVdmgHu2nFwlWCI3WGc3TSWhUFGxTAUkGCbtgENBMJAEJsxgMLWzpEAACH5BAkKAAAALAAAAAAQABAAAAMyCLrc/jDKSatlQtScKdceCAjDII7HcQ4EMTCpyrCuUBjCYRgHVtqlAiB1YhiCnlsRkAAAOwAAAAAAAAAAAA==" />)}
             
-             <p className="mb-2 text-muted">Administrative login area<a href="#" ></a></p>
-         </Tab>
-
-        </Tabs>
             </div>
             </Card.Body>
             </Card>
             </div>
             
-        <Dialog
+        {/* <Dialog
           open={this.state.open}
           onClose={this.closeDialog.bind(this)}
           fullWidth
@@ -366,12 +332,6 @@ class Login extends React.Component {
               <div className="input-group mb-3">
                 <input type="number" className="form-control" style={{ color: '#000000' }} placeholder="Phone number (254....)" value={this.state.username} onChange={e => this.handleChange(e, "username")} />
               </div>
-              {/*<div className="input-group mb-3">
-                <input type="password" className="form-control" placeholder="Password" value={this.state.password} onChange={e => this.handleChange(e, "password")} />
-              </div>
-              <div className="input-group mb-4">
-                <input type="password" className="form-control" placeholder="Confirm password" value={this.state.confirmpassword} onChange={e => this.handleChange(e, "confirmpassword")} />
-    </div>*/}
               <div className="form-group text-left">
                 <div className="checkbox checkbox-fill d-inline">
                   <input type="checkbox" name="checkbox-fill-1" id="checkbox-fill-a1" />
@@ -383,8 +343,8 @@ class Login extends React.Component {
           </div>
 
 
-        </Dialog>
-        <Dialog
+        </Dialog> */}
+        {/* <Dialog
           open={this.state.openReg}
           onClose={this.closeRegDialog.bind(this)}
           fullWidth
@@ -436,7 +396,7 @@ class Login extends React.Component {
           </div>
 
 
-        </Dialog>
+        </Dialog> */}
       </Aux>
       </div>
 

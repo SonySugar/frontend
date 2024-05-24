@@ -36,6 +36,14 @@ export default {
                     url: '/settings/smtp',
                     classes: 'nav-item',
                     icon: 'feather icon-server'
+                },
+                {
+                    id: 'sms-page',
+                    title: 'SMS Configurations',
+                    type: 'item',
+                    url: '/settings/sms',
+                    classes: 'nav-item',
+                    icon: 'feather icon-message-square'
                 }
                
 

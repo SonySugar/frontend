@@ -36,9 +36,6 @@ class Navigation extends Component {
       
         this.resize();
         window.addEventListener('resize', this.resize)
-        if(Object.keys(CustomerAuthenticationservice.getCustomer()).length > 0){
-            this.removeAllNavItems();
-        }
         this.setState({
             showNavContent: true
         });
@@ -120,9 +117,6 @@ class Navigation extends Component {
      };
 
     
-     removeAllNavItems(){
-        navigation.items.splice(1, navigation.items.length);
-     }
 
     render() {
         let navClass = [

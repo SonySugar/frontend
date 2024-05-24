@@ -129,31 +129,16 @@ class Dashboard extends React.Component {
     }
     checkLogin() {
      
-        if (JSON.stringify(AuthenticationService.getUser()) == '{}' && JSON.stringify(CustomerAuthenticationservice.getCustomer()) == '{}' ) {
+        if (JSON.stringify(AuthenticationService.getUser()) == '{}' ) {
             this.logout();
         } else {
 
-            if(Object.keys(AuthenticationService.getUser()).length > 0){
-                this.setState({ 
-                    loginType: 'admin'
-                });
+
             //Extract force password change status
             if (AuthenticationService.getUser().data.systemUser.force_password_change == true) {
                 this.setState({
                     open: true
                 });
-            }
-            }else if(Object.keys(CustomerAuthenticationservice.getCustomer()).length > 0){
-
-                this.setState({ 
-                    loginType: 'customer'
-                });
-            //Extract force password change status
-            if (CustomerAuthenticationservice.getCustomer().data.customer.force_password_change == true) {
-                this.setState({
-                    open: true
-                });
-            }
             }
 
         }

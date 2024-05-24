@@ -197,28 +197,8 @@ class APIService {
     return this.BASE_URL + url;
   }
   async _buildHeader() {
-    let token = "";
-    let bearerProfile = "custBearer";
-    if (JSON.stringify(AuthenticationService.getUser()) == "{}" && JSON.stringify(CustomerAuthenticationService.getCustomer()) == "{}") {
-      return {
-        "Content-Type": "application/json",
-        accept: "application/json",
-        "cache-control": "no-cache",
-        pragma: "no-cache",
-        //Authorization:"Bearer "+token
-
-      }
-    } else {
-      if(Object.keys(CustomerAuthenticationService.getCustomer()).length > 0){
-        token = (await CustomerAuthenticationService.getCustomer().data.jwtToken) || "";
-      }
-      if(Object.keys(AuthenticationService.getUser()).length > 0){
-        token = (await AuthenticationService.getUser().data.jwtToken) || "";
-        bearerProfile = "SysBearer"
-      }
-      
-
-
+    let token = (await AuthenticationService.getUser().data.jwtToken) || "";
+    let bearerProfile = "SysBearer";
       return {
         "Content-Type": "application/json",
         accept: "application/json",
@@ -227,7 +207,7 @@ class APIService {
         Authorization: `${bearerProfile} ${token}`
 
       }
-    }
+    
   }
 }
 export default new APIService();
