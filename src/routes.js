@@ -13,6 +13,8 @@ const SmtpConfigs = React.lazy(() => import('./Views/Smtpconfigs'));
 const SmsConfigs = React.lazy(() => import('./Views/BulkSmsConfigs'));
 const Department = React.lazy(() => import('./Views/Department'));
 const AppUsers = React.lazy(() => import('./Views/AppUsers'));
+const SmsTemplates = React.lazy(() => import('./Views/SmsTemplates'));
+const SendSms = React.lazy(() => import('./Views/SendSms'));
 
 
 const routes = [
@@ -23,6 +25,8 @@ const routes = [
     { path: '/settings/sms', exact: true, name: 'SmsConfigs', component: SmsConfigs },
     { path: '/department', exact: true, name: 'Department', component: Department },
     { path: '/farmers', exact: true, name: 'AppUsers', component: AppUsers },
+    { path: '/sms/templates', exact: true, name: 'SmsTemplates', component: SmsTemplates },
+    { path: '/sms/send', exact: true, name: 'SendSms', component: SendSms },
 ];
 
 export default routes;

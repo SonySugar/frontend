@@ -197,16 +197,26 @@ class APIService {
     return this.BASE_URL + url;
   }
   async _buildHeader() {
-    let token = (await AuthenticationService.getUser().data.jwtToken) || "";
-    let bearerProfile = "SysBearer";
+    let token = "";
+    if (JSON.stringify(AuthenticationService.getUser()) == "{}") {
       return {
         "Content-Type": "application/json",
         accept: "application/json",
         "cache-control": "no-cache",
         pragma: "no-cache",
-        Authorization: `${bearerProfile} ${token}`
 
       }
+    } else {
+      token = (await AuthenticationService.getUser().data.jwtToken) || "";
+      return {
+        "Content-Type": "application/json",
+        accept: "application/json",
+        "cache-control": "no-cache",
+        pragma: "no-cache",
+        Authorization: "SysBearer " + token
+
+      }
+    }
     
   }
 }

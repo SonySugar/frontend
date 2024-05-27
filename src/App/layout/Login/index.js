@@ -99,7 +99,7 @@ class Login extends React.Component {
       this.setState({ loggingIn: false, show_progress_status: false  });
 
       notification.addNotification({
-        message: this.state.loginType==='admin'?'Please enter your email address': 'Please enter your national Id',
+        message: 'Please enter your email address',
         level: 'warning',
         autoDismiss: 5
       });

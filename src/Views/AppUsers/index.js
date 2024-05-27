@@ -229,7 +229,7 @@ class AppUsers extends React.Component {
 
     activateButton(row) {
         const { classes } = this.props;
-        if (row.status === "Pending" || row.status === "Deactivated") {
+        if (!row.active) {
 
             return (
 
@@ -292,10 +292,10 @@ class AppUsers extends React.Component {
     }
     onClickUserSelected(row) {
         let actionFlag = false;
-        let message = 'Are you sure you want to deactivate ' + row.full_name;
+        let message = 'Are you sure you want to deactivate ' + row.firstname + ' ' + row.lastname;
         if (!row.active) {
 
-            message = 'Are you sure you want to activate ' + row.full_name;
+            message = 'Are you sure you want to activate ' + row.firstname + ' ' + row.lastname;
             actionFlag = true;
         }
 

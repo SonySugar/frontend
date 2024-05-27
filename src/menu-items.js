@@ -124,7 +124,40 @@ export default {
         }
     ]
         },
+        {
+            id: 'smstemplate-settings',
+            title: 'Bulk SMS management',
+            type: 'group',
+            icon: 'icon-message-square',
+            children: [
+                {
+                    id: 'basic_template',
+                    title: 'Templates',
+                    type: 'collapse',
+                    icon: 'feather icon-message-circle',
+            children: [
 
+                {
+                    id: 'dept-page',
+                    title: 'Sms Templates',
+                    type: 'item',
+                    url: '/sms/templates',
+                    classes: 'nav-item',
+                    icon: 'feather icon-message-circle'
+                },
+                {
+                    id: 'sendsms-page',
+                    title: 'Send SMS',
+                    type: 'item',
+                    url: '/sms/send',
+                    classes: 'nav-item',
+                    icon: 'feather icon-message-square'
+                },
+                
+            ]
+        }
+    ]
+        },
 
     ]
 }
