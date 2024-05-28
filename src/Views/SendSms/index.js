@@ -65,6 +65,7 @@ class SendSms extends React.Component {
             choose_from_template: false,
             show_message_box: false,
             close_farmers_list: false,
+            show_btn: false,
             message: "",
             selected_template: "",
             _notificationSystem: null,
@@ -125,6 +126,7 @@ class SendSms extends React.Component {
 
             apiResponse.forEach(r => {
                 let params = {};
+                params["id"] = r.id;
                 params["firstname"] = r.firstname;
                 params["lastname"] = r.lastname;
                 params["email"] = r.email;
@@ -141,28 +143,62 @@ class SendSms extends React.Component {
         }
 
     }
+    async SendSms(){
+        //call API
+        const notification = this.notificationSystem.current;
+        this.setState({ show_progress_status: true });
+            let phoneNumbers = [];
+            this.state.appusers.forEach(u=>{
+                if(u.checked)
+                    phoneNumbers.push(u.phonenumber_one)
+            });
+            let params = {}
+            let endpoint = "farmer/withtemplate/sendsms";
+            if(this.state.choose_from_template)
+            {
+                params["templateid"] = this.state.selected_template;
+                
+            }else{
+                params["message"] = this.state.message;
+                endpoint = "farmer/notemplate/sendsms";
+            }
+            params["recipients"] = phoneNumbers;
+
+            let apiResponse = await APIService.makePostRequest(endpoint, params);
+            if (apiResponse.success) {
+                notification.addNotification({
+                    message: apiResponse.message,
+                    level: 'success',
+                    autoDismiss: 5
+                });
+                this.setState({ show_progress_status: false, open_farmers_list: false});
+            }else {
+                this.setState({ show_progress_status: false });
+                notification.addNotification({
+                    message: apiResponse.message,
+                    level: 'error',
+                    autoDismiss: 5
+                });
+            }
+        
+
+    }
     handlerTypeChange(e) {
         if(e.target.value == 'template'){
-            this.setState({ choose_from_template: true , show_message_box: false});
+            this.setState({ choose_from_template: true , show_message_box: false, show_btn: true});
         }
         else{
-            this.setState({ choose_from_template: false, show_message_box: true });
+            this.setState({ choose_from_template: false, show_message_box: true , show_btn: true});
         }
     }
-    handleSelectionChange(e) {
-        if(e.target.value == 'selected'){
-            this.setState({ open_farmers_list: true });
-        }
-        else{
-            this.setState({ open_farmers_list: false });
-        }
+    handleSelectionChange() {
+        this.setState({ open_farmers_list: true });   
     }
     handleCheckChildElement = event => {
-
         let farmers = this.state.appusers;
         farmers.forEach(f => {
             if (f.id == event.target.value)
-                f.is_checked = event.target.checked;
+                f.checked = event.target.checked;
         });
         this.setState({ appusers: farmers });
     };
@@ -172,8 +208,8 @@ class SendSms extends React.Component {
     };
     handleAllChecked = event => {
         let farmers = this.state.appusers;
-        farmers.forEach(f => (f.is_checked = event.target.checked));
-        this.setState({ allusers: farmers });
+        farmers.forEach(f => (f.checked = event.target.checked));
+        this.setState({ appusers: farmers });
     };
     render() {
         return (
@@ -245,29 +281,15 @@ class SendSms extends React.Component {
                                         </div>
                                 </div>
                             )}
-                            </Col>
-                            <Col>
-                            <label style={{ color: '#000000' }}><b>Recipients</b></label>
-                            <div className="input-group mb-3">
-                                <select
-                                    className="form-control"
-                                    value={this.state.smtpauth}
-                                    onChange={this.handleSelectionChange.bind(
-                                        this
-                                    )}
-                                >
-                                    <option value="">
-                                        Select recipients
-                                    </option>
-                                    <option value="all">
-                                        All farmers
-                                    </option>
-    
-                                    <option value="selected">
-                                        Select farmers
-                                    </option>
-                                </select>
-                                </div>
+                            {this.state.show_btn && (<Button
+                size="sm"
+                variant="secondary"
+                onClick={() =>
+                    this.handleSelectionChange()
+                }
+            >
+                Select recipients
+            </Button>)}
                             </Col>
                     </Row>                  
                 </Card>
@@ -315,7 +337,7 @@ class SendSms extends React.Component {
                 >
                     <div className="card">
                     <div className="card-body text-left">
-                            <h3>Select recipients</h3>
+                            
                             <Row>
                                                       <Table style={{textAlign: "left"}}>
                                         <Tbody>
@@ -332,19 +354,36 @@ class SendSms extends React.Component {
 
                                                 </Td>
                                             </Tr>
-
+                                            
                                             {this.state.appusers.map(
-                                                (pri) => {
+                                                (farmer) => {
 
                                                     return (
                                                         <FarmersCheckBox handleCheckChildElement={this.handleCheckChildElement}
-                                                            {...pri}
+                                                            {...farmer}
                                                         />
                                                     );
                                                 })
 
 
                                             }
+                                            <Tr>
+                                                <Td></Td>
+                                                <Td></Td>
+                                                <Td></Td>
+                                                
+                                                <Td>
+                                            <Button
+                size="sm"
+                variant="primary"
+                onClick={() =>
+                    this.SendSms()
+                }
+            >
+                Send
+            </Button>
+            </Td> 
+                                            </Tr>
                                         </Tbody>
                                     </Table>
                                     </Row>

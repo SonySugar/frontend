@@ -17,7 +17,7 @@ export const FarmersCheckBox = props =>{
             key={props.id}
             onClick={props.handleCheckChildElement}
             type="checkbox"
-            checked={props.is_checked}
+            checked={props.checked}
             value={props.id}
             id={props.id}
             />
