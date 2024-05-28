@@ -14,11 +14,8 @@ import styled from "styled-components";
 import Authenticatonservice from '../../service/Authenticatonservice';
 import { Table, Thead, Tbody, Tr, Th, Td } from 'react-super-responsive-table'
 import 'react-super-responsive-table/dist/SuperResponsiveTableStyle.css';
-import EditIcon from '@material-ui/icons/Edit';
-import Visibility from '@material-ui/icons/Visibility';
-import VisibilityOff from '@material-ui/icons/VisibilityOff';
-import CachedIcon from '@material-ui/icons/Cached'
 import { FaTimes, FaSave, FaDoorOpen, Fa } from 'react-icons/fa';
+import { FarmersCheckBox } from '../../App/components/Checkbox/farmerscheckbox';
 
 var custom_notification_style = {
     NotificationItem: { // Override the notification item
@@ -67,7 +64,7 @@ class SendSms extends React.Component {
             open_farmers_list: false,
             choose_from_template: false,
             show_message_box: false,
-            open_farmers_list: false,
+            close_farmers_list: false,
             message: "",
             selected_template: "",
             _notificationSystem: null,
@@ -160,6 +157,24 @@ class SendSms extends React.Component {
             this.setState({ open_farmers_list: false });
         }
     }
+    handleCheckChildElement = event => {
+
+        let farmers = this.state.appusers;
+        farmers.forEach(f => {
+            if (f.id == event.target.value)
+                f.is_checked = event.target.checked;
+        });
+        this.setState({ appusers: farmers });
+    };
+    closeFarmersList() {
+        this.setState({ open_farmers_list: false });
+        //this.removeItemAll();
+    };
+    handleAllChecked = event => {
+        let farmers = this.state.appusers;
+        farmers.forEach(f => (f.is_checked = event.target.checked));
+        this.setState({ allusers: farmers });
+    };
     render() {
         return (
             <Aux>
@@ -293,6 +308,50 @@ class SendSms extends React.Component {
                     </div>
 
                 </Dialog>
+                <Dialog
+                    open={this.state.open_farmers_list}
+                    onClose={this.closeFarmersList.bind(this)}
+                    fullWidth
+                >
+                    <div className="card">
+                    <div className="card-body text-left">
+                            <h3>Select recipients</h3>
+                            <Row>
+                                                      <Table style={{textAlign: "left"}}>
+                                        <Tbody>
+                                        <Tr key={0}>
+                                                <Td>
+                                                    Check / Uncheck All
+                                                </Td>
+                                                <Td>
+                                                    <input
+                                                        type="checkbox"
+                                                        onClick={this.handleAllChecked}
+                                                        value="checkedall"
+                                                    />{" "}
+
+                                                </Td>
+                                            </Tr>
+
+                                            {this.state.appusers.map(
+                                                (pri) => {
+
+                                                    return (
+                                                        <FarmersCheckBox handleCheckChildElement={this.handleCheckChildElement}
+                                                            {...pri}
+                                                        />
+                                                    );
+                                                })
+
+
+                                            }
+                                        </Tbody>
+                                    </Table>
+                                    </Row>
+                                    </div>
+                                    </div>
+
+                    </Dialog>
                 </Aux>
         );
     }
