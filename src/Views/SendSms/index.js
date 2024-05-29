@@ -81,7 +81,7 @@ class SendSms extends React.Component {
     }
     checkLogin() {
         if (JSON.stringify(AuthenticationService.getUser()) == '{}') {
-           this.logout();
+            this.logout();
         }
     }
     logout() {
@@ -96,20 +96,20 @@ class SendSms extends React.Component {
         //call API
         const notification = this.notificationSystem.current;
         let apiResponse = await APIService.makeApiGetRequest("sms_templates");
-            if (apiResponse.status == 403) {
-                this.setState({ closesession: true });
-                notification.addNotification({
-                    message: apiResponse.message,
-                    level: 'error',
-                    autoDismiss: 5
-                });
-            }else{
-               
-                    this.setState({ template_list: apiResponse });
-                 
-                    
-            }
-       
+        if (apiResponse.status == 403) {
+            this.setState({ closesession: true });
+            notification.addNotification({
+                message: apiResponse.message,
+                level: 'error',
+                autoDismiss: 5
+            });
+        } else {
+
+            this.setState({ template_list: apiResponse });
+
+
+        }
+
     }
     async getUsers() {
         //call API
@@ -143,56 +143,56 @@ class SendSms extends React.Component {
         }
 
     }
-    async SendSms(){
+    async SendSms() {
         //call API
+        this.setState({ show_progress_status: true, open_farmers_list: false });
         const notification = this.notificationSystem.current;
-        this.setState({ show_progress_status: true });
-            let phoneNumbers = [];
-            this.state.appusers.forEach(u=>{
-                if(u.checked)
-                    phoneNumbers.push(u.phonenumber_one)
-            });
-            let params = {}
-            let endpoint = "farmer/withtemplate/sendsms";
-            if(this.state.choose_from_template)
-            {
-                params["templateid"] = this.state.selected_template;
-                
-            }else{
-                params["message"] = this.state.message;
-                endpoint = "farmer/notemplate/sendsms";
-            }
-            params["recipients"] = phoneNumbers;
+        let phoneNumbers = [];
+        this.state.appusers.forEach(u => {
+            if (u.checked)
+                phoneNumbers.push(u.phonenumber_one)
+        });
+        let params = {}
+        let endpoint = "farmer/withtemplate/sendsms";
+        if (this.state.choose_from_template) {
+            params["templateid"] = this.state.selected_template;
 
-            let apiResponse = await APIService.makePostRequest(endpoint, params);
-            if (apiResponse.success) {
-                notification.addNotification({
-                    message: apiResponse.message,
-                    level: 'success',
-                    autoDismiss: 5
-                });
-                this.setState({ show_progress_status: false, open_farmers_list: false});
-            }else {
-                this.setState({ show_progress_status: false });
-                notification.addNotification({
-                    message: apiResponse.message,
-                    level: 'error',
-                    autoDismiss: 5
-                });
-            }
-        
+        } else {
+            params["message"] = this.state.message;
+            endpoint = "farmer/notemplate/sendsms";
+        }
+        params["recipients"] = phoneNumbers;
+
+        let apiResponse = await APIService.makePostRequest(endpoint, params);
+        if (apiResponse.success) {
+            notification.addNotification({
+                message: apiResponse.message,
+                level: 'success',
+                autoDismiss: 5
+            });
+            this.setState({ show_progress_status: false });
+        } else {
+            this.setState({ show_progress_status: false });
+            notification.addNotification({
+                message: apiResponse.message,
+                level: 'error',
+                autoDismiss: 5
+            });
+        }
+        this.setState({ appusers: [] });
+        this.getUsers();
 
     }
     handlerTypeChange(e) {
-        if(e.target.value == 'template'){
-            this.setState({ choose_from_template: true , show_message_box: false, show_btn: true});
+        if (e.target.value == 'template') {
+            this.setState({ choose_from_template: true, show_message_box: false, show_btn: true });
         }
-        else{
-            this.setState({ choose_from_template: false, show_message_box: true , show_btn: true});
+        else {
+            this.setState({ choose_from_template: false, show_message_box: true, show_btn: true });
         }
     }
     handleSelectionChange() {
-        this.setState({ open_farmers_list: true });   
+        this.setState({ open_farmers_list: true });
     }
     handleCheckChildElement = event => {
         let farmers = this.state.appusers;
@@ -214,87 +214,88 @@ class SendSms extends React.Component {
     render() {
         return (
             <Aux>
-                                {this.state.show_progress_status && (<SpinnerDiv>
+                {this.state.show_progress_status && (<SpinnerDiv>
                     <CircularProgress />
                 </SpinnerDiv>)}
                 <NotificationSystem ref={this.notificationSystem} style={custom_notification_style} />
 
                 <Card title='Send SMS' isOption>
-                 <Row>
-                 <label style={{ color: '#000000' }}><b>Message Type</b></label>
-                 <div className="input-group mb-3">
-                                        <select
-                                            className="form-control"
-                                            value={this.state.smtpauth}
-                                            onChange={this.handlerTypeChange.bind(
-                                                this
-                                            )}
-                                        >
-                                            <option value="">
-                                                Select message type
-                                            </option>
-                                            <option value="template">
-                                                Choose from SMS templates
-                                            </option>
+                    <Row>
+                        <label style={{ color: '#000000' }}><b>Message Type</b></label>
+                        <div className="input-group mb-3">
+                            <select
+                                className="form-control"
+                                value={this.state.smtpauth}
+                                onChange={this.handlerTypeChange.bind(
+                                    this
+                                )}
+                            >
+                                <option value="">
+                                    Select message type
+                                </option>
+                                <option value="template">
+                                    Choose from SMS templates
+                                </option>
 
-                                            <option value="composed">
-                                                Compose message
-                                            </option>
-                                        </select>
+                                <option value="composed">
+                                    Compose message
+                                </option>
+                            </select>
 
-                                    </div>
+                        </div>
                     </Row>
                     <Row>
-                       {/**Show message box */}
-                       <Col>
-                          {this.state.show_message_box && (
-                            <div>
-                                 <label style={{ color: '#000000' }}><b>Message</b></label>
-                                 <textarea
-                                 className="form-control"
-                                 value={this.state.message}
-                                 style={{ height: '200px', width: '600px'}}
-                                 onChange={(e) => {this.setState({message: e.target.value})}}
-                                 ></textarea>
-                            </div>
-                          )}
-                          {/**Show template box */}
+                        {/**Show message box */}
+                        <Col>
+                            {this.state.show_message_box && (
+                                <div>
+                                    <label style={{ color: '#000000' }}><b>Message</b></label>
+                                    <textarea
+                                        className="form-control"
+                                        value={this.state.message}
+                                        style={{ height: '200px', width: '600px' }}
+                                        onChange={(e) => { this.setState({ message: e.target.value }) }}
+                                    ></textarea>
+                                </div>
+                            )}
+                            {/**Show template box */}
                             {this.state.choose_from_template && (
                                 <div>
                                     <label style={{ color: '#000000' }}><b>Choose Template</b></label>
                                     <div className="input-group mb-3">
-                                            <select
-                                                className="form-control"
-                                                value={this.state.selected_template}
-                                                onChange={(e) => {this.setState({selected_template: e.target.value})}}
-                                            >
-                                                <option value="">
-                                                    Select template
+                                        <select
+                                            className="form-control"
+                                            value={this.state.selected_template}
+                                            onChange={(e) => { this.setState({ selected_template: e.target.value }) }}
+                                        >
+                                            <option value="">
+                                                Select template
+                                            </option>
+                                            {this.state.template_list.map((template, index) => (
+                                                <option value={template.id} key={index}>
+                                                    {template.title} | {template.template}
                                                 </option>
-                                                {this.state.template_list.map((template, index) => (
-                                                    <option value={template.id} key={index}>
-                                                        {template.title} | {template.template}
-                                                    </option>
-                                                ))}
-                                            </select>
-    
-                                        </div>
+                                            ))}
+                                        </select>
+
+                                    </div>
                                 </div>
                             )}
+                            <br />
                             {this.state.show_btn && (<Button
-                size="sm"
-                variant="secondary"
-                onClick={() =>
-                    this.handleSelectionChange()
-                }
-            >
-                Select recipients
-            </Button>)}
-                            </Col>
-                    </Row>                  
+                                size="sm"
+                                variant="secondary"
+                                onClick={() =>
+                                    this.handleSelectionChange()
+                                }
+                            >
+                                Select recipients
+                            </Button>)}
+                        </Col>
+                    </Row>
                 </Card>
 
-                                <Dialog
+                <Dialog
                     open={this.state.closesession}
 
                     fullWidth
@@ -336,62 +337,62 @@ class SendSms extends React.Component {
                     fullWidth
                 >
                     <div className="card">
-                    <div className="card-body text-left">
-                            
+                        <div className="card-body text-left">
+
                             <Row>
-                                                      <Table style={{textAlign: "left"}}>
-                                        <Tbody>
+                                <Table style={{ textAlign: "left" }}>
+                                    <Tbody>
                                         <Tr key={0}>
-                                                <Td>
-                                                    Check / Uncheck All
-                                                </Td>
-                                                <Td>
-                                                    <input
-                                                        type="checkbox"
-                                                        onClick={this.handleAllChecked}
-                                                        value="checkedall"
-                                                    />{" "}
+                                            <Td>
+                                                Check / Uncheck All
+                                            </Td>
+                                            <Td>
+                                                <input
+                                                    type="checkbox"
+                                                    onClick={this.handleAllChecked}
+                                                    value="checkedall"
+                                                />{" "}
 
-                                                </Td>
-                                            </Tr>
-                                            
-                                            {this.state.appusers.map(
-                                                (farmer) => {
+                                            </Td>
+                                        </Tr>
 
-                                                    return (
-                                                        <FarmersCheckBox handleCheckChildElement={this.handleCheckChildElement}
-                                                            {...farmer}
-                                                        />
-                                                    );
-                                                })
+                                        {this.state.appusers.map(
+                                            (farmer) => {
+
+                                                return (
+                                                    <FarmersCheckBox handleCheckChildElement={this.handleCheckChildElement}
+                                                        {...farmer}
+                                                    />
+                                                );
+                                            })
 
 
-                                            }
-                                            <Tr>
-                                                <Td></Td>
-                                                <Td></Td>
-                                                <Td></Td>
-                                                
-                                                <Td>
-                                            <Button
-                size="sm"
-                variant="primary"
-                onClick={() =>
-                    this.SendSms()
-                }
-            >
-                Send
-            </Button>
-            </Td> 
-                                            </Tr>
-                                        </Tbody>
-                                    </Table>
-                                    </Row>
-                                    </div>
-                                    </div>
+                                        }
+                                        <Tr>
+                                            <Td></Td>
+                                            <Td></Td>
+                                            <Td></Td>
 
-                    </Dialog>
-                </Aux>
+                                            <Td>
+                                                <Button
+                                                    size="sm"
+                                                    variant="primary"
+                                                    onClick={() =>
+                                                        this.SendSms()
+                                                    }
+                                                >
+                                                    Send
+                                                </Button>
+                                            </Td>
+                                        </Tr>
+                                    </Tbody>
+                                </Table>
+                            </Row>
+                        </div>
+                    </div>
+
+                </Dialog>
+            </Aux>
         );
     }
 }
