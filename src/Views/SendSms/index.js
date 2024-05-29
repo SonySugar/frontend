@@ -149,8 +149,10 @@ class SendSms extends React.Component {
         const notification = this.notificationSystem.current;
         let phoneNumbers = [];
         this.state.appusers.forEach(u => {
-            if (u.checked)
-                phoneNumbers.push(u.phonenumber_one)
+            if (u.checked){
+                let combinedData = u.phonenumber_one + "|" + u.firstname;
+                phoneNumbers.push(combinedData)
+            }
         });
         let params = {}
         let endpoint = "farmer/withtemplate/sendsms";
