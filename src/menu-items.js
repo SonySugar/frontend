@@ -158,6 +158,22 @@ export default {
         }
     ]
         },
+        {
+            id: 'tickets-settings',
+            title: 'Ticket management',
+            type: 'group',
+            icon: 'icon-support',
+            children: [
+                {
+                    id: 'basic-ticket',
+                    title: 'Tickets',
+                    type: 'item',
+                    icon: 'feather icon-help-circle',
+                    url: '/tickets',    
+        }
+    ]
+        },
+
 
     ]
 }

@@ -15,6 +15,7 @@ const Department = React.lazy(() => import('./Views/Department'));
 const AppUsers = React.lazy(() => import('./Views/AppUsers'));
 const SmsTemplates = React.lazy(() => import('./Views/SmsTemplates'));
 const SendSms = React.lazy(() => import('./Views/SendSms'));
+const Tickets = React.lazy(() => import('./Views/Tickets'));
 
 
 const routes = [
@@ -27,6 +28,7 @@ const routes = [
     { path: '/farmers', exact: true, name: 'AppUsers', component: AppUsers },
     { path: '/sms/templates', exact: true, name: 'SmsTemplates', component: SmsTemplates },
     { path: '/sms/send', exact: true, name: 'SendSms', component: SendSms },
+    { path: '/tickets', exact: true, name: 'Tickets', component: Tickets },
 ];
 
 export default routes;
