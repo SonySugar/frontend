@@ -27,32 +27,32 @@ export default {
                     title: 'API Configurations',
                     type: 'collapse',
                     icon: 'feather icon-settings',
-            children: [
+                    children: [
 
-                {
-                    id: 'smtp-page',
-                    title: 'SMTP Configurations',
-                    type: 'item',
-                    url: '/settings/smtp',
-                    classes: 'nav-item',
-                    icon: 'feather icon-server'
-                },
-                {
-                    id: 'sms-page',
-                    title: 'SMS Configurations',
-                    type: 'item',
-                    url: '/settings/sms',
-                    classes: 'nav-item',
-                    icon: 'feather icon-message-square'
+                        {
+                            id: 'smtp-page',
+                            title: 'SMTP Configurations',
+                            type: 'item',
+                            url: '/settings/smtp',
+                            classes: 'nav-item',
+                            icon: 'feather icon-server'
+                        },
+                        {
+                            id: 'sms-page',
+                            title: 'SMS Configurations',
+                            type: 'item',
+                            url: '/settings/sms',
+                            classes: 'nav-item',
+                            icon: 'feather icon-message-square'
+                        }
+
+
+
+
+
+                    ]
                 }
-               
-
-
-                
-                
             ]
-        }
-    ]
         },
 
         {
@@ -67,35 +67,35 @@ export default {
                     type: 'collapse',
                     icon: 'feather icon-users',
 
-            children: [
-                {
-                    id: 'user-role',
-                    title: 'Roles',
-                    type: 'item',
-                    url: '/roles',
-                    classes: 'nav-item',
-                    icon: 'feather icon-user-check'
-                },
-                {
-                    id: 'user-page',
-                    title: 'Users',
-                    type: 'item',
-                    url: '/users',
-                    classes: 'nav-item',
-                    icon: 'feather icon-users'
-                },
-                {
-                    id: 'farmer-page',
-                    title: 'Farmers',
-                    type: 'item',
-                    url: '/farmers',
-                    classes: 'nav-item',
-                    icon: 'feather icon-users'
+                    children: [
+                        {
+                            id: 'user-role',
+                            title: 'Roles',
+                            type: 'item',
+                            url: '/roles',
+                            classes: 'nav-item',
+                            icon: 'feather icon-user-check'
+                        },
+                        {
+                            id: 'user-page',
+                            title: 'Users',
+                            type: 'item',
+                            url: '/users',
+                            classes: 'nav-item',
+                            icon: 'feather icon-users'
+                        },
+                        {
+                            id: 'farmer-page',
+                            title: 'Farmers',
+                            type: 'item',
+                            url: '/farmers',
+                            classes: 'nav-item',
+                            icon: 'feather icon-users'
+                        }
+
+                    ]
                 }
-                
             ]
-        }
-         ]
         },
 
         {
@@ -109,20 +109,20 @@ export default {
                     title: 'Departments',
                     type: 'collapse',
                     icon: 'feather icon-box',
-            children: [
+                    children: [
 
-                {
-                    id: 'dept-page',
-                    title: 'Departments',
-                    type: 'item',
-                    url: '/department',
-                    classes: 'nav-item',
-                    icon: 'feather icon-box'
-                },
-                
+                        {
+                            id: 'dept-page',
+                            title: 'Departments',
+                            type: 'item',
+                            url: '/department',
+                            classes: 'nav-item',
+                            icon: 'feather icon-box'
+                        },
+
+                    ]
+                }
             ]
-        }
-    ]
         },
         {
             id: 'smstemplate-settings',
@@ -135,28 +135,28 @@ export default {
                     title: 'Sms',
                     type: 'collapse',
                     icon: 'feather icon-message-circle',
-            children: [
+                    children: [
 
-                {
-                    id: 'dept-page',
-                    title: 'Sms Templates',
-                    type: 'item',
-                    url: '/sms/templates',
-                    classes: 'nav-item',
-                    icon: 'feather icon-message-circle'
-                },
-                {
-                    id: 'sendsms-page',
-                    title: 'Send SMS',
-                    type: 'item',
-                    url: '/sms/send',
-                    classes: 'nav-item',
-                    icon: 'feather icon-message-square'
-                },
-                
+                        {
+                            id: 'dept-page',
+                            title: 'Sms Templates',
+                            type: 'item',
+                            url: '/sms/templates',
+                            classes: 'nav-item',
+                            icon: 'feather icon-message-circle'
+                        },
+                        {
+                            id: 'sendsms-page',
+                            title: 'Send SMS',
+                            type: 'item',
+                            url: '/sms/send',
+                            classes: 'nav-item',
+                            icon: 'feather icon-message-square'
+                        },
+
+                    ]
+                }
             ]
-        }
-    ]
         },
         {
             id: 'tickets-settings',
@@ -187,10 +187,36 @@ export default {
                             classes: 'nav-item',
                             icon: 'feather icon-help-circle'
                         },
-                        
-                    ]   
-        }
-    ]
+
+                    ]
+                }
+            ]
+        },
+        {
+            id: 'lar-settings',
+            title: 'LAR management',
+            type: 'group',
+            icon: 'icon-support',
+            children: [
+                {
+                    id: 'basic-lar',
+                    title: 'LAR',
+                    type: 'collapse',
+                    icon: 'feather icon-folder',
+                    children: [
+
+                        {
+                            id: 'lar-page',
+                            title: 'Requests',
+                            type: 'item',
+                            url: '/lar',
+                            classes: 'nav-item',
+                            icon: 'feather icon-file'
+                        },
+
+                    ]
+                }
+            ]
         },
 
 
