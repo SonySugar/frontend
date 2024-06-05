@@ -202,6 +202,7 @@ class Tickets extends React.Component {
     async updateTicket(params) {
         //call API
         this.setState({ show_progress_status: true });
+        this.closeUpdateDialog();
         const notification = this.notificationSystem.current;
         let apiResponse = await APIService.makePostRequest("ticket/update", params);
         if (apiResponse.status == 403) {
@@ -227,7 +228,7 @@ class Tickets extends React.Component {
             await this.getTickets(0);
 
         }
-        this.closeUpdateDialog();
+        
         this.setState({ show_progress_status: false });
     }
 
@@ -543,7 +544,15 @@ class Tickets extends React.Component {
     formatDate(val) {
         return format(new Date(val), "yyyy-MM-dd");
     }
-
+    ticketStatus(row){
+        if(row.status == "Pending")
+            return <Td style={{color: 'red'}}>{row.status}</Td>
+        if(row.status == "In progress")
+            return <Td style={{color: 'orange'}}>{row.status}</Td>
+        
+        return <Td style={{color: 'green'}}>{row.status}</Td>
+        
+    }
     render() {
         return (
             <Aux>
@@ -584,13 +593,14 @@ class Tickets extends React.Component {
 
                                 <Table>
                                     <Thead>
-                                        <Tr style={{ border: '1px solid' }}>
+                                        <Tr style={{ border: '1px solid', fontWeight: 'bold' }}>
                                             <Th>Ticket No</Th>
                                             <Th>Category</Th>
                                             <Th>Description</Th>
                                             <Th>Status</Th>
                                             <Th>Assigned to</Th>
                                             <Th>Created by</Th>
+                                            <Th>Contact</Th>
                                             <Th>Date Created</Th>
                                             <Th>Actions</Th>
                                         </Tr>
@@ -601,19 +611,20 @@ class Tickets extends React.Component {
                                         {this.state.tickets.map(
                                             (u, index) => (
                                                 <Tr style={{ border: '1px solid' }} key={index}>
-                                                    <Td>
+                                                    <Td style={{ border: '1px solid' }}>
                                                         {u.id}
                                                     </Td>
-                                                    <Td>
+                                                    <Td style={{ border: '1px solid' }}>
                                                         {u.ticket_category.category}
                                                     </Td>
-                                                    <Td>
+                                                    <Td style={{ border: '1px solid' }}>
                                                         {u.description}
                                                     </Td>
-                                                    <Td>{u.status}</Td>
-                                                    <Td>{this.assignedTo(u)}</Td>
-                                                    <Td>{u.farmer.firstname}</Td>
-                                                    <Td>{this.formatDate(u.datecreated)}</Td>
+                                                    <Td style={{ border: '1px solid' }}>{this.ticketStatus(u)}</Td>
+                                                    <Td style={{ border: '1px solid' }}>{this.assignedTo(u)}</Td>
+                                                    <Td style={{ border: '1px solid' }}>{u.farmer.firstname}</Td>
+                                                    <Td style={{ border: '1px solid' }}>{u.farmer.phonenumber_one}</Td>
+                                                    <Td style={{ border: '1px solid' }}>{this.formatDate(u.datecreated)}</Td>
                                                     <Td>
                                                         {this.cellButton(u)}
                                                     </Td>

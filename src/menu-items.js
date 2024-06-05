@@ -132,7 +132,7 @@ export default {
             children: [
                 {
                     id: 'basic_template',
-                    title: 'Templates',
+                    title: 'Sms',
                     type: 'collapse',
                     icon: 'feather icon-message-circle',
             children: [
@@ -167,9 +167,28 @@ export default {
                 {
                     id: 'basic-ticket',
                     title: 'Tickets',
-                    type: 'item',
+                    type: 'collapse',
                     icon: 'feather icon-help-circle',
-                    url: '/tickets',    
+                    children: [
+
+                        {
+                            id: 'ticketconfig-page',
+                            title: 'Categories',
+                            type: 'item',
+                            url: '/ticketconfigs',
+                            classes: 'nav-item',
+                            icon: 'feather icon-settings'
+                        },
+                        {
+                            id: 'ticket-page',
+                            title: 'Tickets',
+                            type: 'item',
+                            url: '/tickets',
+                            classes: 'nav-item',
+                            icon: 'feather icon-help-circle'
+                        },
+                        
+                    ]   
         }
     ]
         },

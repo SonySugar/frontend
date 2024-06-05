@@ -69,7 +69,9 @@ class TicketConfigs extends React.Component {
             new_mail_to:'',
             updated_category_name:'',
             update_category_id:'',
-            updated_mail_to:'',
+            updated_description:'',
+            category_name: '',
+            description: '',
             _notificationSystem: null,
             role:'',
             updated_role:'',
@@ -106,7 +108,7 @@ class TicketConfigs extends React.Component {
     async getCategories() {
         //call API
         const notification = this.notificationSystem.current;
-        let apiResponse = await APIService.makeApiGetRequest("ticket_category/list");
+        let apiResponse = await APIService.makeApiGetRequest("farmers/ticket_category");
             if (apiResponse.status == 403) {
                 this.setState({ closesession: true });
                 notification.addNotification({
@@ -156,38 +158,19 @@ class TicketConfigs extends React.Component {
     
     onClickCategorySelected(row){
         this.setState({
-            updated_category_name:row.category_name,
-            updated_mail_to: row.mail_to,
+            updated_category_name:row.category,
+            updated_description: row.description,
             update_category_id:row.id,
             
         });
         this.openUpdateDialog();
     }
     
-     async refreshCategoryList(){
-        this.setState({ show_progress_status: true });
-        const notification = this.notificationSystem.current;
-        let apiResponse = await APIService.makeApiGetRequest("ticket_category/refresh");
-            if (apiResponse.status == 403) {
-                this.setState({ closesession: true });
-                notification.addNotification({
-                    message: apiResponse.message,
-                    level: 'error',
-                    autoDismiss: 5
-                });
-            }else{
-               
-                   this.getCategories();
-                 
-                    
-            }
-            this.setState({ show_progress_status: false });
-     }
     async saveCategory(){
         this.closeAddDialog();
         this.setState({ show_progress_status: true });
         const notification = this.notificationSystem.current;
-        if (this.state.new_category_name == null || this.state.new_category_name === '') {
+        if (this.state.category_name == null || this.state.category_name === '') {
             this.setState({ show_progress_status: false });
     
           notification.addNotification({
@@ -195,21 +178,21 @@ class TicketConfigs extends React.Component {
             level: 'warning',
             autoDismiss: 5
           });
-        }else  if (this.state.new_mail_to == null || this.state.new_mail_to === '') {
+        }else  if (this.state.description == null || this.state.description === '') {
             this.setState({ show_progress_status: false });
     
           notification.addNotification({
-            message: 'Please enter email address',
+            message: 'Please enter description',
             level: 'warning',
             autoDismiss: 5
           });
         }else {
     
           let params = {};
-          params["category_name"] = this.state.new_category_name
-          params["mail_to"] = this.state.new_mail_to
+          params["category"] = this.state.category_name
+          params["description"] = this.state.description
     
-          let result = await APIService.makePostRequest("ticket_category", params);
+          let result = await APIService.makePostRequest("ticket_category/save", params);
           if (result.success) {
             notification.addNotification({
                 message: 'Category saved',
@@ -218,8 +201,8 @@ class TicketConfigs extends React.Component {
               });
               this.closeAddDialog();
               this.setState({
-                new_category_name:'',
-                new_mail_to:''
+                category:'',
+                description:''
               });
               this.getCategories();
               this.setState({ show_progress_status: false });
@@ -240,7 +223,7 @@ class TicketConfigs extends React.Component {
 
           //check permissions
           let privilegeList = [];
-          let privileges = Authenticatonservice.getUser().data.user.roles.privileges;
+          let privileges = Authenticatonservice.getUser().data.systemUser.roles.privileges;
           for(let k in privileges){
              
               privilegeList.push(privileges[k].mprivileges.privilege_name);
@@ -261,22 +244,22 @@ class TicketConfigs extends React.Component {
             level: 'warning',
             autoDismiss: 5
           });
-        }else if(this.state.updated_mail_to == null || this.state.updated_mail_to === '') {
+        }else if(this.state.updated_description == null || this.state.updated_description === '') {
             this.setState({ loggingIn: false });
       
             notification.addNotification({
-              message: 'Please enter email address',
+              message: 'Please enter description',
               level: 'warning',
               autoDismiss: 5
             });
           }else {
     
           let params = {};
-          params["category_name"] = this.state.updated_category_name;
-          params["mail_to"] = this.state.updated_mail_to
+          params["category"] = this.state.updated_category_name;
+          params["description"] = this.state.updated_description
           params["id"] = this.state.update_category_id;
     
-          let result = await APIService.makePostRequest("ticket_category/update", params);
+          let result = await APIService.makePostRequest("ticket_category/save", params);
           if (result.success) {
             notification.addNotification({
                 message: 'Category saved',
@@ -302,89 +285,6 @@ class TicketConfigs extends React.Component {
         }
     }
     }
-    deleteButton(row) {
-        const { classes } = this.props;
-        if(row.hidden==null || row.hidden==="" || row.hidden==="yes"){
-        return (
-
-           <IconButton onClick={() =>
-                this.openAbsatractDialog(row)
-            }>
-
-                <VisibilityOff style={{ color: "red" }} titleAccess='Show on mobile app' />
-
-            </IconButton>
-
-        );
-        }else{
-            return (
-
-                <IconButton onClick={() =>
-                     this.openAbsatractDialog(row)
-                 }>
-     
-                     <Visibility style={{ color: "green" }} titleAccess='Remove from mobile app' />
-     
-                 </IconButton>
-     
-             ); 
-        }
-    }
-    
-    async openAbsatractDialog(row){
-     let flag = "yes";
-     if(row.hidden==null || row.hidden==="" || row.hidden==="yes"){
-        flag = "no";
-
-     }
-    
-       
-        this.setState({ show_progress_status: true });
-        const notification = this.notificationSystem.current;
-
-          //check permissions
-          let privilegeList = [];
-          let privileges = Authenticatonservice.getUser().data.user.roles.privileges;
-          for(let k in privileges){
-             
-              privilegeList.push(privileges[k].mprivileges.privilege_name);
-          }
-       if(!privilegeList.includes("update_ticket_configs")){
-           this.setState({ show_progress_status: false });
-           notification.addNotification({
-             message: "You do not have the rights to change a category's visibility status. Please contact your Systems Administrator",
-             level: 'error',
-             autoDismiss: 5
-           });  
-       }else{
-
-    
-          let params = {};
-          params["flag"] = flag;
-          params["id"] = row.id;
-    
-          let result = await APIService.makePostRequest("ticket_category/absract", params);
-          if (result.success) {
-            notification.addNotification({
-                message: result.message,
-                level: 'success',
-                autoDismiss: 5
-              });
-              this.closeUpdateDialog();
- 
-              this.getCategories();
-              this.setState({ show_progress_status: false });
-          } else {
-            this.setState({ show_progress_status: false });
-            notification.addNotification({
-              message: result.message,
-              level: 'error',
-              autoDismiss: 5
-            });
-          }
-        
-        }
-    }
 
     render() {
         return (
@@ -396,26 +296,24 @@ class TicketConfigs extends React.Component {
                 <Row>
                     <Col>
                     <Card title='Ticket Categories' isOption>
-                          
-                        
-
-<IconButton onClick={() =>
-                this.refreshCategoryList()
-            } >
-                <CachedIcon style={{ color: "#04a9f5"}} titleAccess='Refresh'/>
-            </IconButton>
+                    <Button
+                size="sm"
+                variant="secondary"
+                onClick={() =>
+                    this.openAddDialog()
+                }
+            >
+                Create Category
+            </Button>   
 
   <Table>
                         <Thead>
                             <Tr style={{ border: '1px solid' }}>
-                                <Th>CRM Category</Th>
-                                <Th>Mail to</Th>
+                                <Th>Category</Th>
+                                <Th>Description</Th>
                                 <Th>Created by</Th>
                                 <Th>Update</Th>
-                                <Th>Hide Action</Th>
                                 
-                               
-
                             </Tr>
 
                         </Thead>
@@ -429,18 +327,17 @@ class TicketConfigs extends React.Component {
                                 (u, index) => (
                                     <Tr style={{ border: '1px solid' }} key={index}>
                                         <Td>
-                                            {u.category_name}
+                                            {u.category}
                                         </Td>
                                         <Td>
-                                            {u.mail_to}
+                                            {u.description}
                                         </Td>
                                         <Td>
-                                            {u.created_by}
+                                            {u.system_user.username}
                                         </Td>
                                         <Td>
                                         {this.cellButton(u)}
-                                        </Td>
-                                        <Td>{this.deleteButton(u)}</Td>    
+                                        </Td>  
                                        
                                     </Tr>
                                 )
@@ -507,11 +404,11 @@ class TicketConfigs extends React.Component {
                                 <Col>
                                     
                                     <div className="input-group mb-3">
-                                        <input type="text" className="form-control" style={{ color: '#000000' }} placeholder="Category name" value={this.state.new_category_name} onChange={e => this.handleChange(e, "new_category_name")} />
+                                        <input type="text" className="form-control" style={{ color: '#000000' }} placeholder="Category name" value={this.state.category_name} onChange={e => this.handleChange(e, "category_name")} />
                                     </div>
 
                                     <div className="input-group mb-3">
-                                        <input type="text" className="form-control" style={{ color: '#000000' }} placeholder="Mail to" value={this.state.new_mail_to} onChange={e => this.handleChange(e, "new_mail_to")} />
+                                        <input type="text" className="form-control" style={{ color: '#000000' }} placeholder="Description" value={this.state.description} onChange={e => this.handleChange(e, "description")} />
                                     </div>
                                 </Col>
                             </Row>
@@ -555,7 +452,7 @@ class TicketConfigs extends React.Component {
                                     </div>
 
                                     <div className="input-group mb-3">
-                                        <input type="text" className="form-control" style={{ color: '#000000' }} placeholder="Mail to" value={this.state.updated_mail_to} onChange={e => this.handleChange(e, "updated_mail_to")} />
+                                        <input type="text" className="form-control" style={{ color: '#000000' }} placeholder="Description" value={this.state.updated_description} onChange={e => this.handleChange(e, "updated_description")} />
                                     </div>
                                 </Col>
                             </Row>
