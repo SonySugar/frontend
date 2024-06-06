@@ -1,5 +1,5 @@
 import React from 'react';
-import { Row, Col, Button } from 'react-bootstrap';
+import { Row, Col, Button, Image } from 'react-bootstrap';
 import Card from "../../App/components/MainCard";
 import Aux from "../../hoc/_Aux";
 import AuthenticationService from "../../service/Authenticatonservice";
@@ -24,6 +24,7 @@ import { FaFileExcel, FaTimes, FaUserPlus, FaSave, FaDoorOpen, FaFilePdf } from 
 import jsPDF from "jspdf";
 import "jspdf-autotable";
 import { format } from "date-fns";
+import {Buffer} from 'buffer';
 
 
 
@@ -89,6 +90,7 @@ class Lar extends React.Component {
             lar: [],
             lar_temp: [],
             sysroles: [],
+            files: [],
             role_privileges: [],
             all_privileges: [],
             selected_privileges: [],
@@ -117,10 +119,14 @@ class Lar extends React.Component {
             id: '',
             status:'',
             remarks:'',
+            blobURL:'',
             showmoremessage: 'Click here to show more details',
             disabled: false,
             show_progress_status: false,
             showmore:false,
+            showbtn: true,
+            showdocmessage: 'Click here to show uploaded documents',
+            showdocs:false,
             report: [],
             pageNum: 0,
             pageCount: 1,
@@ -199,7 +205,7 @@ class Lar extends React.Component {
                 params["site"] = r.site;
                 params["cropcycle"] = r.cropcycle;
                 params["age"] = r.age;
-                params["updatedby"] = r.system_user.username;
+                params["updatedby"] = r.system_user !==null ? r.system_user.username: "None"
                 params["requestby"] = r.farmer.firstname + " " + r.farmer.lastname;
                 params["contact"] = r.farmer.phonenumber_one;
                 params["datecreated"] = r.datecreated;
@@ -301,6 +307,7 @@ class Lar extends React.Component {
         this.setState({
             openUpdate: false,
             updated_hover: false,
+            showmore:false
         });
     }
     openSessionDialog() {
@@ -319,7 +326,7 @@ class Lar extends React.Component {
     }
 
 
-    onClickLarSelected(row) {
+    async onClickLarSelected(row) {
         this.setState({
             id: row.id,
             requestid: row.requestid,
@@ -338,6 +345,28 @@ class Lar extends React.Component {
             openUpdate: true,
             updated_hover: true,
         });
+        if(row.status == "rejected" || row.status == "approved"){
+            this.setState({
+                showbtn: false
+            })
+        }else{
+            this.setState({
+                showbtn:true
+            })
+        }
+        let fileData = [];
+        row.files.forEach(f=>{
+            let param = {}
+            param["filename"] = f.fileName
+            param["data"] = f.data
+            fileData.push(param)
+        });
+        console.log(fileData)
+        this.setState({
+            files:fileData
+        })
+  
+
     }
 
     handleLarSearch(e) {
@@ -425,6 +454,29 @@ class Lar extends React.Component {
         }
         
     }
+    showDocDetails(){
+        if(this.state.showmore){
+            this.setState({showdocmessage: 'Click here to show uploaded documents', showdocs: false})
+        }else{
+            this.setState({showdocmessage: 'Hide documents', showdocs: true})
+        }
+        
+    }
+    getFormattedStatus(val){
+        if(val == "rejected"){
+            return <Td style = {{ color : 'red'}}>{val}</Td>
+        }
+
+        if(val == "approved"){
+            return <Td style = {{ color : 'green'}}>{val}</Td>
+        }
+        
+        if(val == "in review"){
+            return <Td style = {{ color : 'orange'}}>{val}</Td>
+        }
+
+        return <Td>{val}</Td>
+    }
     render() {
 
         return (
@@ -490,7 +542,7 @@ class Lar extends React.Component {
                                             {u.requestid}
                                         </Td>
                                         <Td>
-                                            {u.status}
+                                            {this.getFormattedStatus(u.status)}
                                         </Td>
                                         <Td>
                                             {u.farmer.firstname} {u.farmer.lastname}
@@ -560,7 +612,7 @@ class Lar extends React.Component {
                 <Dialog
                     open={this.state.openUpdate}
                     onClose={this.closeUpdateDialog.bind(this)}
-                    fullWidth
+                    fullScreen
 
                 >
 
@@ -652,8 +704,9 @@ class Lar extends React.Component {
                                 </option>
                             </select>
                             </div>
-                            <div className="input-group mb-3">
                             <label style={{ color: '#000000' }}><b>Remarks</b></label>
+                            <div className="input-group mb-3">
+                            
                                     <textarea
                                         className="form-control"
                                         value={this.state.remarks}
@@ -663,6 +716,21 @@ class Lar extends React.Component {
                                     </div>
                            
                                 </Row>
+                                <Row>
+                                <p><b style={{ color: 'brown' }} onClick={() => { this.showDocDetails() }}>{this.state.showdocmessage}</b></p>
+                            </Row>
+                            {this.state.showdocs ?<Row>
+                                {this.state.files.map(
+                                    f=>(
+                                        <div className="card-body text-center">
+                                        <center>
+                                        {f.filename.includes(".pdf") ? <embed src={`data:application/pdf;base64,${f.data}`} height={500} width={800}/> : f.filename.includes(".jpg") ? <img src={`data:image/jpeg;base64,${f.data}`} height={500} width={800} />: f.filename.includes(".jpeg") ? <img src={`data:image/jpeg;base64,${f.data}`} height={500} width={800}/>:<img src={`data:image/png;base64,${f.data}`} height={500} width={800}/>}
+                                        </center>
+                                        </div>
+                                    )
+                                )}
+                                </Row>:null}
+                                <br />
                             <Row key={0}>
                                 <Col>
                                     <Button
@@ -676,7 +744,7 @@ class Lar extends React.Component {
                                     </Button>
                                 </Col>
                                 <Col>
-                                    <Button
+                                    {this.state.showbtn?<Button
                                         size="sm"
                                         variant="primary"
                                         onClick={() =>
@@ -684,7 +752,7 @@ class Lar extends React.Component {
                                         }
                                     >
                                         Save
-                                    </Button>
+                                    </Button>:null}
 
                                 </Col>
                             </Row>
