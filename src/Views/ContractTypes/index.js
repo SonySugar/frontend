@@ -15,7 +15,7 @@ import Authenticatonservice from '../../service/Authenticatonservice';
 import { Table, Thead, Tbody, Tr, Th, Td } from 'react-super-responsive-table'
 import 'react-super-responsive-table/dist/SuperResponsiveTableStyle.css';
 import EditIcon from '@material-ui/icons/Edit';
-import Visibility from '@material-ui/icons/Visibility';
+import DeleteIcon from '@material-ui/icons/Delete';
 import VisibilityOff from '@material-ui/icons/VisibilityOff';
 import CachedIcon from '@material-ui/icons/Cached'
 import { FaTimes, FaSave, FaDoorOpen, Fa } from 'react-icons/fa';
@@ -55,36 +55,35 @@ display: grid;
 place-items: center;
 z-index: 10;
 `;
-class TicketConfigs extends React.Component {
+class ContractTypes extends React.Component {
     notificationSystem = React.createRef();
     constructor() {
         super();
         this.state = {
-            categories: [],
+            contracttype: [],
             open: false,
             openUpdate: false,
             openDelete: false,
             closesession: false,
-            new_category_name:'',
-            new_mail_to:'',
-            updated_category_name:'',
-            update_category_id:'',
+            new_contract_name:'',
+            updated_contract_name:'',
+            update_contract_id:'',
             updated_description:'',
-            category_name: '',
+            contract_name: '',
             description: '',
             _notificationSystem: null,
-            role:'',
-            updated_role:'',
-            cat_id:'',
             selectedflag:'',
             hidedialog:false,
-            show_progress_status:false
+            show_progress_status:false,
+            deletecontracttype: false,
+            type_name: '',
+            type_to_be_deleted: ''
         }
     }
     async componentDidMount() {
         this.setState({ show_progress_status: true });
         this.checkLogin();
-        await this.getCategories();
+        await this.getContractTypes();
         this.setState({ show_progress_status: false });
     }
     checkLogin() {
@@ -105,10 +104,10 @@ class TicketConfigs extends React.Component {
         this.props.history.push("/");
 
     }
-    async getCategories() {
+    async getContractTypes() {
         //call API
         const notification = this.notificationSystem.current;
-        let apiResponse = await APIService.makeApiGetRequest("farmers/ticket_category");
+        let apiResponse = await APIService.makeApiGetRequest("contracttypes");
             if (apiResponse.status == 403) {
                 this.setState({ closesession: true });
                 notification.addNotification({
@@ -118,7 +117,7 @@ class TicketConfigs extends React.Component {
                 });
             }else{
                
-                    this.setState({ categories: apiResponse });
+                    this.setState({ contracttype: apiResponse });
                  
                     
             }
@@ -130,9 +129,9 @@ class TicketConfigs extends React.Component {
         return (
 
             <IconButton onClick={() =>
-                this.onClickCategorySelected(row)
+                this.onClickContractSelected(row)
             } >
-                <EditIcon style={{ color: "#04a9f5" }} titleAccess='Update category' />
+                <EditIcon style={{ color: "#04a9f5" }} titleAccess='Update contract type' />
             </IconButton>
 
         );
@@ -156,25 +155,25 @@ class TicketConfigs extends React.Component {
         this.setState({ openDelete: false }); 
     }
     
-    onClickCategorySelected(row){
+    onClickContractSelected(row){
         this.setState({
-            updated_category_name:row.category,
+            updated_contract_name:row.type,
             updated_description: row.description,
-            update_category_id:row.id,
+            update_contract_id:row.id,
             
         });
         this.openUpdateDialog();
     }
     
-    async saveCategory(){
+    async saveContract(){
         this.closeAddDialog();
         this.setState({ show_progress_status: true });
         const notification = this.notificationSystem.current;
-        if (this.state.category_name == null || this.state.category_name === '') {
+        if (this.state.contract_name == null || this.state.contract_name === '') {
             this.setState({ show_progress_status: false });
     
           notification.addNotification({
-            message: 'Please enter category name',
+            message: 'Please enter contract type',
             level: 'warning',
             autoDismiss: 5
           });
@@ -189,22 +188,22 @@ class TicketConfigs extends React.Component {
         }else {
     
           let params = {};
-          params["category"] = this.state.category_name
+          params["type"] = this.state.contract_name
           params["description"] = this.state.description
     
-          let result = await APIService.makePostRequest("ticket_category/save", params);
+          let result = await APIService.makePostRequest("contracttype/save", params);
           if (result.success) {
             notification.addNotification({
-                message: 'Category saved',
+                message: result.message,
                 level: 'success',
                 autoDismiss: 5
               });
               this.closeAddDialog();
               this.setState({
-                category:'',
+                contract_name:'',
                 description:''
               });
-              this.getCategories();
+              this.getContractTypes();
               this.setState({ show_progress_status: false });
           } else {
             this.setState({ show_progress_status: false });
@@ -216,7 +215,7 @@ class TicketConfigs extends React.Component {
           }
         }
     }
-    async updateCategory(){
+    async updateContractType(){
         this.closeUpdateDialog();
         this.setState({ show_progress_status: true });
         const notification = this.notificationSystem.current;
@@ -228,19 +227,19 @@ class TicketConfigs extends React.Component {
              
               privilegeList.push(privileges[k].mprivileges.privilege_name);
           }
-       if(!privilegeList.includes("update_ticket_configs")){
+       if(!privilegeList.includes("update_contract_type")){
            this.setState({ show_progress_status: false });
            notification.addNotification({
-             message: "You do not have the rights to update ticket category. Please contact your Systems Administrator",
+             message: "You do not have the rights to update land request contract types. Please contact your Systems Administrator",
              level: 'error',
              autoDismiss: 5
            });  
        }else{
-        if (this.state.updated_category_name == null || this.state.updated_category_name === '') {
+        if (this.state.updated_contract_name == null || this.state.updated_contract_name === '') {
           this.setState({ loggingIn: false });
     
           notification.addNotification({
-            message: 'Please enter category name',
+            message: 'Please enter contract type',
             level: 'warning',
             autoDismiss: 5
           });
@@ -255,24 +254,24 @@ class TicketConfigs extends React.Component {
           }else {
     
           let params = {};
-          params["category"] = this.state.updated_category_name;
+          params["type"] = this.state.updated_contract_name;
           params["description"] = this.state.updated_description
-          params["id"] = this.state.update_category_id;
+          params["id"] = this.state.update_contract_id;
     
-          let result = await APIService.makePostRequest("ticket_category/save", params);
+          let result = await APIService.makePostRequest("contracttype/update", params);
           if (result.success) {
             notification.addNotification({
-                message: 'Category saved',
+                message: result.message,
                 level: 'success',
                 autoDismiss: 5
               });
               this.closeUpdateDialog();
               this.setState({
-                updated_category_name:'',
-                updated_mail_to:'',
-                update_category_id:''
+                updated_contract_name:'',
+                update_contract_id:'',
+                updated_description: ''
               });
-              this.getCategories();
+              this.getContractTypes();
               this.setState({ show_progress_status: false });
           } else {
             this.setState({ show_progress_status: false });
@@ -285,7 +284,84 @@ class TicketConfigs extends React.Component {
         }
     }
     }
+    deleteButton(row) {
+        const { classes } = this.props;
+        return (
 
+
+<IconButton onClick={() =>
+    this.confirmDeleteContractType(row)
+}>
+
+    <DeleteIcon style={{ color: "red" }} titleAccess='Delete contract type' />
+
+</IconButton>
+        );
+    }
+    confirmDeleteContractType(row) {
+        this.openDeleteContractType(row);
+    }
+    openDeleteContractType(row) {
+        this.setState({
+            deletecontracttype: true,
+            type_name: row.type,
+            type_to_be_deleted: row.id
+        })
+    }
+    closeDeleteDialog() {
+        this.setState({ deletecontracttype: false });
+    }
+    async deleteContractType() {
+        this.closeDeleteDialog();
+        this.setState({ show_progress_status: true });
+        const notification = this.notificationSystem.current;
+
+          //check permissions
+          let privilegeList = [];
+          let privileges = Authenticatonservice.getUser().data.systemUser.roles.privileges;
+          for(let k in privileges){
+             
+              privilegeList.push(privileges[k].mprivileges.privilege_name);
+          }
+          console.log(privilegeList)
+
+        if (!privilegeList.includes("delete_contract_type")) {
+            this.setState({ show_progress_status: false });
+            notification.addNotification({
+                message: "You do not have the rights to delete a contract type. Please contact your Systems Administrator",
+                level: 'error',
+                autoDismiss: 5
+            });
+        } else {
+            let params = {};
+            params["id"] = this.state.type_to_be_deleted
+
+
+            let result = await APIService.makePostRequest("contracttype/delete", params);
+            if (result.success) {
+                notification.addNotification({
+                    message: result.message,
+                    level: 'success',
+                    autoDismiss: 5
+                });
+                this.closeDeleteDialog();
+                this.setState({
+                    type_to_be_deleted: ''
+                });
+                this.getContractTypes();
+                this.setState({ show_progress_status: false });
+            } else {
+                this.setState({ show_progress_status: false });
+                notification.addNotification({
+                    message: result.message,
+                    level: 'error',
+                    autoDismiss: 5
+                });
+            }
+        }
+
+
+    }
     render() {
         return (
             <Aux>
@@ -295,7 +371,7 @@ class TicketConfigs extends React.Component {
                 <NotificationSystem ref={this.notificationSystem} style={custom_notification_style} />
                 <Row>
                     <Col>
-                    <Card title='Ticket Categories' isOption>
+                    <Card title='Land Aquisition Request Contract Types' isOption>
                     <Button
                 size="sm"
                 variant="secondary"
@@ -303,31 +379,32 @@ class TicketConfigs extends React.Component {
                     this.openAddDialog()
                 }
             >
-                Create Category
+                Create Contract type
             </Button>   
 
   <Table>
                         <Thead>
                             <Tr style={{ border: '1px solid' }}>
-                                <Th>Category</Th>
+                                <Th>Contract type</Th>
                                 <Th>Description</Th>
                                 <Th>Created by</Th>
                                 <Th>Update</Th>
+                                <Th>Delete</Th>
                                 
                             </Tr>
 
                         </Thead>
-                        {this.state.categories==null ||this.state.categories.length == 0 ? <Tbody>
+                        {this.state.contracttype==null ||this.state.contracttype.length == 0 ? <Tbody>
                             <Tr style={{ border: '1px solid' }} key={0}>
                                 {this.state.type==null || this.state.type==""?
                                 <Td style={{color:'red'}}>No data available....</Td>:<Td style={{color:'blue'}}>Loading ....</Td>}
                             </Tr>
                         </Tbody> : <Tbody>
-                            {this.state.categories.map(
+                            {this.state.contracttype.map(
                                 (u, index) => (
                                     <Tr style={{ border: '1px solid' }} key={index}>
                                         <Td>
-                                            {u.category}
+                                            {u.type}
                                         </Td>
                                         <Td>
                                             {u.description}
@@ -337,7 +414,8 @@ class TicketConfigs extends React.Component {
                                         </Td>
                                         <Td>
                                         {this.cellButton(u)}
-                                        </Td>  
+                                        </Td>
+                                        <Td>{this.deleteButton(u)}</Td>  
                                        
                                     </Tr>
                                 )
@@ -398,13 +476,13 @@ class TicketConfigs extends React.Component {
                     <div className="card">
 
                         <div className="card-body text-center">
-                            <h3>Create Category</h3>
+                            <h3>Create contract type</h3>
                             <Row>
                                
                                 <Col>
                                     
                                     <div className="input-group mb-3">
-                                        <input type="text" className="form-control" style={{ color: '#000000' }} placeholder="Category name" value={this.state.category_name} onChange={e => this.handleChange(e, "category_name")} />
+                                        <input type="text" className="form-control" style={{ color: '#000000' }} placeholder="Contract type" value={this.state.contract_name} onChange={e => this.handleChange(e, "contract_name")} />
                                     </div>
 
                                     <div className="input-group mb-3">
@@ -420,7 +498,7 @@ class TicketConfigs extends React.Component {
                             </Col>
                             <Col>
                             <div className="card-body text-center">
-                                <button className="btn btn-success shadow-2 mb-4" onClick={() => { this.saveCategory() }}>Save</button>
+                                <button className="btn btn-success shadow-2 mb-4" onClick={() => { this.saveContract() }}>Save</button>
                             </div>
                             </Col>
                         </Row> 
@@ -442,13 +520,13 @@ class TicketConfigs extends React.Component {
                     <div className="card">
 
                         <div className="card-body text-center">
-                            <h3>Update Category</h3>
+                            <h3>Update Contract type</h3>
                             <Row>
                                
                                 <Col>
                                     
                                     <div className="input-group mb-3">
-                                        <input type="text" className="form-control" style={{ color: '#000000' }} placeholder="Category name" value={this.state.updated_category_name} onChange={e => this.handleChange(e, "updated_category_name")}/>
+                                        <input type="text" className="form-control" style={{ color: '#000000' }} placeholder="Contract type" value={this.state.updated_contract_name} onChange={e => this.handleChange(e, "updated_contract_name")}/>
                                     </div>
 
                                     <div className="input-group mb-3">
@@ -464,7 +542,7 @@ class TicketConfigs extends React.Component {
                                     </IconButton>
                                 </Col>
                                 <Col>
-                                    <IconButton onClick={() => { this.updateCategory() }}>
+                                    <IconButton onClick={() => { this.updateContractType() }}>
                                         <FaSave color='green' size={50} title='Save' />
                                     </IconButton>
                                 </Col>
@@ -476,10 +554,56 @@ class TicketConfigs extends React.Component {
 
                                          
                 </Dialog>
+                <Dialog
+                    open={this.state.deletecontracttype}
+
+                    fullWidth
+
+                >
+
+                    <div className="card">
+                        <center>
+                        </center>
+                        <div className="card-body text-center">
+                            <h3>{this.state.type_name}</h3>
+                            <br />
+                            <br />
+                            <h4>Are you sure you want to delete this contract type?</h4>
+
+                         
+                                    <Row key={0}>
+                                        <Col>                    <Button
+                size="sm"
+                variant="secondary"
+                onClick={() =>
+                    this.closeDeleteDialog()
+                }
+            >
+                Dismiss
+            </Button></Col>
+                                        <Col>                     <Button
+                size="sm"
+                variant="primary"
+                onClick={() =>
+                    this.deleteContractType()
+                }
+            >
+                Delete contract type
+            </Button></Col>
+                                    </Row>
+                                
+
+                        </div>
+                     
+
+
+                    </div>
+
+                </Dialog>
             </Aux>
             
         );
     }
 }
 
-export default TicketConfigs;
+export default ContractTypes;

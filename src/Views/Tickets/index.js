@@ -639,13 +639,13 @@ class Tickets extends React.Component {
                                  
                                 <div className="card-body text-center">
                         <IconButton onClick={() =>
-                            this.RemoveCustomPage()
+                            this.RemovePage()
                         } >
                             <ArrowBack style={{ color: "green" }} titleAccess='Previous' />
                         </IconButton>
 
                         <IconButton onClick={() =>
-                            this.AddCustomPage()
+                            this.AddPage()
                         } >
                             <ArrowForward style={{ color: "green" }} titleAccess='Next' />
                         </IconButton>

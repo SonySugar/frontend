@@ -17,6 +17,8 @@ import Lottie from 'react-lottie-player'
 import lottieJson from '../../App/layout/Login/lottie.json';
 import CircularProgress from "../../App/components/CircularProgress";
 import styled from "styled-components";
+import { CSVLink } from "react-csv";
+import { FaFileExcel, FaFilePdf } from 'react-icons/fa';
 
 import {
     Chart as ChartJS,
@@ -80,6 +82,35 @@ var custom_notification_style = {
         }
     }
 }
+const sms_report_header = [
+    { label: "Sms Id", key: "smsid" },
+    { label: "Initiated by", key: "initiatedby" },
+    { label: "Status", key: "status" },
+    { label: "Recipient", key: "recipient" },
+    { label: "Message", key: "message" },
+    { label: "Date created", key: "datecreated" }
+];
+
+const ticket_report_header = [
+    { label: "Ticket No", key: "id" },
+    { label: "Category", key: "category" },
+    { label: "Status", key: "status" },
+    { label: "Description", key: "description" },
+    { label: "Priority", key: "priority" },
+    { label: "Created by", key: "createdby" },
+    { label: "Contact", key: "contact" },
+    { label: "Date created", key: "datecreated" }
+];
+
+const farmer_headers = [
+    { label: "First Name", key: "firstname" },
+    { label: "Last Name", key: "lastname" },
+    { label: "Email", key: "email" },
+    { label: "Phone Number", key: "phonenumber_one" },
+    { label: "National Id", key: "nationalid" },
+    { label: "Status", key: "active" },
+    { label: "Date Updated", key: "dateupdated" }
+];
 
 class Dashboard extends React.Component {
     notificationSystem = React.createRef();
@@ -89,7 +120,7 @@ class Dashboard extends React.Component {
             show_progress_status: false,
             app_users: [],
             tickets: [],
-            schedule_list: [],
+            smsreport: [],
             closesession: false,
             loggingIn: false,
             loginType : "customer",
@@ -125,6 +156,9 @@ class Dashboard extends React.Component {
     async componentDidMount() {
         this.setState({ show_progress_status: true });
         this.checkLogin();
+        this.getUsers();
+        this.getTickets();
+        this.getSmsReport();
         this.setState({ show_progress_status: false });
     }
     checkLogin() {
@@ -154,61 +188,60 @@ class Dashboard extends React.Component {
         CustomerAuthenticationservice.logout();
 
     }
-    // async getUsers() {
-    //     //call API
-    //     const notification = this.notificationSystem.current;
-    //     let apiResponse = await APIService.makeApiGetRequest("mobile_app/users_report");
-    //     if (apiResponse.status == 403) {
-    //         this.setState({ closesession: true });
-    //         notification.addNotification({
-    //             message: apiResponse.message,
-    //             level: 'error',
-    //             autoDismiss: 5
-    //         });
-    //     } else {
+    async getUsers() {
+        //call API
+        const notification = this.notificationSystem.current;
+        let apiResponse = await APIService.makeApiGetRequest("farmers/report");
+        if (apiResponse.status == 403) {
+            this.setState({ closesession: true });
+            notification.addNotification({
+                message: apiResponse.message,
+                level: 'error',
+                autoDismiss: 5
+            });
+        } else {
 
 
-    //         this.setState({ app_users: apiResponse });
+            this.setState({ app_users: apiResponse });
 
-    //     }
-    // }
+        }
+    }
 
-    // async getSmsBalance() {
-    //     //call API
-    //     const notification = this.notificationSystem.current;
-    //     let params = {};
-    //     let apiResponse = await APIService.makePostRequest("smsconfig/check_balance", params);
-    //     if (apiResponse.status == 403) {
-    //         this.setState({ closesession: true });
-    //         notification.addNotification({
-    //             message: apiResponse.message,
-    //             level: 'error',
-    //             autoDismiss: 5
-    //         });
-    //     } else {
+    async getSmsReport() {
+        //call API
+        const notification = this.notificationSystem.current;
+        let apiResponse = await APIService.makeApiGetRequest("kikosi/sms/audit");
+        if (apiResponse.status == 403) {
+            this.setState({ closesession: true });
+            notification.addNotification({
+                message: apiResponse.message,
+                level: 'error',
+                autoDismiss: 5
+            });
+        } else {
 
 
-    //         this.setState({ balance: apiResponse });
+            this.setState({ smsreport: apiResponse });
 
-    //     }
-    // }
+        }
+    }
 
-    // async getTickets() {
-    //     //call API
-    //     const notification = this.notificationSystem.current;
-    //     let apiResponse = await APIService.makeApiGetRequest("tickets/payment_generated");
-    //     if (apiResponse.status == 403) {
-    //         this.setState({ closesession: true });
-    //         notification.addNotification({
-    //             message: apiResponse.message,
-    //             level: 'error',
-    //             autoDismiss: 5
-    //         });
-    //     } else {
+    async getTickets() {
+        //call API
+        const notification = this.notificationSystem.current;
+        let apiResponse = await APIService.makeApiGetRequest("tickets");
+        if (apiResponse.status == 403) {
+            this.setState({ closesession: true });
+            notification.addNotification({
+                message: apiResponse.message,
+                level: 'error',
+                autoDismiss: 5
+            });
+        } else {
 
-    //         this.setState({ tickets: apiResponse });
-    //     }
-    // }
+            this.setState({ tickets: apiResponse });
+        }
+    }
     // async getScheduled() {
     //     //call API
     //     const notification = this.notificationSystem.current;
@@ -606,10 +639,73 @@ class Dashboard extends React.Component {
                 <NotificationSystem ref={this.notificationSystem} style={custom_notification_style} />
                
                 <Row>
-                   
-                        <h5 style={{color: 'red'}}>Service configuration error! Please try again later</h5>
-                     
-                </Row>
+                    <Col md={6} xl={4}>
+                        <Card>
+                            <Card.Body>
+                                <h6 className='mb-4'>No of farmers</h6>
+                                <div className="row d-flex align-items-center">
+                                    <div className="col-9">
+                                        <h3 className="f-w-300 d-flex align-items-center m-b-0"><i className="feather icon-users text-c-green f-30 m-r-5" />{this.state.app_users.length}</h3>
+                                    </div>
+
+                                    <div className="col-3 text-right">
+
+                                    </div>
+                                </div>
+                                <CSVLink data={this.state.app_users} headers={farmer_headers} filename='FarmersAudit.csv'>
+                                    <FaFileExcel size={50} color='green' title='Download report' />
+                                </CSVLink>
+                                <div className="progress m-t-30" style={{ height: '7px' }}>
+                                    <div className="progress-bar progress-c-theme" role="progressbar" style={{ width: '100%' }} aria-valuenow="50" aria-valuemin="0" aria-valuemax="100" />
+                                </div>
+                            </Card.Body>
+                        </Card>
+                    </Col>
+                    <Col md={6} xl={4}>
+                        <Card>
+                            <Card.Body>
+                                <h6 className='mb-4'>No of Tickets Raised</h6>
+                                <div className="row d-flex align-items-center">
+                                    <div className="col-9">
+                                        <h3 className="f-w-300 d-flex align-items-center m-b-0"><i className="feather icon-tag text-c-red f-30 m-r-5" />{this.state.tickets.length}</h3>
+                                    </div>
+
+                                    <div className="col-3 text-right">
+
+                                    </div>
+                                </div>
+                                <CSVLink data={this.state.tickets} headers={ticket_report_header} filename='TicketAudit.csv'>
+                                    <FaFileExcel size={50} color='green' title='Download report' />
+                                </CSVLink>
+                                <div className="progress m-t-30" style={{ height: '7px' }}>
+                                    <div className="progress-bar progress-c-theme2" role="progressbar" style={{ width: '100%' }} aria-valuenow="35" aria-valuemin="0" aria-valuemax="100" />
+                                </div>
+                            </Card.Body>
+                        </Card>
+                    </Col>
+                    <Col xl={4}>
+                        <Card>
+                            <Card.Body>
+                                <h6 className='mb-4'>No of SMS sent</h6>
+                                <div className="row d-flex align-items-center">
+                                    <div className="col-9">
+                                        <h3 className="f-w-300 d-flex align-items-center m-b-0"><i className="feather icon-message-square text-c-green f-30 m-r-5" />{this.state.smsreport.length}</h3>
+                                    </div>
+
+                                    <div className="col-3 text-right">
+
+                                    </div>
+                                </div>
+                                <CSVLink data={this.state.smsreport} headers={sms_report_header} filename='SmsAudit.csv'>
+                                    <FaFileExcel size={50} color='green' title='Download report' />
+                                </CSVLink>
+                                <div className="progress m-t-30" style={{ height: '7px' }}>
+                                    <div className="progress-bar progress-c-theme" role="progressbar" style={{ width: '100%' }} aria-valuenow="70" aria-valuemin="0" aria-valuemax="100" />
+                                </div>
+                            </Card.Body>
+                        </Card>
+                    </Col>
+                    </Row>
                 <Dialog
                     open={this.state.closesession}
 

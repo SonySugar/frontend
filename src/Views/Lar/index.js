@@ -455,7 +455,7 @@ class Lar extends React.Component {
         
     }
     showDocDetails(){
-        if(this.state.showmore){
+        if(this.state.showdocs){
             this.setState({showdocmessage: 'Click here to show uploaded documents', showdocs: false})
         }else{
             this.setState({showdocmessage: 'Hide documents', showdocs: true})
@@ -612,7 +612,7 @@ class Lar extends React.Component {
                 <Dialog
                     open={this.state.openUpdate}
                     onClose={this.closeUpdateDialog.bind(this)}
-                    fullScreen
+                    maxWidth
 
                 >
 

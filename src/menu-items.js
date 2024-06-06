@@ -204,6 +204,14 @@ export default {
                     type: 'collapse',
                     icon: 'feather icon-folder',
                     children: [
+                        {
+                            id: 'contracttypes-page',
+                            title: 'Contract types',
+                            type: 'item',
+                            url: '/contracttypes',
+                            classes: 'nav-item',
+                            icon: 'feather icon-settings'
+                        },
 
                         {
                             id: 'lar-page',
