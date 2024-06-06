@@ -44,6 +44,14 @@ export default {
                             url: '/settings/sms',
                             classes: 'nav-item',
                             icon: 'feather icon-message-square'
+                        },
+                        {
+                            id: 'emailalert-page',
+                            title: 'Email Configuration',
+                            type: 'item',
+                            url: '/settings/emailalert',
+                            classes: 'nav-item',
+                            icon: 'feather icon-mail'
                         }
 
 
@@ -226,7 +234,32 @@ export default {
                 }
             ]
         },
+        {
+            id: 'tcr-settings',
+            title: 'TCR management',
+            type: 'group',
+            icon: 'icon-support',
+            children: [
+                {
+                    id: 'tcr-lar',
+                    title: 'TCR',
+                    type: 'collapse',
+                    icon: 'feather icon-file',
+                    children: [
 
+                        {
+                            id: 'tcr-page',
+                            title: 'Requests',
+                            type: 'item',
+                            url: '/tcr',
+                            classes: 'nav-item',
+                            icon: 'feather icon-clipboard'
+                        },
+
+                    ]
+                }
+            ]
+        },
 
     ]
 }

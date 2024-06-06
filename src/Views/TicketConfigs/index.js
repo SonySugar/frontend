@@ -15,9 +15,7 @@ import Authenticatonservice from '../../service/Authenticatonservice';
 import { Table, Thead, Tbody, Tr, Th, Td } from 'react-super-responsive-table'
 import 'react-super-responsive-table/dist/SuperResponsiveTableStyle.css';
 import EditIcon from '@material-ui/icons/Edit';
-import Visibility from '@material-ui/icons/Visibility';
-import VisibilityOff from '@material-ui/icons/VisibilityOff';
-import CachedIcon from '@material-ui/icons/Cached'
+import DeleteIcon from '@material-ui/icons/Delete';
 import { FaTimes, FaSave, FaDoorOpen, Fa } from 'react-icons/fa';
 
 var custom_notification_style = {
@@ -77,6 +75,8 @@ class TicketConfigs extends React.Component {
             updated_role:'',
             cat_id:'',
             selectedflag:'',
+            category_name: '',
+            category_to_be_deleted: '',
             hidedialog:false,
             show_progress_status:false
         }
@@ -285,7 +285,81 @@ class TicketConfigs extends React.Component {
         }
     }
     }
+    deleteButton(row) {
+        const { classes } = this.props;
+        return (
 
+
+<IconButton onClick={() =>
+    this.confirmDeleteCategory(row)
+}>
+
+    <DeleteIcon style={{ color: "red" }} titleAccess='Delete category' />
+
+</IconButton>
+        );
+    }
+    confirmDeleteCategory(row) {
+        this.openDeleteCategory(row);
+    }
+    openDeleteCategory(row) {
+        this.setState({
+            openDelete: true,
+            category_name: row.category,
+            category_to_be_deleted: row.id
+        })
+    }
+    async deleteCategory() {
+        this.closeDeleteDialog();
+        this.setState({ show_progress_status: true });
+        const notification = this.notificationSystem.current;
+
+          //check permissions
+          let privilegeList = [];
+          let privileges = Authenticatonservice.getUser().data.systemUser.roles.privileges;
+          for(let k in privileges){
+             
+              privilegeList.push(privileges[k].mprivileges.privilege_name);
+          }
+          console.log(privilegeList)
+
+        if (!privilegeList.includes("delete_category")) {
+            this.setState({ show_progress_status: false });
+            notification.addNotification({
+                message: "You do not have the rights to delete a ticket category. Please contact your Systems Administrator",
+                level: 'error',
+                autoDismiss: 5
+            });
+        } else {
+            let params = {};
+            params["id"] = this.state.category_to_be_deleted
+
+
+            let result = await APIService.makePostRequest("ticket_category/delete", params);
+            if (result.success) {
+                notification.addNotification({
+                    message: result.message,
+                    level: 'success',
+                    autoDismiss: 5
+                });
+                this.closeDeleteDialog();
+                this.setState({
+                    category_to_be_deleted: ''
+                });
+                this.getCategories();
+                this.setState({ show_progress_status: false });
+            } else {
+                this.setState({ show_progress_status: false });
+                notification.addNotification({
+                    message: result.message,
+                    level: 'error',
+                    autoDismiss: 5
+                });
+            }
+        }
+
+
+    }
     render() {
         return (
             <Aux>
@@ -313,6 +387,7 @@ class TicketConfigs extends React.Component {
                                 <Th>Description</Th>
                                 <Th>Created by</Th>
                                 <Th>Update</Th>
+                                <Th>Delete</Th>
                                 
                             </Tr>
 
@@ -338,6 +413,7 @@ class TicketConfigs extends React.Component {
                                         <Td>
                                         {this.cellButton(u)}
                                         </Td>  
+                                        <Td>{this.deleteButton(u)}</Td>
                                        
                                     </Tr>
                                 )
@@ -475,6 +551,52 @@ class TicketConfigs extends React.Component {
                     </div>
 
                                          
+                </Dialog>
+                <Dialog
+                    open={this.state.openDelete}
+
+                    fullWidth
+
+                >
+
+                    <div className="card">
+                        <center>
+                        </center>
+                        <div className="card-body text-center">
+                            <h3>{this.state.category_name}</h3>
+                            <br />
+                            <br />
+                            <h4>Are you sure you want to delete this category?</h4>
+
+                         
+                                    <Row key={0}>
+                                        <Col>                    <Button
+                size="sm"
+                variant="secondary"
+                onClick={() =>
+                    this.closeDeleteDialog()
+                }
+            >
+                Dismiss
+            </Button></Col>
+                                        <Col>                     <Button
+                size="sm"
+                variant="primary"
+                onClick={() =>
+                    this.deleteCategory()
+                }
+            >
+                Delete category
+            </Button></Col>
+                                    </Row>
+                                
+
+                        </div>
+                     
+
+
+                    </div>
+
                 </Dialog>
             </Aux>
             

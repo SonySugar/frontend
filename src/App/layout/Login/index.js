@@ -84,6 +84,11 @@ class Login extends React.Component {
     }
       this.handleTabSelect = this.handleTabSelect.bind(this);
   }
+  _handleKeyDown = (e) => {
+    if (e.key === 'Enter') {
+      this.loginUser();
+    }
+  }
   handleChange = (event, stateName) => {
     this.setState({
       [stateName]: event.target.value
@@ -300,7 +305,7 @@ class Login extends React.Component {
                <input type="email" className="form-control" style={{ color: '#000000' }} placeholder="Email" value={this.state.username} onChange={e => this.handleChange(e, "username")} />
              </div>
              <div className="input-group mb-4">
-               <input type="password" className="form-control" placeholder="password" value={this.state.password} onChange={e => this.handleChange(e, "password")} />
+               <input type="password" className="form-control" placeholder="password" value={this.state.password} onChange={e => this.handleChange(e, "password")} onKeyDown={this._handleKeyDown}/>
              </div>
              <div className="form-group text-left">
                <div className="checkbox checkbox-fill d-inline">

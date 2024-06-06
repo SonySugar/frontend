@@ -18,7 +18,9 @@ const SendSms = React.lazy(() => import('./Views/SendSms'));
 const Tickets = React.lazy(() => import('./Views/Tickets'));
 const TicketConfigs = React.lazy(() => import('./Views/TicketConfigs'));
 const Lar = React.lazy(() => import('./Views/Lar'));
+const Tcr = React.lazy(() => import('./Views/Tcr'));
 const ContractTypes = React.lazy(() => import('./Views/ContractTypes'));
+const EmailAlertConfig = React.lazy(() => import('./Views/EmailAlertConfig'));
 
 
 const routes = [
@@ -34,7 +36,9 @@ const routes = [
     { path: '/tickets', exact: true, name: 'Tickets', component: Tickets },
     { path: '/ticketconfigs', exact: true, name: 'TicketConfigs', component: TicketConfigs },
     { path: '/lar', exact: true, name: 'Lar', component: Lar },
+    { path: '/tcr', exact: true, name: 'Lar', component: Tcr },
     { path: '/contracttypes', exact: true, name: 'ContractTypes', component: ContractTypes },
+    { path: '/settings/emailalert', exact: true, name: 'EmailAlertConfig', component: EmailAlertConfig },
 ];
 
 export default routes;

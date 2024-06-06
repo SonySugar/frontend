@@ -983,7 +983,7 @@ class Users extends React.Component {
                 <Dialog
                     open={this.state.open}
                     onClose={this.closeAddDialog.bind(this)}
-                    fullWidth
+                    maxWidth
 
                 >
 
