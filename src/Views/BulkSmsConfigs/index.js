@@ -151,7 +151,8 @@ class BulkSmsConfigs extends React.Component {
             serviceurl: row.serviceurl,
             type: row.messagetype,
             senderid: row.sender,
-            apikey: row.apikey
+            apikey: row.apikey,
+            profileurl:profileurl
 
         });
         this.openUpdateDialog();
