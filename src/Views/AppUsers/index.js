@@ -342,28 +342,31 @@ class AppUsers extends React.Component {
 
         //check permissions
         let privilegeList = [];
-        let privileges = Authenticatonservice.getUser().data.user.roles.privileges;
+        let privileges = Authenticatonservice.getUser().data.systemUser.roles.privileges;
         for (let k in privileges) {
 
             privilegeList.push(privileges[k].mprivileges.privilege_name);
         }
 
-        if (!privilegeList.includes("update_app_user")) {
+        if (!privilegeList.includes("update_farmer")) {
             this.setState({ show_progress_status: false });
             notification.addNotification({
-                message: "You do not have the rights to make any updates to a mobile app user. Please contact your Systems Administrator",
+                message: "You do not have the rights to make any updates a farmer. Please contact your Systems Administrator",
                 level: 'error',
                 autoDismiss: 5
             });
         } else {
             let params = {};
             params["id"] = this.state.id;
-            params["kra_pin"] = this.state.pin;
-            params["company_pin"] = this.state.company_pin;
+            params["firstname"] = this.state.firstname;
+            params["surname"] = this.state.surname;
+            params["lastname"] = this.state.lastname;
+            params["phonenumber_one"] = this.state.phone_number;
+            params["email"] = this.state.email;
 
 
 
-            let result = await APIService.makePostRequest("mobile_app/update_details", params);
+            let result = await APIService.makePostRequest("all/farmer/update", params);
             if (result.success) {
                 notification.addNotification({
                     message: result.message,
@@ -397,21 +400,21 @@ class AppUsers extends React.Component {
         const notification = this.notificationSystem.current;
 
         //check permissions
-        // let privilegeList = [];
-        // let privileges = Authenticatonservice.getUser().data.user.roles.privileges;
-        // for (let k in privileges) {
+        let privilegeList = [];
+        let privileges = Authenticatonservice.getUser().data.systemUser.roles.privileges;
+        for (let k in privileges) {
 
-        //     privilegeList.push(privileges[k].mprivileges.privilege_name);
-        // }
+            privilegeList.push(privileges[k].mprivileges.privilege_name);
+        }
 
-        // if (!privilegeList.includes("activate_app_user")) {
-        //     this.setState({ show_progress_status: false });
-        //     notification.addNotification({
-        //         message: "You do not have the rights to make activate or deactivate app user. Please contact your Systems Administrator",
-        //         level: 'error',
-        //         autoDismiss: 5
-        //     });
-        // } else {
+        if (!privilegeList.includes("activate_farmer")) {
+            this.setState({ show_progress_status: false });
+            notification.addNotification({
+                message: "You do not have the rights to make activate or deactivate a farmer. Please contact your Systems Administrator",
+                level: 'error',
+                autoDismiss: 5
+            });
+        } else {
             let params = {};
             params["id"] = this.state.id;
             params["activate"] = this.state.action;
@@ -440,7 +443,7 @@ class AppUsers extends React.Component {
                 });
             }
             this.setState({ show_progress_status: false });
-        //}
+        }
     }
     handlerTypeChange(e) {
         this.setState({
@@ -745,6 +748,10 @@ class AppUsers extends React.Component {
                             <div className="input-group mb-3">
                                 <textarea type="text" className="form-control" style={{ color: '#000000' }} placeholder="Enter Surname" value={this.state.surname} onChange={e => this.handleChange(e, "surname")} />
                             </div>
+                            <label style={{ color: '#000000' }}><b>Lastname</b></label>
+                            <div className="input-group mb-3">
+                                <textarea type="text" className="form-control" style={{ color: '#000000' }} placeholder="Enter Lastname" value={this.state.lastname} onChange={e => this.handleChange(e, "lastname")} />
+                            </div>
                             <label style={{ color: '#000000' }}><b>Phone Number</b></label>
                             <div className="input-group mb-3">
                                 <textarea type="text" className="form-control" style={{ color: '#000000' }} placeholder="Enter Phone Number" value={this.state.phone_number} onChange={e => this.handleChange(e, "phone_number")} />
@@ -757,7 +764,7 @@ class AppUsers extends React.Component {
                         <div className="card-body text-center">
 
 
-                            {/* <Row key={0}>
+                            <Row key={0}>
                                 <Col>
                                     <IconButton onClick={() => { this.closeDetails() }}>
 
@@ -769,7 +776,7 @@ class AppUsers extends React.Component {
                                         <FaSave color='green' size={50} title='Save' />
                                     </IconButton>
                                 </Col>
-                            </Row> */}
+                            </Row>
 
                         </div>
 

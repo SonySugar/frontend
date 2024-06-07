@@ -178,6 +178,23 @@ class SmtpConfigs extends React.Component {
         this.setState({ show_progress_status: true });
         const notification = this.notificationSystem.current;
 
+        //check permissions
+        let privilegeList = [];
+        let privileges = Authenticatonservice.getUser().data.systemUser.roles.privileges;
+        for (let k in privileges) {
+
+            privilegeList.push(privileges[k].mprivileges.privilege_name);
+        }
+
+        if (!privilegeList.includes("smtp_configs")) {
+            this.setState({ show_progress_status: false });
+            notification.addNotification({
+                message: "You do not have the rights to make smtp updates. Please contact your Systems Administrator",
+                level: 'error',
+                autoDismiss: 5
+            });
+        } else {
+
             let params = {};
             params["id"] = this.state.id;
             params["host"] = this.state.host;
@@ -217,6 +234,7 @@ class SmtpConfigs extends React.Component {
                     autoDismiss: 5
                 });
             }
+        }
         
     }
     handlerTypeChange(e) {

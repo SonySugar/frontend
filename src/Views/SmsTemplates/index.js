@@ -201,10 +201,10 @@ class SmsTemplates extends React.Component {
              privilegeList.push(privileges[k].mprivileges.privilege_name);
          }
  
-         if(!privilegeList.includes("create_department")){
+         if(!privilegeList.includes("create_sms_template")){
              this.setState({ show_progress_status: false });
              notification.addNotification({
-               message: "You do not have the rights to create a department. Please contact your Systems Administrator",
+               message: "You do not have the rights to create an sms template. Please contact your Systems Administrator",
                level: 'error',
                autoDismiss: 5
              });  
@@ -263,10 +263,10 @@ class SmsTemplates extends React.Component {
              privilegeList.push(privileges[k].mprivileges.privilege_name);
          }
  
-         if(!privilegeList.includes("update_department")){
+         if(!privilegeList.includes("update_sms_template")){
              this.setState({ show_progress_status: false });
              notification.addNotification({
-               message: "You do not have the rights to make any updates to a department. Please contact your Systems Administrator",
+               message: "You do not have the rights to make any updates to an sms template. Please contact your Systems Administrator",
                level: 'error',
                autoDismiss: 5
              });  
@@ -327,10 +327,10 @@ class SmsTemplates extends React.Component {
             privilegeList.push(privileges[k].mprivileges.privilege_name);
         }
 
-        if(!privilegeList.includes("delete_department")){
+        if(!privilegeList.includes("delete_sms_template")){
             this.setState({ show_progress_status: false });
             notification.addNotification({
-              message: "You do not have the rights to delete a department. Please contact your Systems Administrator",
+              message: "You do not have the rights to delete an sms template. Please contact your Systems Administrator",
               level: 'error',
               autoDismiss: 5
             });  

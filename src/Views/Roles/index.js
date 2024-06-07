@@ -5,7 +5,7 @@ import Aux from "../../hoc/_Aux";
 import AuthenticationService from "../../service/Authenticatonservice";
 import NotificationSystem from "react-notification-system";
 import APIService from "../../service/Apiservice";
-import { Dialog,IconButton } from '@material-ui/core';
+import { Dialog, IconButton } from '@material-ui/core';
 import Lottie from 'react-lottie-player'
 import lottieJson from '../../App/layout/Login/lottie.json';
 import CircularProgress from "../../App/components/CircularProgress";
@@ -19,7 +19,7 @@ import EditIcon from '@material-ui/icons/Edit';
 import DeleteIcon from '@material-ui/icons/Delete';
 import Visibility from '@material-ui/icons/Visibility';
 
-import { FaTimes, FaSave, FaDoorOpen,FaPlusCircle } from 'react-icons/fa';
+import { FaTimes, FaSave, FaDoorOpen, FaPlusCircle } from 'react-icons/fa';
 import jsPDF from "jspdf";
 import "jspdf-autotable";
 import { format } from "date-fns";
@@ -101,8 +101,8 @@ class Roles extends React.Component {
             checkall: false,
             checkedItems: new Map(),
             all_privileges_temp: [],
-            headers:[],
-            report:[],
+            headers: [],
+            report: [],
         }
     }
     async componentDidMount() {
@@ -136,7 +136,7 @@ class Roles extends React.Component {
 
             this.setState({ sysroles: apiResponse, sysroles_temp: apiResponse });
             await this.getAllPrivileges();
-            
+
         }
 
     }
@@ -170,11 +170,11 @@ class Roles extends React.Component {
         return (
 
 
-<IconButton onClick={() =>
-    this.onClickUserSelected(row)
-} >
-    <EditIcon style={{ color: "#04a9f5" }} titleAccess='Update system role' />
-</IconButton>
+            <IconButton onClick={() =>
+                this.onClickUserSelected(row)
+            } >
+                <EditIcon style={{ color: "#04a9f5" }} titleAccess='Update system role' />
+            </IconButton>
 
         );
     }
@@ -183,28 +183,28 @@ class Roles extends React.Component {
         return (
 
 
-<IconButton onClick={() =>
-    this.confirmDeleteRole(row)
-}>
+            <IconButton onClick={() =>
+                this.confirmDeleteRole(row)
+            }>
 
-    <DeleteIcon style={{ color: "red" }} titleAccess='Delete system role' />
+                <DeleteIcon style={{ color: "red" }} titleAccess='Delete system role' />
 
-</IconButton>
+            </IconButton>
         );
     }
     cellPrivileges(row) {
         const { classes } = this.props;
         return (
 
-          
 
-<IconButton onClick={() =>
-    this.onClickPriviView(row)
-}>
 
-    <Visibility style={{ color: "green" }} titleAccess='View privileges' />
+            <IconButton onClick={() =>
+                this.onClickPriviView(row)
+            }>
 
-</IconButton>
+                <Visibility style={{ color: "green" }} titleAccess='View privileges' />
+
+            </IconButton>
 
         );
     }
@@ -214,21 +214,21 @@ class Roles extends React.Component {
         const notification = this.notificationSystem.current;
 
         //check permissions
-        // let privilegeList = [];
-        // let privileges = Authenticatonservice.getUser().data.user.role.privileges;
-        // for (let k in privileges) {
+        let privilegeList = [];
+        let privileges = Authenticatonservice.getUser().data.systemUser.role.privileges;
+        for (let k in privileges) {
 
-        //     privilegeList.push(privileges[k].mprivileges.privilege_name);
-        // }
+            privilegeList.push(privileges[k].mprivileges.privilege_name);
+        }
 
-        // if (!privilegeList.includes("create_role")) {
-        //     this.setState({ show_progress_status: false });
-        //     notification.addNotification({
-        //         message: "You do not have the rights to create a role. Please contact your Systems Administrator",
-        //         level: 'error',
-        //         autoDismiss: 5
-        //     });
-        // } else {
+        if (!privilegeList.includes("create_roles")) {
+            this.setState({ show_progress_status: false });
+            notification.addNotification({
+                message: "You do not have the rights to create a role. Please contact your Systems Administrator",
+                level: 'error',
+                autoDismiss: 5
+            });
+        } else {
             if (this.state.new_role_name == null || this.state.new_role_name === '') {
                 this.setState({ show_progress_status: false });
 
@@ -292,7 +292,7 @@ class Roles extends React.Component {
 
                 }
             }
-       // }
+        }
 
     }
     async deleteRole() {
@@ -302,13 +302,13 @@ class Roles extends React.Component {
 
         //check permissions
         let privilegeList = [];
-        let privileges = Authenticatonservice.getUser().data.user.role.privileges;
+        let privileges = Authenticatonservice.getUser().data.systemUser.role.privileges;
         for (let k in privileges) {
 
             privilegeList.push(privileges[k].mprivileges.privilege_name);
         }
 
-        if (!privilegeList.includes("delete_role")) {
+        if (!privilegeList.includes("delete_roles")) {
             this.setState({ show_progress_status: false });
             notification.addNotification({
                 message: "You do not have the rights to delete a role. Please contact your Systems Administrator",
@@ -351,21 +351,21 @@ class Roles extends React.Component {
         const notification = this.notificationSystem.current;
 
         //check permissions
-        // let privilegeList = [];
-        // let privileges = Authenticatonservice.getUser().data.user.role.privileges;
-        // for (let k in privileges) {
+        let privilegeList = [];
+        let privileges = Authenticatonservice.getUser().data.sytemUser.role.privileges;
+        for (let k in privileges) {
 
-        //     privilegeList.push(privileges[k].mprivileges.privilege_name);
-        // }
+            privilegeList.push(privileges[k].mprivileges.privilege_name);
+        }
 
-        // if (!privilegeList.includes("update_api_configurations")) {
-        //     this.setState({ show_progress_status: false });
-        //     notification.addNotification({
-        //         message: "You do not have the rights to make role updates. Please contact your Systems Administrator",
-        //         level: 'error',
-        //         autoDismiss: 5
-        //     });
-        // } else {
+        if (!privilegeList.includes("update_roles")) {
+            this.setState({ show_progress_status: false });
+            notification.addNotification({
+                message: "You do not have the rights to make role updates. Please contact your Systems Administrator",
+                level: 'error',
+                autoDismiss: 5
+            });
+        } else {
             let list = [];
             for (let k in this.state.all_privileges) {
                 if (this.state.all_privileges[k].checked) {
@@ -400,7 +400,7 @@ class Roles extends React.Component {
                 });
             }
 
-       // }
+        }
     }
     //clear all items from the privileges array
     removeItemAll() {
@@ -607,49 +607,49 @@ class Roles extends React.Component {
         }
         return false;
     }
-     getReport = ()=>{
+    getReport = () => {
         //Make report headers
         let head = [];
         let pre_payload = [];
         let payload = [];
 
-        this.state.sysroles.forEach(h=>{
+        this.state.sysroles.forEach(h => {
             let key = h.role_name.toLowerCase().replace(/\s+/g, '');
-            h.privileges.forEach(m=>{
-                
-                pre_payload.push(key+"="+m.mprivileges.privilege_name);
+            h.privileges.forEach(m => {
+
+                pre_payload.push(key + "=" + m.mprivileges.privilege_name);
             });
         });
-        
-         this.state.sysroles.forEach(h=>{
+
+        this.state.sysroles.forEach(h => {
             var obj = {};
             let key = h.role_name.toLowerCase().replace(/\s+/g, '');
             obj["label"] = h.role_name;
             obj["key"] = key;
-           head.push(obj);
+            head.push(obj);
 
             //Get privilege for each role
-           
-      
+
+
         });
 
-        pre_payload.forEach(pre=>{
-            let params={};
+        pre_payload.forEach(pre => {
+            let params = {};
             let splittedPre = pre.split("=");
-            
-               var key = splittedPre[0];
-               var value = splittedPre[1];
-            params[key]=value;
+
+            var key = splittedPre[0];
+            var value = splittedPre[1];
+            params[key] = value;
             payload.push(params);
-            
-           
+
+
 
         });
-        
- 
-     
+
+
+
         this.setState({
-            headers:head,
+            headers: head,
             report: payload
         })
     }
@@ -669,19 +669,19 @@ class Roles extends React.Component {
                     <Col>
                         <Card title='System roles' isOption>
 
-                          
-                        <Button
-                size="sm"
-                variant="secondary"
-                onClick={() =>
-                    this.openAddDialog()
-                }
-            >
-                Create Role
-            </Button>
-                           
 
-                    
+                            <Button
+                                size="sm"
+                                variant="secondary"
+                                onClick={() =>
+                                    this.openAddDialog()
+                                }
+                            >
+                                Create Role
+                            </Button>
+
+
+
                             <br />
                             <br />
                             <div className="input-group mb-3">
@@ -700,7 +700,7 @@ class Roles extends React.Component {
                                     </Tr>
 
                                 </Thead>
-                                {this.state.sysroles_temp==null || this.state.sysroles_temp.length == 0 ? <Tbody>
+                                {this.state.sysroles_temp == null || this.state.sysroles_temp.length == 0 ? <Tbody>
                                     <Tr style={{ border: '1px solid' }} key={0}>
                                         <Td>No data available</Td>
                                     </Tr>
@@ -754,10 +754,10 @@ class Roles extends React.Component {
 
                         </div>
                         <div className="card-body text-center">
-                        <IconButton onClick={() => { this.logout() }}>
+                            <IconButton onClick={() => { this.logout() }}>
 
-<FaDoorOpen size={50} title='Exit' color='red' />
-</IconButton>
+                                <FaDoorOpen size={50} title='Exit' color='red' />
+                            </IconButton>
                         </div>
 
 
@@ -780,31 +780,31 @@ class Roles extends React.Component {
                             <br />
                             <h4>Are you sure you want to delete this role?</h4>
 
-                         
-                                    <Row key={0}>
-                                        <Col>                    <Button
-                size="sm"
-                variant="secondary"
-                onClick={() =>
-                    this.closeDeleteDialog()
-                }
-            >
-                Dismiss
-            </Button></Col>
-                                        <Col>                     <Button
-                size="sm"
-                variant="primary"
-                onClick={() =>
-                    this.deleteRole()
-                }
-            >
-                Delete role
-            </Button></Col>
-                                    </Row>
-                                
+
+                            <Row key={0}>
+                                <Col>                    <Button
+                                    size="sm"
+                                    variant="secondary"
+                                    onClick={() =>
+                                        this.closeDeleteDialog()
+                                    }
+                                >
+                                    Dismiss
+                                </Button></Col>
+                                <Col>                     <Button
+                                    size="sm"
+                                    variant="primary"
+                                    onClick={() =>
+                                        this.deleteRole()
+                                    }
+                                >
+                                    Delete role
+                                </Button></Col>
+                            </Row>
+
 
                         </div>
-                     
+
 
 
                     </div>
@@ -835,11 +835,11 @@ class Roles extends React.Component {
                                     )}
                                 </Tbody>
                             </Table>
-                           
+
                             <IconButton onClick={() => { this.closeViewDialog() }}>
 
-<FaTimes size={50} title='Close' color='green' />
-</IconButton>
+                                <FaTimes size={50} title='Close' color='green' />
+                            </IconButton>
                         </div>
 
                     </div>
@@ -862,38 +862,38 @@ class Roles extends React.Component {
 
                         </div>
                         <div className="card-body text-center">
-                            
-                                    <Row key={0}>
-                                        <Col>
-                                        <Button
-                size="sm"
-                variant="secondary"
-                onClick={() =>
-                    this.closeUpdateDialog()
-                }
-            >
-                Dismiss
-            </Button>
-                                        </Col>
-                                        <Col>
-                                        <Button
-                size="sm"
-                variant="primary"
-                onClick={() =>
-                    this.updateRole()
-                }
-            >
-                Save
-            </Button>
-                                        </Col>
-                                    </Row>
-                               
-                        
-                                    
-                              
-                                   
-                                    </div>
-                               
+
+                            <Row key={0}>
+                                <Col>
+                                    <Button
+                                        size="sm"
+                                        variant="secondary"
+                                        onClick={() =>
+                                            this.closeUpdateDialog()
+                                        }
+                                    >
+                                        Dismiss
+                                    </Button>
+                                </Col>
+                                <Col>
+                                    <Button
+                                        size="sm"
+                                        variant="primary"
+                                        onClick={() =>
+                                            this.updateRole()
+                                        }
+                                    >
+                                        Save
+                                    </Button>
+                                </Col>
+                            </Row>
+
+
+
+
+
+                        </div>
+
                     </div>
 
 
@@ -915,7 +915,7 @@ class Roles extends React.Component {
                                     <input type="text" className="form-control" style={{ color: '#000000' }} placeholder="Start typing ..... e.g Ability to create, Ability to view, Ability to delete, Ability to update, Ability to activate" onChange={e => this.handlePrivilegeSearch(e)} />
                                 </div>
                                 <Col>
-                                    <Table style={{textAlign: "left"}}>
+                                    <Table style={{ textAlign: "left" }}>
                                         <Tbody>
                                             <Tr key={0}>
                                                 <Td>
@@ -956,31 +956,31 @@ class Roles extends React.Component {
                                 </Col>
                             </Row>
                             <Row>
-                            <div className="card-body text-center">
-                            <Row>
-                            <Col>
-                            <Button
-                size="sm"
-                variant="secondary"
-                onClick={() =>
-                    this.closeAddDialog()
-                }
-            >
-                Dismiss
-            </Button>
-                                </Col>
-                                <Col>
-                                <Button
-                size="sm"
-                variant="primary"
-                onClick={() =>
-                    this.saveRole()
-                }
-            >
-                Create role
-            </Button>
-                                </Col>
-                                </Row>
+                                <div className="card-body text-center">
+                                    <Row>
+                                        <Col>
+                                            <Button
+                                                size="sm"
+                                                variant="secondary"
+                                                onClick={() =>
+                                                    this.closeAddDialog()
+                                                }
+                                            >
+                                                Dismiss
+                                            </Button>
+                                        </Col>
+                                        <Col>
+                                            <Button
+                                                size="sm"
+                                                variant="primary"
+                                                onClick={() =>
+                                                    this.saveRole()
+                                                }
+                                            >
+                                                Create role
+                                            </Button>
+                                        </Col>
+                                    </Row>
                                 </div>
                             </Row>
                         </div>

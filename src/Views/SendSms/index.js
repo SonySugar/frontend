@@ -147,43 +147,59 @@ class SendSms extends React.Component {
         //call API
         this.setState({ show_progress_status: true, open_farmers_list: false });
         const notification = this.notificationSystem.current;
-        let phoneNumbers = [];
-        this.state.appusers.forEach(u => {
-            if (u.checked){
-                let combinedData = u.phonenumber_one + "|" + u.firstname;
-                phoneNumbers.push(combinedData)
-            }
-        });
-        let params = {}
-        let endpoint = "farmer/withtemplate/sendsms";
-        if (this.state.choose_from_template) {
-            params["templateid"] = this.state.selected_template;
+        //check permissions
+        let privilegeList = [];
+        let privileges = Authenticatonservice.getUser().data.systemUser.roles.privileges;
+        for (let k in privileges) {
 
-        } else {
-            params["message"] = this.state.message;
-            endpoint = "farmer/notemplate/sendsms";
+            privilegeList.push(privileges[k].mprivileges.privilege_name);
         }
-        params["recipients"] = phoneNumbers;
 
-        let apiResponse = await APIService.makePostRequest(endpoint, params);
-        if (apiResponse.success) {
-            notification.addNotification({
-                message: apiResponse.message,
-                level: 'success',
-                autoDismiss: 5
-            });
-            this.setState({ show_progress_status: false });
-        } else {
+        if (!privilegeList.includes("send_sms")) {
             this.setState({ show_progress_status: false });
             notification.addNotification({
-                message: apiResponse.message,
+                message: "You do not have the rights to send sms. Please contact your Systems Administrator",
                 level: 'error',
                 autoDismiss: 5
             });
-        }
-        this.setState({ appusers: [] });
-        this.getUsers();
+        } else {
+            let phoneNumbers = [];
+            this.state.appusers.forEach(u => {
+                if (u.checked) {
+                    let combinedData = u.phonenumber_one + "|" + u.firstname;
+                    phoneNumbers.push(combinedData)
+                }
+            });
+            let params = {}
+            let endpoint = "farmer/withtemplate/sendsms";
+            if (this.state.choose_from_template) {
+                params["templateid"] = this.state.selected_template;
 
+            } else {
+                params["message"] = this.state.message;
+                endpoint = "farmer/notemplate/sendsms";
+            }
+            params["recipients"] = phoneNumbers;
+
+            let apiResponse = await APIService.makePostRequest(endpoint, params);
+            if (apiResponse.success) {
+                notification.addNotification({
+                    message: apiResponse.message,
+                    level: 'success',
+                    autoDismiss: 5
+                });
+                this.setState({ show_progress_status: false });
+            } else {
+                this.setState({ show_progress_status: false });
+                notification.addNotification({
+                    message: apiResponse.message,
+                    level: 'error',
+                    autoDismiss: 5
+                });
+            }
+            this.setState({ appusers: [] });
+            this.getUsers();
+        }
     }
     handlerTypeChange(e) {
         if (e.target.value == 'template') {

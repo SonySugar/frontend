@@ -169,6 +169,21 @@ class ContractTypes extends React.Component {
         this.closeAddDialog();
         this.setState({ show_progress_status: true });
         const notification = this.notificationSystem.current;
+                  //check permissions
+                  let privilegeList = [];
+                  let privileges = Authenticatonservice.getUser().data.systemUser.roles.privileges;
+                  for(let k in privileges){
+                     
+                      privilegeList.push(privileges[k].mprivileges.privilege_name);
+                  }
+               if(!privilegeList.includes("create_contract_type")){
+                   this.setState({ show_progress_status: false });
+                   notification.addNotification({
+                     message: "You do not have the rights to create land request contract types. Please contact your Systems Administrator",
+                     level: 'error',
+                     autoDismiss: 5
+                   });  
+               }else{
         if (this.state.contract_name == null || this.state.contract_name === '') {
             this.setState({ show_progress_status: false });
     
@@ -214,6 +229,7 @@ class ContractTypes extends React.Component {
             });
           }
         }
+    }
     }
     async updateContractType(){
         this.closeUpdateDialog();

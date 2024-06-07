@@ -67,6 +67,7 @@ class BulkSmsConfigs extends React.Component {
             senderid: '',
             type: '',
             apikey: '',
+            profileurl: '',
             _notificationSystem: null,
             show_progress_status: false,
         }
@@ -161,13 +162,29 @@ class BulkSmsConfigs extends React.Component {
         this.closeUpdateDialog();
         this.setState({ show_progress_status: true });
         const notification = this.notificationSystem.current;
+        //check permissions
+        let privilegeList = [];
+        let privileges = Authenticatonservice.getUser().data.systemUser.roles.privileges;
+        for (let k in privileges) {
 
+            privilegeList.push(privileges[k].mprivileges.privilege_name);
+        }
+
+        if (!privilegeList.includes("update_sms_configs")) {
+            this.setState({ show_progress_status: false });
+            notification.addNotification({
+                message: "You do not have the rights to make sms config updates. Please contact your Systems Administrator",
+                level: 'error',
+                autoDismiss: 5
+            });
+        } else {
             let params = {};
             params["id"] = this.state.id;
             params["serviceurl"] = this.state.serviceurl;
             params["sender"] = this.state.senderid;
             params["messagetype"] = this.state.type;
             params["apikey"] = this.state.apikey;
+            params["profileurl"] = this.state.profileurl;
 
 
             let result = await APIService.makePostRequest("/configs/kikosi/update", params);
@@ -195,7 +212,8 @@ class BulkSmsConfigs extends React.Component {
                     autoDismiss: 5
                 });
             }
-        
+        }
+
     }
     handlerTypeChange(e) {
         this.setState({
@@ -220,6 +238,7 @@ class BulkSmsConfigs extends React.Component {
                                 <Thead>
                                     <Tr style={{ border: '1px solid' }}>
                                         <Th>Service endpoint</Th>
+                                        <Th>Profile endpoint</Th>
                                         <Th>Sender Id</Th>
                                         <Th>ApiKey</Th>
                                         <Th>MessageType</Th>
@@ -229,7 +248,7 @@ class BulkSmsConfigs extends React.Component {
                                     </Tr>
 
                                 </Thead>
-                                {this.state.configs==null || this.state.configs.length == 0 ? <Tbody>
+                                {this.state.configs == null || this.state.configs.length == 0 ? <Tbody>
                                     <Tr style={{ border: '1px solid' }} key={0}>
                                         <Td>No data available ......</Td>
                                     </Tr>
@@ -239,6 +258,9 @@ class BulkSmsConfigs extends React.Component {
                                             <Tr style={{ border: '1px solid' }} key={index}>
                                                 <Td>
                                                     {u.serviceurl}
+                                                </Td>
+                                                <Td>
+                                                    {u.profileurl}
                                                 </Td>
                                                 <Td>
                                                     {u.sender}
@@ -313,7 +335,7 @@ class BulkSmsConfigs extends React.Component {
 
                     <div className="card">
 
-                        <center><h3>Update Smtp Configurations</h3></center>
+                        <center><h3>Update Sms Configurations</h3></center>
                         <div className="card-body text-left">
 
                             <Row>
@@ -322,6 +344,10 @@ class BulkSmsConfigs extends React.Component {
                                     <label style={{ color: '#000000' }}><b>Service endpoint</b></label>
                                     <div className="input-group mb-3">
                                         <input type="text" className="form-control" style={{ color: '#000000' }} placeholder="Service endpoint" value={this.state.serviceurl} onChange={e => this.handleChange(e, "serviceurl")} />
+                                    </div>
+                                    <label style={{ color: '#000000' }}><b>Profile endpoint</b></label>
+                                    <div className="input-group mb-3">
+                                        <input type="text" className="form-control" style={{ color: '#000000' }} placeholder="Profile endpoint" value={this.state.profileurl} onChange={e => this.handleChange(e, "profileurl")} />
                                     </div>
                                     <label style={{ color: '#000000' }}><b>Sender Id</b></label>
                                     <div className="input-group mb-3">
@@ -341,32 +367,32 @@ class BulkSmsConfigs extends React.Component {
 
                         </div>
                         <div className="card-body text-center">
-                          
-                                    <Row key={0}>
-                                        <Col>
-                                        <Button
-                size="sm"
-                variant="secondary"
-                onClick={() =>
-                    this.closeUpdateDialog()
-                }
-            >
-                Dismiss
-            </Button>
-                                        </Col>
-                                        <Col>
-                                        <Button
-                size="sm"
-                variant="primary"
-                onClick={() =>
-                    this.updateConfigs()
-                }
-            >
-                Save
-            </Button>
-                                        </Col>
-                                    </Row>
-                               
+
+                            <Row key={0}>
+                                <Col>
+                                    <Button
+                                        size="sm"
+                                        variant="secondary"
+                                        onClick={() =>
+                                            this.closeUpdateDialog()
+                                        }
+                                    >
+                                        Dismiss
+                                    </Button>
+                                </Col>
+                                <Col>
+                                    <Button
+                                        size="sm"
+                                        variant="primary"
+                                        onClick={() =>
+                                            this.updateConfigs()
+                                        }
+                                    >
+                                        Save
+                                    </Button>
+                                </Col>
+                            </Row>
+
                         </div>
 
 

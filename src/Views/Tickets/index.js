@@ -24,6 +24,7 @@ import { FaFileExcel, FaDoorOpen, FaFilePdf } from 'react-icons/fa';
 import jsPDF from "jspdf";
 import "jspdf-autotable";
 import { format } from "date-fns";
+import Authenticatonservice from '../../service/Authenticatonservice';
 
 var custom_notification_style = {
     NotificationItem: { // Override the notification item
@@ -96,8 +97,8 @@ class Tickets extends React.Component {
             query_status_url: '',
             openConfirm: false,
             ticket_report: [],
-            date_from:'',
-            date_to:'',
+            date_from: '',
+            date_to: '',
             pageNum: 0,
             pageCount: 1,
         }
@@ -131,7 +132,7 @@ class Tickets extends React.Component {
     async getTickets(pagenum) {
         //call API
         const notification = this.notificationSystem.current;
-        let apiResponse = await APIService.makeApiGetRequest("tickets/"+pagenum+"/"+10);
+        let apiResponse = await APIService.makeApiGetRequest("tickets/" + pagenum + "/" + 10);
         if (apiResponse.status == 403) {
             this.setState({ closesession: true });
             notification.addNotification({
@@ -228,7 +229,7 @@ class Tickets extends React.Component {
             await this.getTickets(0);
 
         }
-        
+
         this.setState({ show_progress_status: false });
     }
 
@@ -376,25 +377,59 @@ class Tickets extends React.Component {
         await this.updateTicket(params);
     }
     async handlerAssignedToChane(e) {
-        this.setState({
-            assignedto: e.target.value
-        });
-        let params = {};
-        params["id"] = this.state.id;
-        params["assignedto"] = e.target.value;
-        await this.updateTicket(params);
+        const notification = this.notificationSystem.current;
+        //check permissions
+        let privilegeList = [];
+        let privileges = Authenticatonservice.getUser().data.systemUser.roles.privileges;
+        for (let k in privileges) {
+
+            privilegeList.push(privileges[k].mprivileges.privilege_name);
+        }
+
+        if (!privilegeList.includes("assign_ticket")) {
+            notification.addNotification({
+                message: "You do not have the rights to assign a ticket. Please contact your Systems Administrator",
+                level: 'error',
+                autoDismiss: 5
+            });
+        } else {
+            this.setState({
+                assignedto: e.target.value
+            });
+            let params = {};
+            params["id"] = this.state.id;
+            params["assignedto"] = e.target.value;
+            await this.updateTicket(params);
+        }
     }
     async handlerStatusChange(e) {
-        this.setState({
-            status: e.target.value
-        });
-        let params = {};
-        params["id"] = this.state.id;
-        params["status"] = e.target.value;
-        await this.updateTicket(params);
+        const notification = this.notificationSystem.current;
+        //check permissions
+        let privilegeList = [];
+        let privileges = Authenticatonservice.getUser().data.systemUser.roles.privileges;
+        for (let k in privileges) {
+
+            privilegeList.push(privileges[k].mprivileges.privilege_name);
+        }
+
+        if (!privilegeList.includes("update_ticket_status")) {
+            notification.addNotification({
+                message: "You do not have the rights to update ticket status. Please contact your Systems Administrator",
+                level: 'error',
+                autoDismiss: 5
+            });
+        } else {
+            this.setState({
+                status: e.target.value
+            });
+            let params = {};
+            params["id"] = this.state.id;
+            params["status"] = e.target.value;
+            await this.updateTicket(params);
+        }
     }
 
-    
+
     getFormatedStartDate(val) {
 
         let date = new Date(val);
@@ -428,25 +463,25 @@ class Tickets extends React.Component {
         let dt = date.getDate();
         let hour = date.getHours();
         let mins = date.getMinutes();
-    
+
         if (dt < 10) {
-          dt = '0' + dt;
+            dt = '0' + dt;
         }
         if (month < 10) {
-          month = '0' + month;
+            month = '0' + month;
         }
-    
+
         if (hour < 10) {
-          hour = '0' + hour;
+            hour = '0' + hour;
         }
         if (mins < 10) {
-          mins = '0' + mins;
+            mins = '0' + mins;
         }
-    
+
         let concatTime = year + '-' + month + '-' + dt
-    
+
         return concatTime;
-      }
+    }
 
     generateReportPDF() {
         // initialize jsPDF
@@ -455,7 +490,7 @@ class Tickets extends React.Component {
         doc.setFontSize(9);
 
         // define the columns we want and their titles
-        const tableColumn = ["Ticket No", "Category", "Status", "Description", "Priority","Created by", "Phone","Date Created"];
+        const tableColumn = ["Ticket No", "Category", "Status", "Description", "Priority", "Created by", "Phone", "Date Created"];
         // define an empty array of rows
         const tableRows = [];
 
@@ -484,23 +519,23 @@ class Tickets extends React.Component {
         doc.save(`SonySugar_Ticket${dateStr}.pdf`);
     }
 
-    
+
     setDateFrom(e) {
 
 
         this.setState({
-          date_from: e
+            date_from: e
         })
-      }
-      setDateTo(e) {
+    }
+    setDateTo(e) {
 
 
         this.setState({
-          date_to: e
+            date_to: e
         })
-      }
+    }
 
-      handleReportSearch(e){
+    handleReportSearch(e) {
         let value = e.target.value;
 
         //lets do a filter
@@ -510,9 +545,9 @@ class Tickets extends React.Component {
         this.setState({
             training_requests_temp: searchResult
         });
-      }
+    }
 
-      async AddPage() {
+    async AddPage() {
         this.setState({ show_progress_status: true });
         var add = this.state.pageNum;
         var count = this.state.pageCount;
@@ -540,18 +575,18 @@ class Tickets extends React.Component {
             this.setState({ show_progress_status: false });
         }
     }
-    
+
     formatDate(val) {
         return format(new Date(val), "yyyy-MM-dd");
     }
-    ticketStatus(row){
-        if(row.status == "Pending")
-            return <Td style={{color: 'red'}}>{row.status}</Td>
-        if(row.status == "In progress")
-            return <Td style={{color: 'orange'}}>{row.status}</Td>
-        
-        return <Td style={{color: 'green'}}>{row.status}</Td>
-        
+    ticketStatus(row) {
+        if (row.status == "Pending")
+            return <Td style={{ color: 'red' }}>{row.status}</Td>
+        if (row.status == "In progress")
+            return <Td style={{ color: 'orange' }}>{row.status}</Td>
+
+        return <Td style={{ color: 'green' }}>{row.status}</Td>
+
     }
     render() {
         return (
@@ -568,89 +603,89 @@ class Tickets extends React.Component {
                                 this.generateReportPDF()
                             }>
                                 <FaFilePdf title='Download report' size={50} color='red' />
-                            </IconButton> 
-                        
-
-                                <CSVLink data={this.state.ticket_report} headers={ticket_report_header} filename='Tickets.csv'>
-                                    <FaFileExcel size={50} color='green' title='Download report' />
-                                </CSVLink> 
-
-                                <div className="card-body text-center">
-                        <IconButton onClick={() =>
-                            this.RemovePage()
-                        } >
-                            <ArrowBack style={{ color: "green" }} titleAccess='Previous' />
-                        </IconButton>
-
-                        <IconButton onClick={() =>
-                            this.AddPage()
-                        } >
-                            <ArrowForward style={{ color: "green" }} titleAccess='Next' />
-                        </IconButton>
-                        <p>Page {this.state.pageCount}</p>
-                    </div> 
+                            </IconButton>
 
 
-                                <Table>
-                                    <Thead>
-                                        <Tr style={{ border: '1px solid', fontWeight: 'bold' }}>
-                                            <Th>Ticket No</Th>
-                                            <Th>Category</Th>
-                                            <Th>Description</Th>
-                                            <Th>Status</Th>
-                                            <Th>Assigned to</Th>
-                                            <Th>Created by</Th>
-                                            <Th>Contact</Th>
-                                            <Th>Date Created</Th>
-                                            <Th>Actions</Th>
-                                        </Tr>
+                            <CSVLink data={this.state.ticket_report} headers={ticket_report_header} filename='Tickets.csv'>
+                                <FaFileExcel size={50} color='green' title='Download report' />
+                            </CSVLink>
 
-                                    </Thead>
-                                    {this.state.tickets == null || this.state.tickets.length == 0 ? <Tbody>
-                                    </Tbody> : <Tbody>
-                                        {this.state.tickets.map(
-                                            (u, index) => (
-                                                <Tr style={{ border: '1px solid' }} key={index}>
-                                                    <Td style={{ border: '1px solid' }}>
-                                                        {u.id}
-                                                    </Td>
-                                                    <Td style={{ border: '1px solid' }}>
-                                                        {u.ticket_category.category}
-                                                    </Td>
-                                                    <Td style={{ border: '1px solid' }}>
-                                                        {u.description}
-                                                    </Td>
-                                                    <Td style={{ border: '1px solid' }}>{this.ticketStatus(u)}</Td>
-                                                    <Td style={{ border: '1px solid' }}>{this.assignedTo(u)}</Td>
-                                                    <Td style={{ border: '1px solid' }}>{u.farmer.firstname}</Td>
-                                                    <Td style={{ border: '1px solid' }}>{u.farmer.phonenumber_one}</Td>
-                                                    <Td style={{ border: '1px solid' }}>{this.formatDate(u.datecreated)}</Td>
-                                                    <Td>
-                                                        {this.cellButton(u)}
-                                                    </Td>
+                            <div className="card-body text-center">
+                                <IconButton onClick={() =>
+                                    this.RemovePage()
+                                } >
+                                    <ArrowBack style={{ color: "green" }} titleAccess='Previous' />
+                                </IconButton>
+
+                                <IconButton onClick={() =>
+                                    this.AddPage()
+                                } >
+                                    <ArrowForward style={{ color: "green" }} titleAccess='Next' />
+                                </IconButton>
+                                <p>Page {this.state.pageCount}</p>
+                            </div>
 
 
+                            <Table>
+                                <Thead>
+                                    <Tr style={{ border: '1px solid', fontWeight: 'bold' }}>
+                                        <Th>Ticket No</Th>
+                                        <Th>Category</Th>
+                                        <Th>Description</Th>
+                                        <Th>Status</Th>
+                                        <Th>Assigned to</Th>
+                                        <Th>Created by</Th>
+                                        <Th>Contact</Th>
+                                        <Th>Date Created</Th>
+                                        <Th>Actions</Th>
+                                    </Tr>
 
-                                                </Tr>
-                                            )
-                                        )}
-                                    </Tbody>}
-                                </Table>
-                                 
-                                <div className="card-body text-center">
-                        <IconButton onClick={() =>
-                            this.RemovePage()
-                        } >
-                            <ArrowBack style={{ color: "green" }} titleAccess='Previous' />
-                        </IconButton>
+                                </Thead>
+                                {this.state.tickets == null || this.state.tickets.length == 0 ? <Tbody>
+                                </Tbody> : <Tbody>
+                                    {this.state.tickets.map(
+                                        (u, index) => (
+                                            <Tr style={{ border: '1px solid' }} key={index}>
+                                                <Td style={{ border: '1px solid' }}>
+                                                    {u.id}
+                                                </Td>
+                                                <Td style={{ border: '1px solid' }}>
+                                                    {u.ticket_category.category}
+                                                </Td>
+                                                <Td style={{ border: '1px solid' }}>
+                                                    {u.description}
+                                                </Td>
+                                                <Td style={{ border: '1px solid' }}>{this.ticketStatus(u)}</Td>
+                                                <Td style={{ border: '1px solid' }}>{this.assignedTo(u)}</Td>
+                                                <Td style={{ border: '1px solid' }}>{u.farmer.firstname}</Td>
+                                                <Td style={{ border: '1px solid' }}>{u.farmer.phonenumber_one}</Td>
+                                                <Td style={{ border: '1px solid' }}>{this.formatDate(u.datecreated)}</Td>
+                                                <Td>
+                                                    {this.cellButton(u)}
+                                                </Td>
 
-                        <IconButton onClick={() =>
-                            this.AddPage()
-                        } >
-                            <ArrowForward style={{ color: "green" }} titleAccess='Next' />
-                        </IconButton>
-                        <p>Page {this.state.pageCustomCount}</p>
-                    </div> 
+
+
+                                            </Tr>
+                                        )
+                                    )}
+                                </Tbody>}
+                            </Table>
+
+                            <div className="card-body text-center">
+                                <IconButton onClick={() =>
+                                    this.RemovePage()
+                                } >
+                                    <ArrowBack style={{ color: "green" }} titleAccess='Previous' />
+                                </IconButton>
+
+                                <IconButton onClick={() =>
+                                    this.AddPage()
+                                } >
+                                    <ArrowForward style={{ color: "green" }} titleAccess='Next' />
+                                </IconButton>
+                                <p>Page {this.state.pageCustomCount}</p>
+                            </div>
                         </Card>
 
 
@@ -660,7 +695,7 @@ class Tickets extends React.Component {
                     open={this.state.closesession}
 
                     fullWidth
-                    
+
                 >
 
                     <div className="card">
@@ -709,19 +744,19 @@ class Tickets extends React.Component {
 
                             <Table style={{ textAlign: 'left' }}>
                                 <Tr key={0}>
-                                <label style={{ color: '#000000' }}><b>Assign ticket</b></label>
-                        <div className="input-group mb-3">
-                            <select
-                                className="form-control"
-                                value={this.state.assignedto}
-                                onChange={this.handlerAssignedToChane.bind(
-                                    this
-                                )}
-                            >
-                                <option value="">
-                                    Select assignee
-                                </option>
-                                {this.state.sysusers.map(
+                                    <label style={{ color: '#000000' }}><b>Assign ticket</b></label>
+                                    <div className="input-group mb-3">
+                                        <select
+                                            className="form-control"
+                                            value={this.state.assignedto}
+                                            onChange={this.handlerAssignedToChane.bind(
+                                                this
+                                            )}
+                                        >
+                                            <option value="">
+                                                Select assignee
+                                            </option>
+                                            {this.state.sysusers.map(
                                                 (r, index) => (
                                                     <option
                                                         key={index}
@@ -731,65 +766,65 @@ class Tickets extends React.Component {
                                                     </option>
                                                 )
                                             )}
-                            </select>
+                                        </select>
 
-                        </div>
+                                    </div>
                                 </Tr>
 
                                 <Tr key={1}>
-                                <label style={{ color: '#000000' }}><b>Set priority</b></label>
-                        <div className="input-group mb-3">
-                            <select
-                                className="form-control"
-                                value={this.state.priority}
-                                onChange={this.handlerPriorityChange.bind(
-                                    this
-                                )}
-                            >
-                                <option value="">
-                                    Select Priority
-                                </option>
-                                <option value="High">
-                                    High
-                                </option>
+                                    <label style={{ color: '#000000' }}><b>Set priority</b></label>
+                                    <div className="input-group mb-3">
+                                        <select
+                                            className="form-control"
+                                            value={this.state.priority}
+                                            onChange={this.handlerPriorityChange.bind(
+                                                this
+                                            )}
+                                        >
+                                            <option value="">
+                                                Select Priority
+                                            </option>
+                                            <option value="High">
+                                                High
+                                            </option>
 
-                                <option value="Medium">
-                                    Medium
-                                </option>
-                                <option value="Low">
-                                    Low
-                                </option>
-                            </select>
+                                            <option value="Medium">
+                                                Medium
+                                            </option>
+                                            <option value="Low">
+                                                Low
+                                            </option>
+                                        </select>
 
-                        </div>
+                                    </div>
                                 </Tr>
 
                                 <Tr key={2}>
-                                <label style={{ color: '#000000' }}><b>Change status</b></label>
-                        <div className="input-group mb-3">
-                            <select
-                                className="form-control"
-                                value={this.state.status}
-                                onChange={this.handlerStatusChange.bind(
-                                    this
-                                )}
-                            >
-                                <option value="">
-                                    Select status
-                                </option>
-                                <option value="Pending">
-                                    Pending
-                                </option>
+                                    <label style={{ color: '#000000' }}><b>Change status</b></label>
+                                    <div className="input-group mb-3">
+                                        <select
+                                            className="form-control"
+                                            value={this.state.status}
+                                            onChange={this.handlerStatusChange.bind(
+                                                this
+                                            )}
+                                        >
+                                            <option value="">
+                                                Select status
+                                            </option>
+                                            <option value="Pending">
+                                                Pending
+                                            </option>
 
-                                <option value="In progress">
-                                    In progress
-                                </option>
-                                <option value="Resolved">
-                                    Resolved
-                                </option>
-                            </select>
+                                            <option value="In progress">
+                                                In progress
+                                            </option>
+                                            <option value="Resolved">
+                                                Resolved
+                                            </option>
+                                        </select>
 
-                        </div>
+                                    </div>
                                 </Tr>
 
                             </Table>

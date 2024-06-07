@@ -155,7 +155,22 @@ class EmailAlertConfig extends React.Component {
         this.closeUpdateDialog();
         this.setState({ show_progress_status: true });
         const notification = this.notificationSystem.current;
+        //check permissions
+        let privilegeList = [];
+        let privileges = Authenticatonservice.getUser().data.systemUser.roles.privileges;
+        for (let k in privileges) {
 
+            privilegeList.push(privileges[k].mprivileges.privilege_name);
+        }
+
+        if (!privilegeList.includes("update_sms_alert_config")) {
+            this.setState({ show_progress_status: false });
+            notification.addNotification({
+                message: "You do not have the rights to make email update. Please contact your Systems Administrator",
+                level: 'error',
+                autoDismiss: 5
+            });
+        } else {
             let params = {};
             params["id"] = this.state.id;
             params["email"] = this.state.email;
@@ -183,7 +198,8 @@ class EmailAlertConfig extends React.Component {
                     autoDismiss: 5
                 });
             }
-        
+        }
+
     }
 
     render() {
@@ -210,7 +226,7 @@ class EmailAlertConfig extends React.Component {
                                     </Tr>
 
                                 </Thead>
-                                {this.state.configs==null || this.state.configs.length == 0 ? <Tbody>
+                                {this.state.configs == null || this.state.configs.length == 0 ? <Tbody>
                                     <Tr style={{ border: '1px solid' }} key={0}>
                                         <Td>No data available ......</Td>
                                     </Tr>
@@ -304,32 +320,32 @@ class EmailAlertConfig extends React.Component {
 
                         </div>
                         <div className="card-body text-center">
-                          
-                                    <Row key={0}>
-                                        <Col>
-                                        <Button
-                size="sm"
-                variant="secondary"
-                onClick={() =>
-                    this.closeUpdateDialog()
-                }
-            >
-                Dismiss
-            </Button>
-                                        </Col>
-                                        <Col>
-                                        <Button
-                size="sm"
-                variant="primary"
-                onClick={() =>
-                    this.updateConfigs()
-                }
-            >
-                Save
-            </Button>
-                                        </Col>
-                                    </Row>
-                               
+
+                            <Row key={0}>
+                                <Col>
+                                    <Button
+                                        size="sm"
+                                        variant="secondary"
+                                        onClick={() =>
+                                            this.closeUpdateDialog()
+                                        }
+                                    >
+                                        Dismiss
+                                    </Button>
+                                </Col>
+                                <Col>
+                                    <Button
+                                        size="sm"
+                                        variant="primary"
+                                        onClick={() =>
+                                            this.updateConfigs()
+                                        }
+                                    >
+                                        Save
+                                    </Button>
+                                </Col>
+                            </Row>
+
                         </div>
 
 

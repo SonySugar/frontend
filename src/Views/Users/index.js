@@ -117,10 +117,14 @@ class Users extends React.Component {
             dept_list: [],
             dept_id: '',
             user_id: '',
+            id: '',
             user_name: '',
+            action: '',
+            activation_message: '',
             openDelete: false,
             disabled: false,
             show_progress_status: false,
+            openConfirm: false,
             report: [],
             pageNum: 0,
             pageCount: 1,
@@ -232,20 +236,20 @@ class Users extends React.Component {
         const notification = this.notificationSystem.current;
         //check permissions
         let privilegeList = [];
-        //let privileges = Authenticatonservice.getUser().data.user.roles.privileges;
-        //for (let k in privileges) {
+        let privileges = Authenticatonservice.getUser().data.systemUser.roles.privileges;
+        for (let k in privileges) {
 
-        //     privilegeList.push(privileges[k].mprivileges.privilege_name);
-        // }
+            privilegeList.push(privileges[k].mprivileges.privilege_name);
+        }
 
-        // if (!privilegeList.includes("update_user")) {
-        //     this.setState({ show_progress_status: false });
-        //     notification.addNotification({
-        //         message: "You do not have the rights to make system user updates. Please contact your Systems Administrator",
-        //         level: 'error',
-        //         autoDismiss: 5
-        //     });
-        // } else {
+        if (!privilegeList.includes("update_system_user")) {
+            this.setState({ show_progress_status: false });
+            notification.addNotification({
+                message: "You do not have the rights to make system user updates. Please contact your Systems Administrator",
+                level: 'error',
+                autoDismiss: 5
+            });
+        } else {
 
             if (this.state.updated_full_name == null || this.state.updated_full_name === '') {
                 this.setState({ show_progress_status: false });
@@ -310,7 +314,7 @@ class Users extends React.Component {
                     });
                 }
             }
-        //}
+        }
     }
     async saveUsers() {
         this.closeAddDialog();
@@ -318,21 +322,21 @@ class Users extends React.Component {
         const notification = this.notificationSystem.current;
 
         //check permissions
-        // let privilegeList = [];
-        // let privileges = Authenticatonservice.getUser().data.user.roles.privileges;
-        // for (let k in privileges) {
+        let privilegeList = [];
+        let privileges = Authenticatonservice.getUser().data.systemUser.roles.privileges;
+        for (let k in privileges) {
 
-        //     privilegeList.push(privileges[k].mprivileges.privilege_name);
-        // }
+            privilegeList.push(privileges[k].mprivileges.privilege_name);
+        }
 
-        // if (!privilegeList.includes("update_api_configurations")) {
-        //     this.setState({ show_progress_status: false });
-        //     notification.addNotification({
-        //         message: "You do not have the rights to create a system user. Please contact your Systems Administrator",
-        //         level: 'error',
-        //         autoDismiss: 5
-        //     });
-        // } else {
+        if (!privilegeList.includes("create_users")) {
+            this.setState({ show_progress_status: false });
+            notification.addNotification({
+                message: "You do not have the rights to create a system user. Please contact your Systems Administrator",
+                level: 'error',
+                autoDismiss: 5
+            });
+        } else {
             if (this.state.full_names == null || this.state.full_names === '') {
                 this.setState({ show_progress_status: false });
 
@@ -394,43 +398,60 @@ class Users extends React.Component {
                     });
                 }
             }
-        //}
+        }
 
     }
-    async onClickUserActivattion(row, flag) {
-        this.setState({
-            disabled: true
-        });
+
+    async activateDeactivateUser() {
+        this.closeConfirmActivationDialog();
         this.setState({ show_progress_status: true });
-        let params = {};
         const notification = this.notificationSystem.current;
-        // let flag = "Active";
 
-        params["id"] = row.id;
-        params["activate"] = flag === "Inactive"?0:1;
+        //check permissions
+        let privilegeList = [];
+        let privileges = Authenticatonservice.getUser().data.systemUser.roles.privileges;
+        for (let k in privileges) {
 
+            privilegeList.push(privileges[k].mprivileges.privilege_name);
+        }
 
-        let result = await APIService.makePostRequest("user/activate", params);
-        if (result.success) {
-            notification.addNotification({
-                message: result.message,
-                level: 'success',
-                autoDismiss: 5
-            });
-
-            this.getSystemusers(0);
-            this.setState({ show_progress_status: false });
-        } else {
+        if (!privilegeList.includes("activate_system_user")) {
             this.setState({ show_progress_status: false });
             notification.addNotification({
-                message: result.message,
+                message: "You do not have the rights to make activate or deactivate system user. Please contact your Systems Administrator",
                 level: 'error',
                 autoDismiss: 5
             });
+        } else {
+            let params = {};
+            params["id"] = this.state.id;
+            params["activate"] = this.state.action;
+
+            let result = await APIService.makePostRequest("user/activate", params);
+            if (result.success) {
+                notification.addNotification({
+                    message: result.message,
+                    level: 'success',
+                    autoDismiss: 5
+                });
+                this.closeConfirmActivationDialog();
+                this.setState({
+                    id: '',
+                    action: '',
+
+                });
+                this.getSystemusers(0);
+                this.setState({ show_progress_status: false });
+            } else {
+                this.setState({ show_progress_status: false });
+                notification.addNotification({
+                    message: result.message,
+                    level: 'error',
+                    autoDismiss: 5
+                });
+            }
+            this.setState({ show_progress_status: false });
         }
-        this.setState({
-            disabled: false
-        })
     }
     onUserDelete(row) {
         const notification = this.notificationSystem.current;
@@ -455,42 +476,59 @@ class Users extends React.Component {
     }
     async deleteUser() {
         this.closeDeleteDialog();
-        this.setState({
-            disabled: true
-        });
-        this.setState({ show_progress_status: true });
-        let params = {};
         const notification = this.notificationSystem.current;
+        //check permissions
+        let privilegeList = [];
+        let privileges = Authenticatonservice.getUser().data.systemUser.roles.privileges;
+        for (let k in privileges) {
 
+            privilegeList.push(privileges[k].mprivileges.privilege_name);
+        }
 
-        params["id"] = this.state.user_id;
-
-
-
-        let result = await APIService.makePostRequest("users/delete", params);
-        if (result.success) {
-            notification.addNotification({
-                message: 'System user deleted',
-                level: 'success',
-                autoDismiss: 5
-            });
-            this.setState({
-                user_id: ''
-            });
-            this.closeDeleteDialog();
-            this.getSystemusers(0);
-            this.setState({ show_progress_status: false });
-        } else {
+        if (!privilegeList.includes("delete_system_user")) {
             this.setState({ show_progress_status: false });
             notification.addNotification({
-                message: result.message,
+                message: "You do not have the rights to delete a system user. Please contact your Systems Administrator",
                 level: 'error',
                 autoDismiss: 5
             });
+        } else {
+            this.setState({
+                disabled: true
+            });
+            this.setState({ show_progress_status: true });
+            let params = {};
+
+
+            params["id"] = this.state.user_id;
+
+
+
+            let result = await APIService.makePostRequest("users/delete", params);
+            if (result.success) {
+                notification.addNotification({
+                    message: 'System user deleted',
+                    level: 'success',
+                    autoDismiss: 5
+                });
+                this.setState({
+                    user_id: ''
+                });
+                this.closeDeleteDialog();
+                this.getSystemusers(0);
+                this.setState({ show_progress_status: false });
+            } else {
+                this.setState({ show_progress_status: false });
+                notification.addNotification({
+                    message: result.message,
+                    level: 'error',
+                    autoDismiss: 5
+                });
+            }
+            this.setState({
+                disabled: false
+            })
         }
-        this.setState({
-            disabled: false
-        })
     }
     async getAllPrivileges() {
         //call API
@@ -569,48 +607,31 @@ class Users extends React.Component {
 
         );
     }
-    cellActivateDeativate(row) {
+    activateButton(row) {
+        const { classes } = this.props;
+        if (!row.active) {
 
-        if (row.active == true) {
             return (
 
-                /*<Button
-                    size="sm"
-                    // variant="primary"
 
-                    style={{ color: "#fff", backgroundColor: "#1e4388" }}
-                    disabled={this.state.disabled}
-                    onClick={() =>
-                        this.onClickUserActivattion(row, "Inactive")
-                    }
-                >
-                    DeActivate
-                </Button>*/
                 <IconButton onClick={() =>
-                    this.onClickUserActivattion(row, "Inactive")
+                    this.onClickActivationActions(row)
                 }>
-                    <CloseIcon style={{ color: "orange" }} titleAccess='Deactivate system user' />
+                    <DoneIcon style={{ color: "green" }} titleAccess='Activate system user' />
                 </IconButton>
 
-            );
 
+
+
+            );
         } else {
             return (
 
-                /* <Button
-                     size="sm"
-                     style={{ color: "#fff", backgroundColor: "green" }}
-                     disabled={this.state.disabled}
-                     onClick={() =>
-                         this.onClickUserActivattion(row, "Active")
-                     }
-                 >
-                     Activate
-                 </Button>*/
+
                 <IconButton onClick={() =>
-                    this.onClickUserActivattion(row, "Active")
+                    this.onClickActivationActions(row)
                 }>
-                    <DoneIcon style={{ color: "green" }} titleAccess='Activate system user' />
+                    <CloseIcon style={{ color: "red" }} titleAccess='Deactivate system user' />
                 </IconButton>
 
             );
@@ -729,6 +750,23 @@ class Users extends React.Component {
         }
 
     }
+
+    onClickActivationActions(row) {
+        let actionFlag = false;
+        let message = 'Are you sure you want to deactivate ' + row.fullname;
+        if (!row.active) {
+
+            message = 'Are you sure you want to activate ' + row.fullname;
+            actionFlag = true;
+        }
+        this.setState({
+            id: row.id,
+            action: actionFlag,
+            activation_message: message
+        });
+        this.openConfirmActivationDialog();
+    }
+
     onClickUserSelected(row) {
         this.setState({
             updated_user_id: row.id,
@@ -835,6 +873,12 @@ class Users extends React.Component {
             this.setState({ show_progress_status: false });
         }
     }
+    openConfirmActivationDialog() {
+        this.setState({ openConfirm: true });
+    }
+    closeConfirmActivationDialog() {
+        this.setState({ openConfirm: false });
+    }
     render() {
 
         return (
@@ -853,14 +897,14 @@ class Users extends React.Component {
                     <br />
                     <br />
                     <Button
-                size="sm"
-                variant="secondary"
-                onClick={() =>
-                    this.openAddDialog()
-                }
-            >
-                Create User
-            </Button>
+                        size="sm"
+                        variant="secondary"
+                        onClick={() =>
+                            this.openAddDialog()
+                        }
+                    >
+                        Create User
+                    </Button>
                     <CSVLink data={this.state.report} headers={headers} filename='Company_System_Users.csv'>
 
                         <FaFileExcel size={50} color='green' title='Download users' />
@@ -920,7 +964,7 @@ class Users extends React.Component {
                                             {u.roles.role_name}
                                         </Td>
                                         <Td>{this.cellButton(u)}</Td>
-                                        <Td>{this.cellActivateDeativate(u)}</Td>
+                                        <Td>{this.activateButton(u)}</Td>
                                         <Td>{this.deleteButton(u)}</Td>
                                     </Tr>
                                 )
@@ -1087,26 +1131,26 @@ class Users extends React.Component {
                                 <Tbody>
                                     <Tr key={0}>
                                         <Td>
-                                        <Button
-                size="sm"
-                variant="secondary"
-                onClick={() =>
-                    this.closeAddDialog()
-                }
-            >
-                Dismiss
-            </Button>
+                                            <Button
+                                                size="sm"
+                                                variant="secondary"
+                                                onClick={() =>
+                                                    this.closeAddDialog()
+                                                }
+                                            >
+                                                Dismiss
+                                            </Button>
                                         </Td>
                                         <Td>
-                                        <Button
-                size="sm"
-                variant="primary"
-                onClick={() =>
-                    this.saveUsers()
-                }
-            >
-                Save
-            </Button>
+                                            <Button
+                                                size="sm"
+                                                variant="primary"
+                                                onClick={() =>
+                                                    this.saveUsers()
+                                                }
+                                            >
+                                                Save
+                                            </Button>
                                         </Td>
                                     </Tr>
                                 </Tbody>
@@ -1143,23 +1187,23 @@ class Users extends React.Component {
 
                             <Row key={0}>
                                 <Col>                    <Button
-                size="sm"
-                variant="secondary"
-                onClick={() =>
-                    this.closeDeleteDialog()
-                }
-            >
-                Create User
-            </Button></Col>
+                                    size="sm"
+                                    variant="secondary"
+                                    onClick={() =>
+                                        this.closeDeleteDialog()
+                                    }
+                                >
+                                    Create User
+                                </Button></Col>
                                 <Col>                     <Button
-                size="sm"
-                variant="primary"
-                onClick={() =>
-                    this.deleteUser()
-                }
-            >
-                Delete User
-            </Button></Col>
+                                    size="sm"
+                                    variant="primary"
+                                    onClick={() =>
+                                        this.deleteUser()
+                                    }
+                                >
+                                    Delete User
+                                </Button></Col>
                             </Row>
 
 
@@ -1277,25 +1321,25 @@ class Users extends React.Component {
                             <Row key={0}>
                                 <Col>
                                     <Button
-                size="sm"
-                variant="secondary"
-                onClick={() =>
-                    this.closeUpdateDialog()
-                }
-            >
-                Dismiss
-            </Button>
+                                        size="sm"
+                                        variant="secondary"
+                                        onClick={() =>
+                                            this.closeUpdateDialog()
+                                        }
+                                    >
+                                        Dismiss
+                                    </Button>
                                 </Col>
                                 <Col>
-                                <Button
-                size="sm"
-                variant="primary"
-                onClick={() =>
-                    this.updateUsers()
-                }
-            >
-                Save
-            </Button>
+                                    <Button
+                                        size="sm"
+                                        variant="primary"
+                                        onClick={() =>
+                                            this.updateUsers()
+                                        }
+                                    >
+                                        Save
+                                    </Button>
 
                                 </Col>
                             </Row>
@@ -1312,6 +1356,51 @@ class Users extends React.Component {
 
 
 
+
+                </Dialog>
+
+                <Dialog
+                    open={this.state.openConfirm}
+
+                    maxWidth
+
+                >
+
+                    <div className="card">
+                        <div className="card-body text-center">
+
+                            <h4>{this.state.activation_message}</h4>
+
+                        </div>
+                        <Row>
+                            <Col>
+                                <div className="card-body text-center">
+                                    <Button
+                                        size="sm"
+                                        variant="secondary"
+                                        onClick={() =>
+                                            this.closeConfirmActivationDialog()
+                                        }
+                                    > No</Button>
+                                </div>
+                            </Col>
+                            <Col>
+                                <div className="card-body text-center">
+                                    <Button
+                                        size="sm"
+                                        variant="primary"
+                                        onClick={() =>
+                                            this.activateDeactivateUser()
+                                        }
+                                    >
+                                        Yes
+                                    </Button>
+                                </div>
+                            </Col>
+                        </Row>
+
+
+                    </div>
 
                 </Dialog>
 

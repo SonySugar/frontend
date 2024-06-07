@@ -24,7 +24,7 @@ import { FaFileExcel, FaTimes, FaUserPlus, FaSave, FaDoorOpen, FaFilePdf } from 
 import jsPDF from "jspdf";
 import "jspdf-autotable";
 import { format } from "date-fns";
-import {Buffer} from 'buffer';
+import { Buffer } from 'buffer';
 
 
 
@@ -117,16 +117,16 @@ class Tcr extends React.Component {
             requestby: '',
             contact: '',
             id: '',
-            status:'',
-            remarks:'',
-            blobURL:'',
+            status: '',
+            remarks: '',
+            blobURL: '',
             showmoremessage: 'Click here to show more details',
             disabled: false,
             show_progress_status: false,
-            showmore:false,
+            showmore: false,
             showbtn: true,
             showdocmessage: 'Click here to show uploaded documents',
-            showdocs:false,
+            showdocs: false,
             report: [],
             pageNum: 0,
             pageCount: 1,
@@ -205,7 +205,7 @@ class Tcr extends React.Component {
                 params["site"] = r.site;
                 params["cropcycle"] = r.cropcycle;
                 params["age"] = r.age;
-                params["updatedby"] = r.system_user !==null ? r.system_user.username: "None"
+                params["updatedby"] = r.system_user !== null ? r.system_user.username : "None"
                 params["requestby"] = r.farmer.firstname + " " + r.farmer.lastname;
                 params["contact"] = r.farmer.phonenumber_one;
                 params["datecreated"] = r.datecreated;
@@ -223,70 +223,70 @@ class Tcr extends React.Component {
         const notification = this.notificationSystem.current;
         //check permissions
         let privilegeList = [];
-        //let privileges = Authenticatonservice.getUser().data.user.roles.privileges;
-        //for (let k in privileges) {
+        let privileges = Authenticatonservice.getUser().data.user.roles.privileges;
+        for (let k in privileges) {
 
-        //     privilegeList.push(privileges[k].mprivileges.privilege_name);
-        // }
+            privilegeList.push(privileges[k].mprivileges.privilege_name);
+        }
 
-        // if (!privilegeList.includes("update_user")) {
-        //     this.setState({ show_progress_status: false });
-        //     notification.addNotification({
-        //         message: "You do not have the rights to make system user updates. Please contact your Systems Administrator",
-        //         level: 'error',
-        //         autoDismiss: 5
-        //     });
-        // } else {
-
-        if (this.state.remarks == null || this.state.remarks === '') {
+        if (!privilegeList.includes("update_tcr_status")) {
             this.setState({ show_progress_status: false });
-
             notification.addNotification({
-                message: 'Please enter remarks',
-                level: 'warning',
+                message: "You do not have the rights to update temporary contract request status. Please contact your Systems Administrator",
+                level: 'error',
                 autoDismiss: 5
             });
-        } else if (this.state.updated_phone_number === 'submitted') {
-            this.setState({ show_progress_status: false });
+        } else {
 
-            notification.addNotification({
-                message: 'Status should not remain as submitted',
-                level: 'warning',
-                autoDismiss: 5
-            });
-        }  else {
+            if (this.state.remarks == null || this.state.remarks === '') {
+                this.setState({ show_progress_status: false });
 
-            let params = {};
-            params["id"] = this.state.id;
-            params["status"] = this.state.status;
-            params["remarks"] = this.state.remarks;
-
-            let result = await APIService.makePostRequest("tcr_request/update", params);
-            if (result.success) {
                 notification.addNotification({
-                    message: result.message,
-                    level: 'success',
+                    message: 'Please enter remarks',
+                    level: 'warning',
                     autoDismiss: 5
                 });
-                this.closeUpdateDialog();
-                this.setState({
-                    id: '',
-                    status: '',
-                    remarks: '',
-
-                });
-                this.getTcr(0);
+            } else if (this.state.updated_phone_number === 'submitted') {
                 this.setState({ show_progress_status: false });
+
+                notification.addNotification({
+                    message: 'Status should not remain as submitted',
+                    level: 'warning',
+                    autoDismiss: 5
+                });
             } else {
-                this.setState({ show_progress_status: false });
-                notification.addNotification({
-                    message: result.message,
-                    level: 'error',
-                    autoDismiss: 5
-                });
+
+                let params = {};
+                params["id"] = this.state.id;
+                params["status"] = this.state.status;
+                params["remarks"] = this.state.remarks;
+
+                let result = await APIService.makePostRequest("tcr_request/update", params);
+                if (result.success) {
+                    notification.addNotification({
+                        message: result.message,
+                        level: 'success',
+                        autoDismiss: 5
+                    });
+                    this.closeUpdateDialog();
+                    this.setState({
+                        id: '',
+                        status: '',
+                        remarks: '',
+
+                    });
+                    this.getTcr(0);
+                    this.setState({ show_progress_status: false });
+                } else {
+                    this.setState({ show_progress_status: false });
+                    notification.addNotification({
+                        message: result.message,
+                        level: 'error',
+                        autoDismiss: 5
+                    });
+                }
             }
         }
-        //}
     }
 
     async getAllPrivileges() {
@@ -307,7 +307,7 @@ class Tcr extends React.Component {
         this.setState({
             openUpdate: false,
             updated_hover: false,
-            showmore:false
+            showmore: false
         });
     }
     openSessionDialog() {
@@ -345,17 +345,17 @@ class Tcr extends React.Component {
             openUpdate: true,
             updated_hover: true,
         });
-        if(row.status == "rejected" || row.status == "approved"){
+        if (row.status == "rejected" || row.status == "approved") {
             this.setState({
                 showbtn: false
             })
-        }else{
+        } else {
             this.setState({
-                showbtn:true
+                showbtn: true
             })
         }
         let fileData = [];
-        row.files.forEach(f=>{
+        row.files.forEach(f => {
             let param = {}
             param["filename"] = f.fileName
             param["data"] = f.data
@@ -363,9 +363,9 @@ class Tcr extends React.Component {
         });
         console.log(fileData)
         this.setState({
-            files:fileData
+            files: fileData
         })
-  
+
 
     }
 
@@ -446,33 +446,33 @@ class Tcr extends React.Component {
             this.setState({ show_progress_status: false });
         }
     }
-    showMoreDetails(){
-        if(this.state.showmore){
-            this.setState({showmoremessage: 'Click here to show more details', showmore: false})
-        }else{
-            this.setState({showmoremessage: 'Hide details', showmore: true})
-        }
-        
-    }
-    showDocDetails(){
-        if(this.state.showdocs){
-            this.setState({showdocmessage: 'Click here to show uploaded documents', showdocs: false})
-        }else{
-            this.setState({showdocmessage: 'Hide documents', showdocs: true})
-        }
-        
-    }
-    getFormattedStatus(val){
-        if(val == "rejected"){
-            return <Td style = {{ color : 'red'}}>{val}</Td>
+    showMoreDetails() {
+        if (this.state.showmore) {
+            this.setState({ showmoremessage: 'Click here to show more details', showmore: false })
+        } else {
+            this.setState({ showmoremessage: 'Hide details', showmore: true })
         }
 
-        if(val == "approved"){
-            return <Td style = {{ color : 'green'}}>{val}</Td>
+    }
+    showDocDetails() {
+        if (this.state.showdocs) {
+            this.setState({ showdocmessage: 'Click here to show uploaded documents', showdocs: false })
+        } else {
+            this.setState({ showdocmessage: 'Hide documents', showdocs: true })
         }
-        
-        if(val == "in review"){
-            return <Td style = {{ color : 'orange'}}>{val}</Td>
+
+    }
+    getFormattedStatus(val) {
+        if (val == "rejected") {
+            return <Td style={{ color: 'red' }}>{val}</Td>
+        }
+
+        if (val == "approved") {
+            return <Td style={{ color: 'green' }}>{val}</Td>
+        }
+
+        if (val == "in review") {
+            return <Td style={{ color: 'orange' }}>{val}</Td>
         }
 
         return <Td>{val}</Td>
@@ -680,57 +680,57 @@ class Tcr extends React.Component {
                                 <div className="input-group mb-3">
                                     <input type="text" className="form-control" style={{ color: '#000000' }} value={this.state.contact} readOnly />
                                 </div>
-                                </Row>:null}
-                                <Row>
+                            </Row> : null}
+                            <Row>
                                 <label style={{ color: '#000000' }}><b>Status</b></label>
-                        <div className="input-group mb-3">
-                            <select
-                                className="form-control"
-                                value={this.state.status}
-                                onChange={e => this.handleChange(e, "status")}
-                            >
-                                <option value="submitted">
-                                    Submitted
-                                </option>
+                                <div className="input-group mb-3">
+                                    <select
+                                        className="form-control"
+                                        value={this.state.status}
+                                        onChange={e => this.handleChange(e, "status")}
+                                    >
+                                        <option value="submitted">
+                                            Submitted
+                                        </option>
 
-                                <option value="in review">
-                                    In review
-                                </option>
-                                <option value="rejected">
-                                    Rejected
-                                </option>
-                                <option value="approved">
-                                    Approved
-                                </option>
-                            </select>
-                            </div>
-                            <label style={{ color: '#000000' }}><b>Remarks</b></label>
-                            <div className="input-group mb-3">
-                            
+                                        <option value="in review">
+                                            In review
+                                        </option>
+                                        <option value="rejected">
+                                            Rejected
+                                        </option>
+                                        <option value="approved">
+                                            Approved
+                                        </option>
+                                    </select>
+                                </div>
+                                <label style={{ color: '#000000' }}><b>Remarks</b></label>
+                                <div className="input-group mb-3">
+
                                     <textarea
                                         className="form-control"
                                         value={this.state.remarks}
                                         style={{ height: '200px', width: '600px' }}
                                         onChange={e => this.handleChange(e, "remarks")}
                                     ></textarea>
-                                    </div>
-                           
-                                </Row>
-                                <Row>
+                                </div>
+
+                            </Row>
+                            <Row>
                                 <p><b style={{ color: 'brown' }} onClick={() => { this.showDocDetails() }}>{this.state.showdocmessage}</b></p>
                             </Row>
-                            {this.state.showdocs ?<Row>
+                            {this.state.showdocs ? <Row>
                                 {this.state.files.map(
-                                    f=>(
+                                    f => (
                                         <div className="card-body text-center">
-                                        <center>
-                                        {f.filename.includes(".pdf") ? <embed src={`data:application/pdf;base64,${f.data}`} height={500} width={800}/> : f.filename.includes(".jpg") ? <img src={`data:image/jpeg;base64,${f.data}`} height={500} width={800} />: f.filename.includes(".jpeg") ? <img src={`data:image/jpeg;base64,${f.data}`} height={500} width={800}/>:<img src={`data:image/png;base64,${f.data}`} height={500} width={800}/>}
-                                        </center>
+                                            <center>
+                                                {f.filename.includes(".pdf") ? <embed src={`data:application/pdf;base64,${f.data}`} height={500} width={800} /> : f.filename.includes(".jpg") ? <img src={`data:image/jpeg;base64,${f.data}`} height={500} width={800} /> : f.filename.includes(".jpeg") ? <img src={`data:image/jpeg;base64,${f.data}`} height={500} width={800} /> : <img src={`data:image/png;base64,${f.data}`} height={500} width={800} />}
+                                            </center>
                                         </div>
                                     )
                                 )}
-                                </Row>:null}
-                                <br />
+                            </Row> : null}
+                            <br />
                             <Row key={0}>
                                 <Col>
                                     <Button
@@ -744,7 +744,7 @@ class Tcr extends React.Component {
                                     </Button>
                                 </Col>
                                 <Col>
-                                    {this.state.showbtn?<Button
+                                    {this.state.showbtn ? <Button
                                         size="sm"
                                         variant="primary"
                                         onClick={() =>
@@ -752,7 +752,7 @@ class Tcr extends React.Component {
                                         }
                                     >
                                         Save
-                                    </Button>:null}
+                                    </Button> : null}
 
                                 </Col>
                             </Row>
