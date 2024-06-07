@@ -685,40 +685,41 @@ class AppUsers extends React.Component {
                 <Dialog
                     open={this.state.openConfirm}
 
-                    fullWidth
+                    maxWidth
 
                 >
 
                     <div className="card">
-                        <center>
-                            <Lottie
-                                loop
-                                animationData={lottieJson}
-                                play
-                                style={{ width: 50, height: 50 }}
-                            />
-                        </center>
                         <div className="card-body text-center">
 
                             <h4>{this.state.activation_message}</h4>
 
-
+                            <Row>
+                                <Col>
+                                    <Button
+                                        size="sm"
+                                        variant="secondary"
+                                        onClick={() =>
+                                            this.closeConfirmActivationDialog()
+                                        }
+                                    >
+                                        Dismiss
+                                    </Button>
+                                </Col>
+                                <Col>
+                                    <Button
+                                        size="sm"
+                                        variant="primary"
+                                        onClick={() =>
+                                            this.activateDeactivateUser()
+                                        }
+                                    >
+                                        Dismiss
+                                    </Button>
+                                </Col>
+                            </Row>
 
                         </div>
-                        <Row>
-                            <Col>
-                                <div className="card-body text-center">
-                                    <button className="btn btn-primary shadow-2 mb-4" onClick={() => { this.closeConfirmActivationDialog() }}>No</button>
-                                </div>
-                            </Col>
-                            <Col>
-                                <div className="card-body text-center">
-                                    <button className="btn btn-success shadow-2 mb-4" onClick={() => { this.activateDeactivateUser() }}>Yes</button>
-                                </div>
-                            </Col>
-                        </Row>
-
-
                     </div>
 
                 </Dialog>
@@ -766,15 +767,26 @@ class AppUsers extends React.Component {
 
                             <Row key={0}>
                                 <Col>
-                                    <IconButton onClick={() => { this.closeDetails() }}>
-
-                                        <FaTimes size={50} title='Cancel' color='red' />
-                                    </IconButton>
+                                    <Button
+                                        size="sm"
+                                        variant="secondary"
+                                        onClick={() =>
+                                            this.closeDetails()
+                                        }
+                                    >
+                                        Dismiss
+                                    </Button>
                                 </Col>
                                 <Col>
-                                    <IconButton onClick={() => { this.updateDetails() }}>
-                                        <FaSave color='green' size={50} title='Save' />
-                                    </IconButton>
+                                    <Button
+                                        size="sm"
+                                        variant="primary"
+                                        onClick={() =>
+                                            this.updateDetails()
+                                        }
+                                    >
+                                        Save
+                                    </Button>
                                 </Col>
                             </Row>
 

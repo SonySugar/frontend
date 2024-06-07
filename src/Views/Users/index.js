@@ -1169,7 +1169,7 @@ class Users extends React.Component {
                 <Dialog
                     open={this.state.openDelete}
 
-                    fullWidth
+                    maxWidth
 
                 >
 
@@ -1193,7 +1193,7 @@ class Users extends React.Component {
                                         this.closeDeleteDialog()
                                     }
                                 >
-                                    Create User
+                                    Dismiss
                                 </Button></Col>
                                 <Col>                     <Button
                                     size="sm"
@@ -1371,7 +1371,7 @@ class Users extends React.Component {
 
                             <h4>{this.state.activation_message}</h4>
 
-                        </div>
+                       
                         <Row>
                             <Col>
                                 <div className="card-body text-center">
@@ -1399,7 +1399,7 @@ class Users extends React.Component {
                             </Col>
                         </Row>
 
-
+                        </div>
                     </div>
 
                 </Dialog>
