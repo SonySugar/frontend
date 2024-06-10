@@ -65,16 +65,16 @@ class ContractTypes extends React.Component {
             openUpdate: false,
             openDelete: false,
             closesession: false,
-            new_contract_name:'',
-            updated_contract_name:'',
-            update_contract_id:'',
-            updated_description:'',
+            new_contract_name: '',
+            updated_contract_name: '',
+            update_contract_id: '',
+            updated_description: '',
             contract_name: '',
             description: '',
             _notificationSystem: null,
-            selectedflag:'',
-            hidedialog:false,
-            show_progress_status:false,
+            selectedflag: '',
+            hidedialog: false,
+            show_progress_status: false,
             deletecontracttype: false,
             type_name: '',
             type_to_be_deleted: ''
@@ -88,7 +88,7 @@ class ContractTypes extends React.Component {
     }
     checkLogin() {
         if (JSON.stringify(AuthenticationService.getUser()) == '{}') {
-           this.logout();
+            this.logout();
         }
     }
     handleChange = (event, stateName) => {
@@ -108,23 +108,23 @@ class ContractTypes extends React.Component {
         //call API
         const notification = this.notificationSystem.current;
         let apiResponse = await APIService.makeApiGetRequest("contracttypes");
-            if (apiResponse.status == 403) {
-                this.setState({ closesession: true });
-                notification.addNotification({
-                    message: apiResponse.message,
-                    level: 'error',
-                    autoDismiss: 5
-                });
-            }else{
-               
-                    this.setState({ contracttype: apiResponse });
-                 
-                    
-            }
-       
+        if (apiResponse.status == 403) {
+            this.setState({ closesession: true });
+            notification.addNotification({
+                message: apiResponse.message,
+                level: 'error',
+                autoDismiss: 5
+            });
+        } else {
+
+            this.setState({ contracttype: apiResponse });
+
+
+        }
+
     }
-     
-      cellButton(row) {
+
+    cellButton(row) {
         const { classes } = this.props;
         return (
 
@@ -137,181 +137,181 @@ class ContractTypes extends React.Component {
         );
     }
 
-    closeUpdateDialog(){
-        this.setState({ openUpdate: false }); 
+    closeUpdateDialog() {
+        this.setState({ openUpdate: false });
     }
-    openUpdateDialog(){
-        this.setState({ openUpdate: true }); 
-    }
-
-    closeAddDialog(){
-        this.setState({ open: false }); 
-    }
-    openAddDialog(){
-        this.setState({ open: true }); 
+    openUpdateDialog() {
+        this.setState({ openUpdate: true });
     }
 
-    closeDeleteDialog(){
-        this.setState({ openDelete: false }); 
+    closeAddDialog() {
+        this.setState({ open: false });
     }
-    
-    onClickContractSelected(row){
+    openAddDialog() {
+        this.setState({ open: true });
+    }
+
+    closeDeleteDialog() {
+        this.setState({ openDelete: false });
+    }
+
+    onClickContractSelected(row) {
         this.setState({
-            updated_contract_name:row.type,
+            updated_contract_name: row.type,
             updated_description: row.description,
-            update_contract_id:row.id,
-            
+            update_contract_id: row.id,
+
         });
         this.openUpdateDialog();
     }
-    
-    async saveContract(){
+
+    async saveContract() {
         this.closeAddDialog();
         this.setState({ show_progress_status: true });
         const notification = this.notificationSystem.current;
-                  //check permissions
-                  let privilegeList = [];
-                  let privileges = Authenticatonservice.getUser().data.systemUser.roles.privileges;
-                  for(let k in privileges){
-                     
-                      privilegeList.push(privileges[k].mprivileges.privilege_name);
-                  }
-               if(!privilegeList.includes("create_contract_type")){
-                   this.setState({ show_progress_status: false });
-                   notification.addNotification({
-                     message: "You do not have the rights to create land request contract types. Please contact your Systems Administrator",
-                     level: 'error',
-                     autoDismiss: 5
-                   });  
-               }else{
-        if (this.state.contract_name == null || this.state.contract_name === '') {
+        //check permissions
+        let privilegeList = [];
+        let privileges = Authenticatonservice.getUser().data.systemUser.roles.privileges;
+        for (let k in privileges) {
+
+            privilegeList.push(privileges[k].mprivileges.privilege_name);
+        }
+        if (!privilegeList.includes("create_contract_type")) {
             this.setState({ show_progress_status: false });
-    
-          notification.addNotification({
-            message: 'Please enter contract type',
-            level: 'warning',
-            autoDismiss: 5
-          });
-        }else  if (this.state.description == null || this.state.description === '') {
-            this.setState({ show_progress_status: false });
-    
-          notification.addNotification({
-            message: 'Please enter description',
-            level: 'warning',
-            autoDismiss: 5
-          });
-        }else {
-    
-          let params = {};
-          params["type"] = this.state.contract_name
-          params["description"] = this.state.description
-    
-          let result = await APIService.makePostRequest("contracttype/save", params);
-          if (result.success) {
             notification.addNotification({
-                message: result.message,
-                level: 'success',
+                message: "You do not have the rights to create land request contract types. Please contact your Systems Administrator",
+                level: 'error',
                 autoDismiss: 5
-              });
-              this.closeAddDialog();
-              this.setState({
-                contract_name:'',
-                description:''
-              });
-              this.getContractTypes();
-              this.setState({ show_progress_status: false });
-          } else {
-            this.setState({ show_progress_status: false });
-            notification.addNotification({
-              message: result.message,
-              level: 'error',
-              autoDismiss: 5
             });
-          }
+        } else {
+            if (this.state.contract_name == null || this.state.contract_name === '') {
+                this.setState({ show_progress_status: false });
+
+                notification.addNotification({
+                    message: 'Please enter contract type',
+                    level: 'warning',
+                    autoDismiss: 5
+                });
+            } else if (this.state.description == null || this.state.description === '') {
+                this.setState({ show_progress_status: false });
+
+                notification.addNotification({
+                    message: 'Please enter description',
+                    level: 'warning',
+                    autoDismiss: 5
+                });
+            } else {
+
+                let params = {};
+                params["type"] = this.state.contract_name
+                params["description"] = this.state.description
+
+                let result = await APIService.makePostRequest("contracttype/save", params);
+                if (result.success) {
+                    notification.addNotification({
+                        message: result.message,
+                        level: 'success',
+                        autoDismiss: 5
+                    });
+                    this.closeAddDialog();
+                    this.setState({
+                        contract_name: '',
+                        description: ''
+                    });
+                    this.getContractTypes();
+                    this.setState({ show_progress_status: false });
+                } else {
+                    this.setState({ show_progress_status: false });
+                    notification.addNotification({
+                        message: result.message,
+                        level: 'error',
+                        autoDismiss: 5
+                    });
+                }
+            }
         }
     }
-    }
-    async updateContractType(){
+    async updateContractType() {
         this.closeUpdateDialog();
         this.setState({ show_progress_status: true });
         const notification = this.notificationSystem.current;
 
-          //check permissions
-          let privilegeList = [];
-          let privileges = Authenticatonservice.getUser().data.systemUser.roles.privileges;
-          for(let k in privileges){
-             
-              privilegeList.push(privileges[k].mprivileges.privilege_name);
-          }
-       if(!privilegeList.includes("update_contract_type")){
-           this.setState({ show_progress_status: false });
-           notification.addNotification({
-             message: "You do not have the rights to update land request contract types. Please contact your Systems Administrator",
-             level: 'error',
-             autoDismiss: 5
-           });  
-       }else{
-        if (this.state.updated_contract_name == null || this.state.updated_contract_name === '') {
-          this.setState({ loggingIn: false });
-    
-          notification.addNotification({
-            message: 'Please enter contract type',
-            level: 'warning',
-            autoDismiss: 5
-          });
-        }else if(this.state.updated_description == null || this.state.updated_description === '') {
-            this.setState({ loggingIn: false });
-      
-            notification.addNotification({
-              message: 'Please enter description',
-              level: 'warning',
-              autoDismiss: 5
-            });
-          }else {
-    
-          let params = {};
-          params["type"] = this.state.updated_contract_name;
-          params["description"] = this.state.updated_description
-          params["id"] = this.state.update_contract_id;
-    
-          let result = await APIService.makePostRequest("contracttype/update", params);
-          if (result.success) {
-            notification.addNotification({
-                message: result.message,
-                level: 'success',
-                autoDismiss: 5
-              });
-              this.closeUpdateDialog();
-              this.setState({
-                updated_contract_name:'',
-                update_contract_id:'',
-                updated_description: ''
-              });
-              this.getContractTypes();
-              this.setState({ show_progress_status: false });
-          } else {
+        //check permissions
+        let privilegeList = [];
+        let privileges = Authenticatonservice.getUser().data.systemUser.roles.privileges;
+        for (let k in privileges) {
+
+            privilegeList.push(privileges[k].mprivileges.privilege_name);
+        }
+        if (!privilegeList.includes("update_contract_type")) {
             this.setState({ show_progress_status: false });
             notification.addNotification({
-              message: result.message,
-              level: 'error',
-              autoDismiss: 5
+                message: "You do not have the rights to update land request contract types. Please contact your Systems Administrator",
+                level: 'error',
+                autoDismiss: 5
             });
-          }
+        } else {
+            if (this.state.updated_contract_name == null || this.state.updated_contract_name === '') {
+                this.setState({ loggingIn: false });
+
+                notification.addNotification({
+                    message: 'Please enter contract type',
+                    level: 'warning',
+                    autoDismiss: 5
+                });
+            } else if (this.state.updated_description == null || this.state.updated_description === '') {
+                this.setState({ loggingIn: false });
+
+                notification.addNotification({
+                    message: 'Please enter description',
+                    level: 'warning',
+                    autoDismiss: 5
+                });
+            } else {
+
+                let params = {};
+                params["type"] = this.state.updated_contract_name;
+                params["description"] = this.state.updated_description
+                params["id"] = this.state.update_contract_id;
+
+                let result = await APIService.makePostRequest("contracttype/update", params);
+                if (result.success) {
+                    notification.addNotification({
+                        message: result.message,
+                        level: 'success',
+                        autoDismiss: 5
+                    });
+                    this.closeUpdateDialog();
+                    this.setState({
+                        updated_contract_name: '',
+                        update_contract_id: '',
+                        updated_description: ''
+                    });
+                    this.getContractTypes();
+                    this.setState({ show_progress_status: false });
+                } else {
+                    this.setState({ show_progress_status: false });
+                    notification.addNotification({
+                        message: result.message,
+                        level: 'error',
+                        autoDismiss: 5
+                    });
+                }
+            }
         }
-    }
     }
     deleteButton(row) {
         const { classes } = this.props;
         return (
 
 
-<IconButton onClick={() =>
-    this.confirmDeleteContractType(row)
-}>
+            <IconButton onClick={() =>
+                this.confirmDeleteContractType(row)
+            }>
 
-    <DeleteIcon style={{ color: "red" }} titleAccess='Delete contract type' />
+                <DeleteIcon style={{ color: "red" }} titleAccess='Delete contract type' />
 
-</IconButton>
+            </IconButton>
         );
     }
     confirmDeleteContractType(row) {
@@ -332,14 +332,14 @@ class ContractTypes extends React.Component {
         this.setState({ show_progress_status: true });
         const notification = this.notificationSystem.current;
 
-          //check permissions
-          let privilegeList = [];
-          let privileges = Authenticatonservice.getUser().data.systemUser.roles.privileges;
-          for(let k in privileges){
-             
-              privilegeList.push(privileges[k].mprivileges.privilege_name);
-          }
-          console.log(privilegeList)
+        //check permissions
+        let privilegeList = [];
+        let privileges = Authenticatonservice.getUser().data.systemUser.roles.privileges;
+        for (let k in privileges) {
+
+            privilegeList.push(privileges[k].mprivileges.privilege_name);
+        }
+        console.log(privilegeList)
 
         if (!privilegeList.includes("delete_contract_type")) {
             this.setState({ show_progress_status: false });
@@ -381,68 +381,68 @@ class ContractTypes extends React.Component {
     render() {
         return (
             <Aux>
-                  {this.state.show_progress_status && (<SpinnerDiv>
-          <CircularProgress />
-        </SpinnerDiv>)}
+                {this.state.show_progress_status && (<SpinnerDiv>
+                    <CircularProgress />
+                </SpinnerDiv>)}
                 <NotificationSystem ref={this.notificationSystem} style={custom_notification_style} />
                 <Row>
                     <Col>
-                    <Card title='Land Aquisition Request Contract Types' isOption>
-                    <Button
-                size="sm"
-                variant="secondary"
-                onClick={() =>
-                    this.openAddDialog()
-                }
-            >
-                Create Contract type
-            </Button>   
+                        <Card title='Land Aquisition Request Contract Types' isOption>
+                            <Button
+                                size="sm"
+                                variant="secondary"
+                                onClick={() =>
+                                    this.openAddDialog()
+                                }
+                            >
+                                Create Contract type
+                            </Button>
 
-  <Table>
-                        <Thead>
-                            <Tr style={{ border: '1px solid' }}>
-                                <Th>Contract type</Th>
-                                <Th>Description</Th>
-                                <Th>Created by</Th>
-                                <Th>Update</Th>
-                                <Th>Delete</Th>
-                                
-                            </Tr>
+                            <Table>
+                                <Thead>
+                                    <Tr style={{ border: '1px solid' }}>
+                                        <Th>Contract type</Th>
+                                        <Th>Description</Th>
+                                        <Th>Created by</Th>
+                                        <Th>Update</Th>
+                                        <Th>Delete</Th>
 
-                        </Thead>
-                        {this.state.contracttype==null ||this.state.contracttype.length == 0 ? <Tbody>
-                            <Tr style={{ border: '1px solid' }} key={0}>
-                                {this.state.type==null || this.state.type==""?
-                                <Td style={{color:'red'}}>No data available....</Td>:<Td style={{color:'blue'}}>Loading ....</Td>}
-                            </Tr>
-                        </Tbody> : <Tbody>
-                            {this.state.contracttype.map(
-                                (u, index) => (
-                                    <Tr style={{ border: '1px solid' }} key={index}>
-                                        <Td>
-                                            {u.type}
-                                        </Td>
-                                        <Td>
-                                            {u.description}
-                                        </Td>
-                                        <Td>
-                                            {u.system_user !== null ? u.system_user.username: "System"}
-                                        </Td>
-                                        <Td>
-                                        {this.cellButton(u)}
-                                        </Td>
-                                        <Td>{this.deleteButton(u)}</Td>  
-                                       
                                     </Tr>
-                                )
-                            )}
-                        </Tbody>}
-                    </Table>
 
-                            
+                                </Thead>
+                                {this.state.contracttype == null || this.state.contracttype.length == 0 ? <Tbody>
+                                    <Tr style={{ border: '1px solid' }} key={0}>
+                                        {this.state.type == null || this.state.type == "" ?
+                                            <Td style={{ color: 'red' }}>No data available....</Td> : <Td style={{ color: 'blue' }}>Loading ....</Td>}
+                                    </Tr>
+                                </Tbody> : <Tbody>
+                                    {this.state.contracttype.map(
+                                        (u, index) => (
+                                            <Tr style={{ border: '1px solid' }} key={index}>
+                                                <Td>
+                                                    {u.type}
+                                                </Td>
+                                                <Td>
+                                                    {u.description}
+                                                </Td>
+                                                <Td>
+                                                    {u.system_user !== null ? u.system_user.username : "System"}
+                                                </Td>
+                                                <Td>
+                                                    {this.cellButton(u)}
+                                                </Td>
+                                                <Td>{this.deleteButton(u)}</Td>
+
+                                            </Tr>
+                                        )
+                                    )}
+                                </Tbody>}
+                            </Table>
+
+
                         </Card>
-                       
- 
+
+
                     </Col>
                 </Row>
                 <Dialog
@@ -453,14 +453,14 @@ class ContractTypes extends React.Component {
                 >
 
                     <div className="card">
-                    <center>
-                  <Lottie
-                    loop
-                    animationData={lottieJson}
-                    play
-                    style={{ width: 50, height: 50 }}
-                  />
-                </center>
+                        <center>
+                            <Lottie
+                                loop
+                                animationData={lottieJson}
+                                play
+                                style={{ width: 50, height: 50 }}
+                            />
+                        </center>
                         <div className="card-body text-center">
                             <h3>Your session has expired</h3>
                             <br />
@@ -471,10 +471,10 @@ class ContractTypes extends React.Component {
 
                         </div>
                         <div className="card-body text-center">
-                        <IconButton onClick={() => { this.logout() }}>
+                            <IconButton onClick={() => { this.logout() }}>
 
-<FaDoorOpen size={50} title='Exit' color='red' />
-</IconButton>
+                                <FaDoorOpen size={50} title='Exit' color='red' />
+                            </IconButton>
                         </div>
 
 
@@ -494,9 +494,9 @@ class ContractTypes extends React.Component {
                         <div className="card-body text-center">
                             <h3>Create contract type</h3>
                             <Row>
-                               
+
                                 <Col>
-                                    
+
                                     <div className="input-group mb-3">
                                         <input type="text" className="form-control" style={{ color: '#000000' }} placeholder="Contract type" value={this.state.contract_name} onChange={e => this.handleChange(e, "contract_name")} />
                                     </div>
@@ -507,23 +507,35 @@ class ContractTypes extends React.Component {
                                 </Col>
                             </Row>
                             <Row>
-                            <Col>
-                            <div className="card-body text-center">
-                                <button className="btn btn-primary shadow-2 mb-4" onClick={() => { this.closeAddDialog() }}>Dismiss</button>
-                            </div>
-                            </Col>
-                            <Col>
-                            <div className="card-body text-center">
-                                <button className="btn btn-success shadow-2 mb-4" onClick={() => { this.saveContract() }}>Save</button>
-                            </div>
-                            </Col>
-                        </Row> 
+                                <Col>
+                                    <Button
+                                        size="sm"
+                                        variant="secondary"
+                                        onClick={() =>
+                                            this.closeAddDialog()
+                                        }
+                                    >
+                                        Dismiss
+                                    </Button>
+                                </Col>
+                                <Col>
+                                    <Button
+                                        size="sm"
+                                        variant="secondary"
+                                        onClick={() =>
+                                            this.saveContract()
+                                        }
+                                    >
+                                        Dismiss
+                                    </Button>
+                                </Col>
+                            </Row>
                         </div>
-                        
-                       
+
+
                     </div>
 
-                                         
+
                 </Dialog>
 
                 <Dialog
@@ -538,11 +550,11 @@ class ContractTypes extends React.Component {
                         <div className="card-body text-center">
                             <h3>Update Contract type</h3>
                             <Row>
-                               
+
                                 <Col>
-                                    
+
                                     <div className="input-group mb-3">
-                                        <input type="text" className="form-control" style={{ color: '#000000' }} placeholder="Contract type" value={this.state.updated_contract_name} onChange={e => this.handleChange(e, "updated_contract_name")}/>
+                                        <input type="text" className="form-control" style={{ color: '#000000' }} placeholder="Contract type" value={this.state.updated_contract_name} onChange={e => this.handleChange(e, "updated_contract_name")} />
                                     </div>
 
                                     <div className="input-group mb-3">
@@ -551,24 +563,35 @@ class ContractTypes extends React.Component {
                                 </Col>
                             </Row>
                             <Row>
-                            <Col>
-                                    <IconButton onClick={() => { this.closeUpdateDialog() }}>
-
-                                        <FaTimes size={50} title='Cancel' color='red' />
-                                    </IconButton>
+                                <Col>
+                                    <Button
+                                        size="sm"
+                                        variant="secondary"
+                                        onClick={() =>
+                                            this.closeUpdateDialog()
+                                        }
+                                    >
+                                        Dismiss
+                                    </Button>
                                 </Col>
                                 <Col>
-                                    <IconButton onClick={() => { this.updateContractType() }}>
-                                        <FaSave color='green' size={50} title='Save' />
-                                    </IconButton>
+                                    <Button
+                                        size="sm"
+                                        variant="primary"
+                                        onClick={() =>
+                                            this.updateContractType()
+                                        }
+                                    >
+                                        Dismiss
+                                    </Button>
                                 </Col>
-                                </Row> 
+                            </Row>
                         </div>
-                        
-                       
+
+
                     </div>
 
-                                         
+
                 </Dialog>
                 <Dialog
                     open={this.state.deletecontracttype}
@@ -586,38 +609,38 @@ class ContractTypes extends React.Component {
                             <br />
                             <h4>Are you sure you want to delete this contract type?</h4>
 
-                         
-                                    <Row key={0}>
-                                        <Col>                    <Button
-                size="sm"
-                variant="secondary"
-                onClick={() =>
-                    this.closeDeleteDialog()
-                }
-            >
-                Dismiss
-            </Button></Col>
-                                        <Col>                     <Button
-                size="sm"
-                variant="primary"
-                onClick={() =>
-                    this.deleteContractType()
-                }
-            >
-                Delete contract type
-            </Button></Col>
-                                    </Row>
-                                
+
+                            <Row key={0}>
+                                <Col>                    <Button
+                                    size="sm"
+                                    variant="secondary"
+                                    onClick={() =>
+                                        this.closeDeleteDialog()
+                                    }
+                                >
+                                    Dismiss
+                                </Button></Col>
+                                <Col>                     <Button
+                                    size="sm"
+                                    variant="primary"
+                                    onClick={() =>
+                                        this.deleteContractType()
+                                    }
+                                >
+                                    Delete contract type
+                                </Button></Col>
+                            </Row>
+
 
                         </div>
-                     
+
 
 
                     </div>
 
                 </Dialog>
             </Aux>
-            
+
         );
     }
 }
