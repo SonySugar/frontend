@@ -835,11 +835,15 @@ class Roles extends React.Component {
                                     )}
                                 </Tbody>
                             </Table>
-
-                            <IconButton onClick={() => { this.closeViewDialog() }}>
-
-                                <FaTimes size={50} title='Close' color='green' />
-                            </IconButton>
+                            <Button
+                                        size="sm"
+                                        variant="secondary"
+                                        onClick={() =>
+                                            this.closeViewDialog()
+                                        }
+                                    >
+                                        Close
+                                    </Button>
                         </div>
 
                     </div>

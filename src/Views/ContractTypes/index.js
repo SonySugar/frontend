@@ -521,12 +521,12 @@ class ContractTypes extends React.Component {
                                 <Col>
                                     <Button
                                         size="sm"
-                                        variant="secondary"
+                                        variant="primary"
                                         onClick={() =>
                                             this.saveContract()
                                         }
                                     >
-                                        Dismiss
+                                        Save
                                     </Button>
                                 </Col>
                             </Row>
@@ -582,7 +582,7 @@ class ContractTypes extends React.Component {
                                             this.updateContractType()
                                         }
                                     >
-                                        Dismiss
+                                        Save
                                     </Button>
                                 </Col>
                             </Row>
