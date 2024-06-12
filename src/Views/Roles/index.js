@@ -215,7 +215,7 @@ class Roles extends React.Component {
 
         //check permissions
         let privilegeList = [];
-        let privileges = Authenticatonservice.getUser().data.systemUser.role.privileges;
+        let privileges = Authenticatonservice.getUser().data.systemUser.roles.privileges;
         for (let k in privileges) {
 
             privilegeList.push(privileges[k].mprivileges.privilege_name);
@@ -302,7 +302,7 @@ class Roles extends React.Component {
 
         //check permissions
         let privilegeList = [];
-        let privileges = Authenticatonservice.getUser().data.systemUser.role.privileges;
+        let privileges = Authenticatonservice.getUser().data.systemUser.roles.privileges;
         for (let k in privileges) {
 
             privilegeList.push(privileges[k].mprivileges.privilege_name);
@@ -352,7 +352,7 @@ class Roles extends React.Component {
 
         //check permissions
         let privilegeList = [];
-        let privileges = Authenticatonservice.getUser().data.sytemUser.role.privileges;
+        let privileges = Authenticatonservice.getUser().data.systemUser.roles.privileges
         for (let k in privileges) {
 
             privilegeList.push(privileges[k].mprivileges.privilege_name);

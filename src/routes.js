@@ -21,6 +21,7 @@ const Lar = React.lazy(() => import('./Views/Lar'));
 const Tcr = React.lazy(() => import('./Views/Tcr'));
 const ContractTypes = React.lazy(() => import('./Views/ContractTypes'));
 const EmailAlertConfig = React.lazy(() => import('./Views/EmailAlertConfig'));
+const FileTemplates = React.lazy(() => import('./Views/FileTemplates'));
 
 
 const routes = [
@@ -39,6 +40,7 @@ const routes = [
     { path: '/tcr', exact: true, name: 'Lar', component: Tcr },
     { path: '/contracttypes', exact: true, name: 'ContractTypes', component: ContractTypes },
     { path: '/settings/emailalert', exact: true, name: 'EmailAlertConfig', component: EmailAlertConfig },
+    { path: '/settings/filetemplates', exact: true, name: 'FileTemplates', component: FileTemplates },
 ];
 
 export default routes;

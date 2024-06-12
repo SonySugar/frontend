@@ -66,13 +66,14 @@ class APIService {
   }
 
   async makePostUploadRequest(url, formData) {
-
+    const headerParams = await this._buildHeader();
     const request = {
       method: "POST",
       body: formData,
-      redirect: 'follow'
+      redirect: 'follow',
+      headerParams: headerParams
     };
-
+    
 
     let response = await fetch(this.BASE_URL + url, request)
       .then(this._parseResponse.bind(this))
@@ -85,12 +86,12 @@ class APIService {
   uploadFile = async (url, body) => {
     let builtUrl = await (this.BASE_URL + url);
 
-    const token = (await AuthenticationService.getUser().data.jwtToken) || (await CustomerAuthenticationService.getCustomer().data.jwtToken) || "";
+    const token = (await AuthenticationService.getUser().data.jwtToken) || "";
     
     let response = axios
       .post(builtUrl, body, {
         headers: {
-          Authorization: `CustBearer ${token}`
+          Authorization: `SysBearer ${token}`
         },
         timeout: 600000
       })

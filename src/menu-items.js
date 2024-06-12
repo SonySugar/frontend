@@ -52,6 +52,14 @@ export default {
                             url: '/settings/emailalert',
                             classes: 'nav-item',
                             icon: 'feather icon-mail'
+                        },
+                        {
+                            id: 'filetemplate-page',
+                            title: 'File Templates',
+                            type: 'item',
+                            url: '/settings/filetemplates',
+                            classes: 'nav-item',
+                            icon: 'feather icon-file'
                         }
 
 
