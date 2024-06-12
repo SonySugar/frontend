@@ -32,7 +32,7 @@ class Navigation extends Component {
     };
 
     componentDidMount() {
-        //this.state.privileges = [];
+        this.state.privileges = [];
       
         this.resize();
         window.addEventListener('resize', this.resize)
@@ -42,16 +42,16 @@ class Navigation extends Component {
         //var role = Authenticatonservice.getUser().data.user.roles.name;
         //console.log(">>>>>>>=====<<<<< "+role);
         
-        // let privilegeList = [];
-        // let privileges = Authenticatonservice.getUser().data.user.roles.privileges;
-        // for(let k in privileges){
+        let privilegeList = [];
+        let privileges = Authenticatonservice.getUser().data.systemUser.roles.privileges;
+        for(let k in privileges){
            
-        //     privilegeList.push(privileges[k].mprivileges.privilege_name);
-        // }
+            privilegeList.push(privileges[k].mprivileges.privilege_name);
+        }
        
-        // this.state.new_items = navigation;
+        this.state.new_items = navigation;
        
-        //  //Get nav items
+         //Get nav items
 
         //remove item from list
         // if(role.includes("MERCHANT")){
@@ -67,30 +67,33 @@ class Navigation extends Component {
         //     this.removeById(navigation.items,"user-merchant-settings");
         // }
 
-        // if(!privilegeList.includes("view_users_and_roles")){
-        //     this.removeById(navigation.items,"user-settings");
-        // }
-        // if(!privilegeList.includes("view_departments")){
-        //     this.removeById(navigation.items,"departments-settings");
-        // }
+        if(!privilegeList.includes("view_system_settings")){
+            this.removeById(navigation.items,"api-settings");
+        }
 
-        // if(!privilegeList.includes("view_regions")){
-        //     this.removeById(navigation.items,"regions-settings");
-        // }
-        // if(!privilegeList.includes("view_services")){
-        //     this.removeById(navigation.items,"services-settings");
-        // }
+        if(!privilegeList.includes("view_users")){
+            this.removeById(navigation.items,"user-settings");
+        }
 
-        // if(!privilegeList.includes("view_finance")){
-        //     this.removeById(navigation.items,"finance-settings");
-        // }
+        if(!privilegeList.includes("view_department")){
+            this.removeById(navigation.items,"departments-settings");
+        }
 
-        // if(!privilegeList.includes("view_corporate_bookings")){
-        //     this.removeById(navigation.items,"booking-settings");
-        // }
-        // if(!privilegeList.includes("view_corporate_management")){
-        //     this.removeById(navigation.items,"corporate-settings");
-        // }
+        if(!privilegeList.includes("view_sms")){
+            this.removeById(navigation.items,"smstemplate-settings");
+        }
+
+        if(!privilegeList.includes("view_ticket")){
+            this.removeById(navigation.items,"tickets-settings");
+        }
+
+        if(!privilegeList.includes("view_lar")){
+            this.removeById(navigation.items,"lar-settings");
+        }
+
+        if(!privilegeList.includes("view_tcr")){
+            this.removeById(navigation.items,"tcr-settings");
+        }
         // if(!privilegeList.includes("view_ticket_management")){
         //     this.removeById(navigation.items,"ticket-settings");
         // }
