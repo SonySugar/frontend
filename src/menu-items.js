@@ -53,17 +53,6 @@ export default {
                             classes: 'nav-item',
                             icon: 'feather icon-mail'
                         },
-                        {
-                            id: 'filetemplate-page',
-                            title: 'File Templates',
-                            type: 'item',
-                            url: '/settings/filetemplates',
-                            classes: 'nav-item',
-                            icon: 'feather icon-file'
-                        }
-
-
-
 
 
                     ]
@@ -154,7 +143,7 @@ export default {
                     children: [
 
                         {
-                            id: 'dept-page',
+                            id: 'template-page',
                             title: 'Sms Templates',
                             type: 'item',
                             url: '/sms/templates',
@@ -163,11 +152,27 @@ export default {
                         },
                         {
                             id: 'sendsms-page',
-                            title: 'Send SMS',
+                            title: 'Mobile App Users SMS',
                             type: 'item',
                             url: '/sms/send',
                             classes: 'nav-item',
-                            icon: 'feather icon-message-square'
+                            icon: 'feather icon-smartphone'
+                        },
+                        {
+                            id: 'groups-page',
+                            title: 'Contact Groups',
+                            type: 'item',
+                            url: '/sms/contactgroups',
+                            classes: 'nav-item',
+                            icon: 'feather icon-users'
+                        },
+                        {
+                            id: 'contactmanagement-page',
+                            title: 'Manage Contacts',
+                            type: 'item',
+                            url: '/sms/contactupload',
+                            classes: 'nav-item',
+                            icon: 'feather icon-upload'
                         },
 
                     ]

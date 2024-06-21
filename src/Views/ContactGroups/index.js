@@ -53,30 +53,26 @@ display: grid;
 place-items: center;
 z-index: 10;
 `;
-class TicketConfigs extends React.Component {
+class ContactGroups extends React.Component {
     notificationSystem = React.createRef();
     constructor() {
         super();
         this.state = {
-            categories: [],
+            groups: [],
             open: false,
             openUpdate: false,
             openDelete: false,
             closesession: false,
-            new_category_name: '',
-            new_mail_to: '',
-            updated_category_name: '',
-            update_category_id: '',
-            updated_description: '',
-            category_name: '',
-            description: '',
+            new_group_name: '',
+            updated_group_name: '',
+            update_group_id: '',
             _notificationSystem: null,
             role: '',
             updated_role: '',
-            cat_id: '',
+            group_id: '',
             selectedflag: '',
-            category_name: '',
-            category_to_be_deleted: '',
+            group_name: '',
+            group_to_be_deleted: '',
             hidedialog: false,
             show_progress_status: false
         }
@@ -84,7 +80,7 @@ class TicketConfigs extends React.Component {
     async componentDidMount() {
         this.setState({ show_progress_status: true });
         this.checkLogin();
-        await this.getCategories();
+        await this.getContactGroups();
         this.setState({ show_progress_status: false });
     }
     checkLogin() {
@@ -105,10 +101,10 @@ class TicketConfigs extends React.Component {
         this.props.history.push("/");
 
     }
-    async getCategories() {
+    async getContactGroups() {
         //call API
         const notification = this.notificationSystem.current;
-        let apiResponse = await APIService.makeApiGetRequest("farmers/ticket_category");
+        let apiResponse = await APIService.makeApiGetRequest("contactgroups");
         if (apiResponse.status == 403) {
             this.setState({ closesession: true });
             notification.addNotification({
@@ -118,7 +114,7 @@ class TicketConfigs extends React.Component {
             });
         } else {
 
-            this.setState({ categories: apiResponse });
+            this.setState({ groups: apiResponse });
 
 
         }
@@ -130,9 +126,9 @@ class TicketConfigs extends React.Component {
         return (
 
             <IconButton onClick={() =>
-                this.onClickCategorySelected(row)
+                this.onClickGroupSelected(row)
             } >
-                <EditIcon style={{ color: "#04a9f5" }} titleAccess='Update category' />
+                <EditIcon style={{ color: "#04a9f5" }} titleAccess='Update group' />
             </IconButton>
 
         );
@@ -156,17 +152,16 @@ class TicketConfigs extends React.Component {
         this.setState({ openDelete: false });
     }
 
-    onClickCategorySelected(row) {
+    onClickGroupSelected(row) {
         this.setState({
-            updated_category_name: row.category,
-            updated_description: row.description,
-            update_category_id: row.id,
+            updated_group_name: row.name,
+            update_group_id: row.id,
 
         });
         this.openUpdateDialog();
     }
 
-    async saveCategory() {
+    async saveContactGroup() {
         this.closeAddDialog();
         this.setState({ show_progress_status: true });
         const notification = this.notificationSystem.current;
@@ -178,15 +173,15 @@ class TicketConfigs extends React.Component {
             privilegeList.push(privileges[k].mprivileges.privilege_name);
         }
 
-        if (!privilegeList.includes("create_ticket_category")) {
+        if (!privilegeList.includes("create_contact_group")) {
             this.setState({ show_progress_status: false });
             notification.addNotification({
-                message: "You do not have the rights to create a ticket category. Please contact your Systems Administrator",
+                message: "You do not have the rights to create a contact group. Please contact your Systems Administrator",
                 level: 'error',
                 autoDismiss: 5
             });
         } else {
-            if (this.state.category_name == null || this.state.category_name === '') {
+            if (this.state.group_name == null || this.state.group_name === '') {
                 this.setState({ show_progress_status: false });
 
                 notification.addNotification({
@@ -194,33 +189,23 @@ class TicketConfigs extends React.Component {
                     level: 'warning',
                     autoDismiss: 5
                 });
-            } else if (this.state.description == null || this.state.description === '') {
-                this.setState({ show_progress_status: false });
-
-                notification.addNotification({
-                    message: 'Please enter description',
-                    level: 'warning',
-                    autoDismiss: 5
-                });
             } else {
 
                 let params = {};
-                params["category"] = this.state.category_name
-                params["description"] = this.state.description
+                params["name"] = this.state.group_name
 
-                let result = await APIService.makePostRequest("ticket_category/save", params);
+                let result = await APIService.makePostRequest("contactgroup/save", params);
                 if (result.success) {
                     notification.addNotification({
-                        message: 'Category saved',
+                        message: result.message,
                         level: 'success',
                         autoDismiss: 5
                     });
                     this.closeAddDialog();
                     this.setState({
-                        category: '',
-                        description: ''
+                        group_name: '',
                     });
-                    this.getCategories();
+                    this.getContactGroups();
                     this.setState({ show_progress_status: false });
                 } else {
                     this.setState({ show_progress_status: false });
@@ -233,7 +218,7 @@ class TicketConfigs extends React.Component {
             }
         }
     }
-    async updateCategory() {
+    async updateContactGroup() {
         this.closeUpdateDialog();
         this.setState({ show_progress_status: true });
         const notification = this.notificationSystem.current;
@@ -245,51 +230,41 @@ class TicketConfigs extends React.Component {
 
             privilegeList.push(privileges[k].mprivileges.privilege_name);
         }
-        if (!privilegeList.includes("update_ticket_category")) {
+        if (!privilegeList.includes("update_contact_group")) {
             this.setState({ show_progress_status: false });
             notification.addNotification({
-                message: "You do not have the rights to update ticket category. Please contact your Systems Administrator",
+                message: "You do not have the rights to update contact group. Please contact your Systems Administrator",
                 level: 'error',
                 autoDismiss: 5
             });
         } else {
-            if (this.state.updated_category_name == null || this.state.updated_category_name === '') {
+            if (this.state.updated_group_name == null || this.state.updated_group_name === '') {
                 this.setState({ loggingIn: false });
 
                 notification.addNotification({
-                    message: 'Please enter category name',
-                    level: 'warning',
-                    autoDismiss: 5
-                });
-            } else if (this.state.updated_description == null || this.state.updated_description === '') {
-                this.setState({ loggingIn: false });
-
-                notification.addNotification({
-                    message: 'Please enter description',
+                    message: 'Please enter group name',
                     level: 'warning',
                     autoDismiss: 5
                 });
             } else {
 
                 let params = {};
-                params["category"] = this.state.updated_category_name;
-                params["description"] = this.state.updated_description
-                params["id"] = this.state.update_category_id;
+                params["name"] = this.state.updated_group_name;
+                params["id"] = this.state.update_group_id;
 
-                let result = await APIService.makePostRequest("ticket_category/save", params);
+                let result = await APIService.makePostRequest("contactgroup/save", params);
                 if (result.success) {
                     notification.addNotification({
-                        message: 'Category saved',
+                        message: result.message,
                         level: 'success',
                         autoDismiss: 5
                     });
                     this.closeUpdateDialog();
                     this.setState({
-                        updated_category_name: '',
-                        updated_mail_to: '',
-                        update_category_id: ''
+                        updated_group_name: '',
+                        update_group_id: ''
                     });
-                    this.getCategories();
+                    this.getContactGroups();
                     this.setState({ show_progress_status: false });
                 } else {
                     this.setState({ show_progress_status: false });
@@ -308,25 +283,25 @@ class TicketConfigs extends React.Component {
 
 
             <IconButton onClick={() =>
-                this.confirmDeleteCategory(row)
+                this.confirmDeleteContactGroup(row)
             }>
 
-                <DeleteIcon style={{ color: "red" }} titleAccess='Delete category' />
+                <DeleteIcon style={{ color: "red" }} titleAccess='Delete group' />
 
             </IconButton>
         );
     }
-    confirmDeleteCategory(row) {
-        this.openDeleteCategory(row);
+    confirmDeleteContactGroup(row) {
+        this.openDeleteContactGroup(row);
     }
-    openDeleteCategory(row) {
+    openDeleteContactGroup(row) {
         this.setState({
             openDelete: true,
-            category_name: row.category,
-            category_to_be_deleted: row.id
+            group_name: row.name,
+            group_to_be_deleted: row.id
         })
     }
-    async deleteCategory() {
+    async deleteContactGroup() {
         this.closeDeleteDialog();
         this.setState({ show_progress_status: true });
         const notification = this.notificationSystem.current;
@@ -340,19 +315,19 @@ class TicketConfigs extends React.Component {
         }
         console.log(privilegeList)
 
-        if (!privilegeList.includes("delete_ticket_category")) {
+        if (!privilegeList.includes("delete_contact_group")) {
             this.setState({ show_progress_status: false });
             notification.addNotification({
-                message: "You do not have the rights to delete a ticket category. Please contact your Systems Administrator",
+                message: "You do not have the rights to delete a contact group. Please contact your Systems Administrator",
                 level: 'error',
                 autoDismiss: 5
             });
         } else {
             let params = {};
-            params["id"] = this.state.category_to_be_deleted
+            params["id"] = this.state.group_to_be_deleted
 
 
-            let result = await APIService.makePostRequest("ticket_category/delete", params);
+            let result = await APIService.makePostRequest("contactgroup/delete", params);
             if (result.success) {
                 notification.addNotification({
                     message: result.message,
@@ -361,9 +336,9 @@ class TicketConfigs extends React.Component {
                 });
                 this.closeDeleteDialog();
                 this.setState({
-                    category_to_be_deleted: ''
+                    group_to_be_deleted: ''
                 });
-                this.getCategories();
+                this.getContactGroups();
                 this.setState({ show_progress_status: false });
             } else {
                 this.setState({ show_progress_status: false });
@@ -386,7 +361,7 @@ class TicketConfigs extends React.Component {
                 <NotificationSystem ref={this.notificationSystem} style={custom_notification_style} />
                 <Row>
                     <Col>
-                        <Card title='Ticket Categories' isOption>
+                        <Card title='Contact groups' isOption>
                             <Button
                                 size="sm"
                                 variant="secondary"
@@ -394,38 +369,30 @@ class TicketConfigs extends React.Component {
                                     this.openAddDialog()
                                 }
                             >
-                                Create Category
+                                Create Contact Group
                             </Button>
 
                             <Table>
                                 <Thead>
                                     <Tr style={{ border: '1px solid' }}>
-                                        <Th>Category</Th>
-                                        <Th>Description</Th>
-                                        <Th>Created by</Th>
+                                        <Th>Name</Th>
                                         <Th>Update</Th>
                                         <Th>Delete</Th>
 
                                     </Tr>
 
                                 </Thead>
-                                {this.state.categories == null || this.state.categories.length == 0 ? <Tbody>
+                                {this.state.groups == null || this.state.groups.length == 0 ? <Tbody>
                                     <Tr style={{ border: '1px solid' }} key={0}>
                                         {this.state.type == null || this.state.type == "" ?
                                             <Td style={{ color: 'red' }}>No data available....</Td> : <Td style={{ color: 'blue' }}>Loading ....</Td>}
                                     </Tr>
                                 </Tbody> : <Tbody>
-                                    {this.state.categories.map(
+                                    {this.state.groups.map(
                                         (u, index) => (
                                             <Tr style={{ border: '1px solid' }} key={index}>
                                                 <Td>
-                                                    {u.category}
-                                                </Td>
-                                                <Td>
-                                                    {u.description}
-                                                </Td>
-                                                <Td>
-                                                    {u.system_user !== null ? u.system_user.username : "System"}
+                                                    {u.name}
                                                 </Td>
                                                 <Td>
                                                     {this.cellButton(u)}
@@ -491,23 +458,22 @@ class TicketConfigs extends React.Component {
                     <div className="card">
 
                         <div className="card-body text-center">
-                            <h3>Create Category</h3>
+                            <h3>Create Contact Group</h3>
                             <Row>
 
                                 <Col>
 
                                     <div className="input-group mb-3">
-                                        <input type="text" className="form-control" style={{ color: '#000000' }} placeholder="Category name" value={this.state.category_name} onChange={e => this.handleChange(e, "category_name")} />
+                                        <input type="text" className="form-control" style={{ color: '#000000' }} placeholder="Group name" value={this.state.group_name} onChange={e => this.handleChange(e, "group_name")} />
                                     </div>
 
-                                    <div className="input-group mb-3">
-                                        <input type="text" className="form-control" style={{ color: '#000000' }} placeholder="Description" value={this.state.description} onChange={e => this.handleChange(e, "description")} />
-                                    </div>
                                 </Col>
                             </Row>
                             <Row>
                                 <Col>
-                                <Button
+                                    <div className="card-body text-center">
+
+                                        <Button
                                                     size="sm"
                                                     variant="secondary"
                                                     onClick={() =>
@@ -516,13 +482,14 @@ class TicketConfigs extends React.Component {
                                                 >
                                                     Dismiss
                                                 </Button>
+                                    </div>
                                 </Col>
                                 <Col>
                                 <Button
                                                     size="sm"
                                                     variant="primary"
                                                     onClick={() =>
-                                                        this.saveCategory()
+                                                        this.saveContactGroup()
                                                     }
                                                 >
                                                     Save
@@ -547,23 +514,21 @@ class TicketConfigs extends React.Component {
                     <div className="card">
 
                         <div className="card-body text-center">
-                            <h3>Update Category</h3>
+                            <h3>Update Contact Group</h3>
                             <Row>
 
                                 <Col>
 
                                     <div className="input-group mb-3">
-                                        <input type="text" className="form-control" style={{ color: '#000000' }} placeholder="Category name" value={this.state.updated_category_name} onChange={e => this.handleChange(e, "updated_category_name")} />
+                                        <input type="text" className="form-control" style={{ color: '#000000' }} placeholder="Group name" value={this.state.updated_group_name} onChange={e => this.handleChange(e, "updated_group_name")} />
                                     </div>
 
-                                    <div className="input-group mb-3">
-                                        <input type="text" className="form-control" style={{ color: '#000000' }} placeholder="Description" value={this.state.updated_description} onChange={e => this.handleChange(e, "updated_description")} />
-                                    </div>
+
                                 </Col>
                             </Row>
                             <Row>
                                 <Col>
-                                <Button
+                                        <Button
                                                     size="sm"
                                                     variant="secondary"
                                                     onClick={() =>
@@ -578,7 +543,7 @@ class TicketConfigs extends React.Component {
                                                     size="sm"
                                                     variant="primary"
                                                     onClick={() =>
-                                                        this.updateCategory()
+                                                        this.updateContactGroup()
                                                     }
                                                 >
                                                     Save
@@ -603,10 +568,10 @@ class TicketConfigs extends React.Component {
                         <center>
                         </center>
                         <div className="card-body text-center">
-                            <h3>{this.state.category_name}</h3>
+                            <h3>{this.state.group_name}</h3>
                             <br />
                             <br />
-                            <h4>Are you sure you want to delete this category?</h4>
+                            <h4>Are you sure you want to delete this contact group?</h4>
 
 
                             <Row key={0}>
@@ -623,10 +588,10 @@ class TicketConfigs extends React.Component {
                                     size="sm"
                                     variant="primary"
                                     onClick={() =>
-                                        this.deleteCategory()
+                                        this.deleteContactGroup()
                                     }
                                 >
-                                    Delete category
+                                    Delete group
                                 </Button></Col>
                             </Row>
 
@@ -644,4 +609,4 @@ class TicketConfigs extends React.Component {
     }
 }
 
-export default TicketConfigs;
+export default ContactGroups;

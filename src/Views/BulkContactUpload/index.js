@@ -16,7 +16,9 @@ import { Table, Thead, Tbody, Tr, Th, Td } from 'react-super-responsive-table'
 import 'react-super-responsive-table/dist/SuperResponsiveTableStyle.css';
 import EditIcon from '@material-ui/icons/Edit';
 import DeleteIcon from '@material-ui/icons/Delete';
-import { FaTimes, FaSave, FaDoorOpen, Fa } from 'react-icons/fa';
+import { FaFileExcel, FaSave, FaDoorOpen, Fa } from 'react-icons/fa';
+import ArrowForward from '@material-ui/icons/ArrowForward';
+import ArrowBack from '@material-ui/icons/ArrowBack';
 
 var custom_notification_style = {
     NotificationItem: { // Override the notification item
@@ -53,38 +55,49 @@ display: grid;
 place-items: center;
 z-index: 10;
 `;
-class TicketConfigs extends React.Component {
+class BulkContactUpload extends React.Component {
     notificationSystem = React.createRef();
     constructor() {
         super();
         this.state = {
-            categories: [],
+            contacts: [],
+            paginated_contacts:[],
+            groups: [],
+            contacts_temp:[],
             open: false,
             openUpdate: false,
             openDelete: false,
             closesession: false,
-            new_category_name: '',
-            new_mail_to: '',
-            updated_category_name: '',
-            update_category_id: '',
-            updated_description: '',
-            category_name: '',
-            description: '',
+            new_first_name: '',
+            new_last_name: '',
+            new_phone_number: '',
+            new_national_id: '',
+            new_contact_group: '',
+            updated_first_name: '',
+            updated_last_name: '',
+            updated_phone_number: '',
+            updated_national_id: '',
+            update_contact_id: '',
+            update_contact_group:'',
             _notificationSystem: null,
             role: '',
             updated_role: '',
-            cat_id: '',
+            contact_id: '',
             selectedflag: '',
-            category_name: '',
-            category_to_be_deleted: '',
+            contact_name: '',
+            contact_to_be_deleted: '',
             hidedialog: false,
-            show_progress_status: false
+            show_progress_status: false,
+            pageNum: 0,
+            pageCount: 1,
         }
     }
     async componentDidMount() {
         this.setState({ show_progress_status: true });
         this.checkLogin();
-        await this.getCategories();
+        await this.getAllContacts();
+        await this.getContacts(0);
+        await this.getContactGroups();
         this.setState({ show_progress_status: false });
     }
     checkLogin() {
@@ -105,10 +118,10 @@ class TicketConfigs extends React.Component {
         this.props.history.push("/");
 
     }
-    async getCategories() {
+    async getContactGroups() {
         //call API
         const notification = this.notificationSystem.current;
-        let apiResponse = await APIService.makeApiGetRequest("farmers/ticket_category");
+        let apiResponse = await APIService.makeApiGetRequest("contactgroups");
         if (apiResponse.status == 403) {
             this.setState({ closesession: true });
             notification.addNotification({
@@ -118,11 +131,57 @@ class TicketConfigs extends React.Component {
             });
         } else {
 
-            this.setState({ categories: apiResponse });
+            this.setState({ groups: apiResponse });
 
 
         }
 
+    }
+
+    async getContacts(pagenum) {
+        //call API
+        const notification = this.notificationSystem.current;
+        let apiResponse = await APIService.makeApiGetRequest("contacts/" + pagenum + "/10");
+
+        if (apiResponse.status == 403) {
+            this.setState({ closesession: true });
+            notification.addNotification({
+                message: apiResponse.message,
+                level: 'error',
+                autoDismiss: 5
+            });
+
+        } else {
+
+            this.setState({ paginated_contacts: apiResponse, contacts_temp: apiResponse });
+
+
+
+
+        }
+    }
+
+    async getAllContacts() {
+        //call API
+        const notification = this.notificationSystem.current;
+        let apiResponse = await APIService.makeApiGetRequest("contacts");
+
+        if (apiResponse.status == 403) {
+            this.setState({ closesession: true });
+            notification.addNotification({
+                message: apiResponse.message,
+                level: 'error',
+                autoDismiss: 5
+            });
+
+        } else {
+
+            this.setState({ contacts: apiResponse });
+
+
+
+
+        }
     }
 
     cellButton(row) {
@@ -130,9 +189,9 @@ class TicketConfigs extends React.Component {
         return (
 
             <IconButton onClick={() =>
-                this.onClickCategorySelected(row)
+                this.onClickContactSelected(row)
             } >
-                <EditIcon style={{ color: "#04a9f5" }} titleAccess='Update category' />
+                <EditIcon style={{ color: "#04a9f5" }} titleAccess='Update group' />
             </IconButton>
 
         );
@@ -156,17 +215,20 @@ class TicketConfigs extends React.Component {
         this.setState({ openDelete: false });
     }
 
-    onClickCategorySelected(row) {
+    onClickContactSelected(row) {
         this.setState({
-            updated_category_name: row.category,
-            updated_description: row.description,
-            update_category_id: row.id,
+            update_contact_id: row.id,
+            updated_first_name: row.firstname,
+            updated_last_name: row.lastname,
+            updated_phone_number: row.phonenumber,
+            updated_national_id: row.nationalid,
+            update_contact_group: row.contact_group.id
 
         });
         this.openUpdateDialog();
     }
 
-    async saveCategory() {
+    async saveContact() {
         this.closeAddDialog();
         this.setState({ show_progress_status: true });
         const notification = this.notificationSystem.current;
@@ -178,49 +240,57 @@ class TicketConfigs extends React.Component {
             privilegeList.push(privileges[k].mprivileges.privilege_name);
         }
 
-        if (!privilegeList.includes("create_ticket_category")) {
+        if (!privilegeList.includes("create_contact")) {
             this.setState({ show_progress_status: false });
             notification.addNotification({
-                message: "You do not have the rights to create a ticket category. Please contact your Systems Administrator",
+                message: "You do not have the rights to create a contact. Please contact your Systems Administrator",
                 level: 'error',
                 autoDismiss: 5
             });
         } else {
-            if (this.state.category_name == null || this.state.category_name === '') {
+            if (this.state.new_first_name == null || this.state.new_first_name === '') {
                 this.setState({ show_progress_status: false });
 
                 notification.addNotification({
-                    message: 'Please enter category name',
+                    message: 'Please enter first name',
                     level: 'warning',
                     autoDismiss: 5
                 });
-            } else if (this.state.description == null || this.state.description === '') {
+            } else  if (this.state.new_phone_number == null || this.state.new_phone_number === '') {
                 this.setState({ show_progress_status: false });
 
                 notification.addNotification({
-                    message: 'Please enter description',
+                    message: 'Please enter a valid phone number (254.....)',
                     level: 'warning',
                     autoDismiss: 5
                 });
-            } else {
+            }else {
 
                 let params = {};
-                params["category"] = this.state.category_name
-                params["description"] = this.state.description
+                params["firstname"] = this.state.new_first_name;
+                params["lastname"] = this.state.new_last_name;
+                params["phonenumber"] = this.state.new_phone_number;
+                params["nationalid"] = this.state.new_national_id;
+                params["group"] = this.state.new_contact_group;
+                params["id"] = "";
 
-                let result = await APIService.makePostRequest("ticket_category/save", params);
+                let result = await APIService.makePostRequest("contact/save", params);
                 if (result.success) {
                     notification.addNotification({
-                        message: 'Category saved',
+                        message: result.message,
                         level: 'success',
                         autoDismiss: 5
                     });
                     this.closeAddDialog();
                     this.setState({
-                        category: '',
-                        description: ''
+                        new_first_name: '',
+                        new_last_name: '',
+                        new_phone_number: '',
+                        new_national_id: '',
+                        new_contact_group: ''
                     });
-                    this.getCategories();
+                    this.getContacts(0);
+                    this.getAllContacts();
                     this.setState({ show_progress_status: false });
                 } else {
                     this.setState({ show_progress_status: false });
@@ -233,7 +303,7 @@ class TicketConfigs extends React.Component {
             }
         }
     }
-    async updateCategory() {
+    async updateContact() {
         this.closeUpdateDialog();
         this.setState({ show_progress_status: true });
         const notification = this.notificationSystem.current;
@@ -245,51 +315,57 @@ class TicketConfigs extends React.Component {
 
             privilegeList.push(privileges[k].mprivileges.privilege_name);
         }
-        if (!privilegeList.includes("update_ticket_category")) {
+        if (!privilegeList.includes("update_contact")) {
             this.setState({ show_progress_status: false });
             notification.addNotification({
-                message: "You do not have the rights to update ticket category. Please contact your Systems Administrator",
+                message: "You do not have the rights to update a contact. Please contact your Systems Administrator",
                 level: 'error',
                 autoDismiss: 5
             });
         } else {
-            if (this.state.updated_category_name == null || this.state.updated_category_name === '') {
+            if (this.state.updated_first_name == null || this.state.updated_first_name === '') {
                 this.setState({ loggingIn: false });
 
                 notification.addNotification({
-                    message: 'Please enter category name',
+                    message: 'Please enter first name',
                     level: 'warning',
                     autoDismiss: 5
                 });
-            } else if (this.state.updated_description == null || this.state.updated_description === '') {
+            } else if (this.state.updated_phone_number == null || this.state.updated_phone_number === '') {
                 this.setState({ loggingIn: false });
 
                 notification.addNotification({
-                    message: 'Please enter description',
+                    message: 'Please enter phone number',
                     level: 'warning',
                     autoDismiss: 5
                 });
-            } else {
+            }else {
 
                 let params = {};
-                params["category"] = this.state.updated_category_name;
-                params["description"] = this.state.updated_description
-                params["id"] = this.state.update_category_id;
+                params["id"] = this.state.update_contact_id;
+                params["group"] = this.state.update_contact_group;
+                params["firstname"] = this.state.updated_first_name;
+                params["lastname"] = this.state.updated_last_name;
+                params["phonenumber"] = this.state.updated_phone_number;
+                params["nationalid"] = this.state.updated_national_id;
 
-                let result = await APIService.makePostRequest("ticket_category/save", params);
+
+                let result = await APIService.makePostRequest("contact/save", params);
                 if (result.success) {
                     notification.addNotification({
-                        message: 'Category saved',
+                        message: result.message,
                         level: 'success',
                         autoDismiss: 5
                     });
                     this.closeUpdateDialog();
                     this.setState({
-                        updated_category_name: '',
-                        updated_mail_to: '',
-                        update_category_id: ''
+                        updated_group_name: '',
+                        update_group_id: '',
+                        pageNum: 0,
+                        pageCount: 1
                     });
-                    this.getCategories();
+                    this.getContacts(0);
+                    this.getAllContacts();
                     this.setState({ show_progress_status: false });
                 } else {
                     this.setState({ show_progress_status: false });
@@ -308,25 +384,25 @@ class TicketConfigs extends React.Component {
 
 
             <IconButton onClick={() =>
-                this.confirmDeleteCategory(row)
+                this.confirmDeleteContact(row)
             }>
 
-                <DeleteIcon style={{ color: "red" }} titleAccess='Delete category' />
+                <DeleteIcon style={{ color: "red" }} titleAccess='Delete contact' />
 
             </IconButton>
         );
     }
-    confirmDeleteCategory(row) {
-        this.openDeleteCategory(row);
+    confirmDeleteContact(row) {
+        this.openDeleteContact(row);
     }
-    openDeleteCategory(row) {
+    openDeleteContact(row) {
         this.setState({
             openDelete: true,
-            category_name: row.category,
-            category_to_be_deleted: row.id
+            contact_name: row.firstname + " " + row.lastname,
+            contact_to_be_deleted: row.id
         })
     }
-    async deleteCategory() {
+    async deleteContact() {
         this.closeDeleteDialog();
         this.setState({ show_progress_status: true });
         const notification = this.notificationSystem.current;
@@ -340,19 +416,19 @@ class TicketConfigs extends React.Component {
         }
         console.log(privilegeList)
 
-        if (!privilegeList.includes("delete_ticket_category")) {
+        if (!privilegeList.includes("delete_contact")) {
             this.setState({ show_progress_status: false });
             notification.addNotification({
-                message: "You do not have the rights to delete a ticket category. Please contact your Systems Administrator",
+                message: "You do not have the rights to delete a contact. Please contact your Systems Administrator",
                 level: 'error',
                 autoDismiss: 5
             });
         } else {
             let params = {};
-            params["id"] = this.state.category_to_be_deleted
+            params["id"] = this.state.contact_to_be_deleted
 
 
-            let result = await APIService.makePostRequest("ticket_category/delete", params);
+            let result = await APIService.makePostRequest("contact/delete", params);
             if (result.success) {
                 notification.addNotification({
                     message: result.message,
@@ -361,9 +437,12 @@ class TicketConfigs extends React.Component {
                 });
                 this.closeDeleteDialog();
                 this.setState({
-                    category_to_be_deleted: ''
+                    contact_to_be_deleted: '',
+                    pageNum: 0,
+                    pageCount: 1
                 });
-                this.getCategories();
+                this.getAllContacts();
+                this.getContacts(0);
                 this.setState({ show_progress_status: false });
             } else {
                 this.setState({ show_progress_status: false });
@@ -377,6 +456,120 @@ class TicketConfigs extends React.Component {
 
 
     }
+    uploadFile = async e => {
+        const notification = this.notificationSystem.current;
+        
+          //check permissions
+          let privilegeList = [];
+          let privileges = Authenticatonservice.getUser().data.systemUser.roles.privileges;
+          for(let k in privileges){
+             
+              privilegeList.push(privileges[k].mprivileges.privilege_name);
+          }
+  
+          if(!privilegeList.includes("create_file_template")){
+              this.setState({ show_progress_status: false });
+              notification.addNotification({
+                message: "You do not have the rights to create a template. Please contact your Systems Administrator",
+                level: 'error',
+                autoDismiss: 5
+              });  
+          }else{
+  
+        this.setState({
+            show_progress_status: true,
+            open: false
+        });
+        const files = e.target.files;
+        const formData = new FormData();
+        formData.append("file", files[0]);
+        formData.append("group", this.state.selected_group);
+    
+        // clear the value
+        e.target.value = null;
+    
+        let response = await APIService.uploadFile("/contact/upload", formData);
+        console.log(response);
+        if (response) {
+        
+          if (response.data && response.data.success) {
+            notification.addNotification({
+              message: response.data.message,
+              level: 'success',
+              autoDismiss: 5
+            });
+             this.setState({
+               new_filename:'',
+               new_filetype:'',
+               show_actions:false,
+             })
+            // get uploaded clients
+            this.getAllContacts();
+            this.getContacts(0);
+          } else {
+            notification.addNotification({
+              message: response.response.data.message,
+              level: 'error',
+              autoDismiss: 5
+            });
+          }
+          this.setState({
+            show_progress_status: false
+          });
+        } else {
+          notification.addNotification({
+            message: 'Something went wrong',
+            level: 'error',
+            autoDismiss: 5
+          });
+          this.setState({
+            show_progress_status: false
+          });
+        }
+    }
+    
+      };
+    async AddPage() {
+        this.setState({ show_progress_status: true });
+        var add = this.state.pageNum;
+        var count = this.state.pageCount;
+        add++;
+        count++;
+        this.setState({
+            pageNum: add,
+            pageCount: count
+        });
+        await this.getContacts(add);
+        this.setState({ show_progress_status: false });
+    }
+    async RemovePage() {
+        var add = this.state.pageNum;
+        var count = this.state.pageCount;
+        if (this.state.pageNum > 0) {
+            this.setState({ show_progress_status: true });
+            add--;
+            count--;
+            this.setState({
+                pageNum: add,
+                pageCount: count
+            });
+            await this.getContacts(add);
+            this.setState({ show_progress_status: false });
+        }
+    }
+
+    handleSearch(e) {
+        let value = e.target.value;
+
+        //lets do a filter
+        let searchResult = this.state.paginated_contacts.filter(s => {
+            return s.firstname.includes(value) || s.lastname.includes(value) || s.phonenumber.includes(value) || s.nationalid.includes(value) || s.contact_group.name.includes(value);
+        });
+        this.setState({
+            contacts_temp: searchResult
+        });
+
+    }
     render() {
         return (
             <Aux>
@@ -386,7 +579,20 @@ class TicketConfigs extends React.Component {
                 <NotificationSystem ref={this.notificationSystem} style={custom_notification_style} />
                 <Row>
                     <Col>
-                        <Card title='Ticket Categories' isOption>
+                        <Card title='Manage Contacts' isOption>
+                        <div
+                style={{
+                  textAlign: "left",
+                  display: "grid"
+                }}
+              >
+
+               
+                  <a href="/FileUploadTemplates/Contacts.xlsx" download>
+                  <FaFileExcel size={50} color='green' title='Download template'/>
+                  </a>
+                
+              </div>
                             <Button
                                 size="sm"
                                 variant="secondary"
@@ -394,38 +600,60 @@ class TicketConfigs extends React.Component {
                                     this.openAddDialog()
                                 }
                             >
-                                Create Category
+                                Create Contact
                             </Button>
+                            <IconButton onClick={() =>
+                        this.RemovePage()
+                    } >
+                        <ArrowBack style={{ color: "green" }} titleAccess='Previous' />
+                    </IconButton>
 
+                    <IconButton onClick={() =>
+                        this.AddPage()
+                    } >
+                        <ArrowForward style={{ color: "green" }} titleAccess='Next' />
+                    </IconButton>
+                    <div className="input-group mb-3">
+                        <input type="text" className="form-control" style={{ color: '#000000' }} placeholder="You can search by Firstname Id or Lastname or Phone number or Narional Id or Contact group" onChange={e => this.handleSearch(e)} />
+                    </div>
+                    <p>Page {this.state.pageCount}</p>
                             <Table>
                                 <Thead>
                                     <Tr style={{ border: '1px solid' }}>
-                                        <Th>Category</Th>
-                                        <Th>Description</Th>
-                                        <Th>Created by</Th>
+                                        <Th>First name</Th>
+                                        <Th>Last name</Th>
+                                        <Th>Phone number</Th>
+                                        <Th>National ID</Th>
+                                        <Th>Contact group</Th>
                                         <Th>Update</Th>
                                         <Th>Delete</Th>
 
                                     </Tr>
 
                                 </Thead>
-                                {this.state.categories == null || this.state.categories.length == 0 ? <Tbody>
+                                {this.state.contacts_temp == null || this.state.contacts_temp.length == 0 ? <Tbody>
                                     <Tr style={{ border: '1px solid' }} key={0}>
                                         {this.state.type == null || this.state.type == "" ?
                                             <Td style={{ color: 'red' }}>No data available....</Td> : <Td style={{ color: 'blue' }}>Loading ....</Td>}
                                     </Tr>
                                 </Tbody> : <Tbody>
-                                    {this.state.categories.map(
+                                    {this.state.contacts_temp.map(
                                         (u, index) => (
                                             <Tr style={{ border: '1px solid' }} key={index}>
                                                 <Td>
-                                                    {u.category}
+                                                    {u.firstname}
                                                 </Td>
                                                 <Td>
-                                                    {u.description}
+                                                    {u.lastname}
                                                 </Td>
                                                 <Td>
-                                                    {u.system_user !== null ? u.system_user.username : "System"}
+                                                    {u.phonenumber}
+                                                </Td>
+                                                <Td>
+                                                    {u.nationalid}
+                                                </Td>
+                                                <Td>
+                                                    {u.contact_group.name}
                                                 </Td>
                                                 <Td>
                                                     {this.cellButton(u)}
@@ -491,18 +719,35 @@ class TicketConfigs extends React.Component {
                     <div className="card">
 
                         <div className="card-body text-center">
-                            <h3>Create Category</h3>
+                            <h3>Create Contact</h3>
                             <Row>
 
                                 <Col>
 
                                     <div className="input-group mb-3">
-                                        <input type="text" className="form-control" style={{ color: '#000000' }} placeholder="Category name" value={this.state.category_name} onChange={e => this.handleChange(e, "category_name")} />
+                                        <input type="text" className="form-control" style={{ color: '#000000' }} placeholder="first name" value={this.state.new_first_name} onChange={e => this.handleChange(e, "new_first_name")} />
                                     </div>
 
                                     <div className="input-group mb-3">
-                                        <input type="text" className="form-control" style={{ color: '#000000' }} placeholder="Description" value={this.state.description} onChange={e => this.handleChange(e, "description")} />
+                                        <input type="text" className="form-control" style={{ color: '#000000' }} placeholder="last name" value={this.state.new_last_name} onChange={e => this.handleChange(e, "new_last_name")} />
                                     </div>
+
+                                    <div className="input-group mb-3">
+                                        <input type="text" className="form-control" style={{ color: '#000000' }} placeholder="phone number. Should start with 254" value={this.state.new_phone_number} onChange={e => this.handleChange(e, "new_phone_number")} />
+                                    </div>
+
+                                    <div className="input-group mb-3">
+                                        <input type="text" className="form-control" style={{ color: '#000000' }} placeholder="National ID" value={this.state.new_national_id} onChange={e => this.handleChange(e, "new_national_id")} />
+                                    </div>
+                                    <div className="input-group mb-3">
+                                        <select className="form-control" style={{ color: '#000000' }} value={this.state.new_contact_group} onChange={e => this.handleChange(e, "new_contact_group")}>
+                                            <option value="">Select contact group</option>
+                                            {this.state.groups.map((group) => (
+                                                <option value={group.id} key={group.id}>{group.name}</option>
+                                            ))}
+                                        </select>
+                                    </div>
+
                                 </Col>
                             </Row>
                             <Row>
@@ -522,7 +767,7 @@ class TicketConfigs extends React.Component {
                                                     size="sm"
                                                     variant="primary"
                                                     onClick={() =>
-                                                        this.saveCategory()
+                                                        this.saveContact()
                                                     }
                                                 >
                                                     Save
@@ -547,18 +792,37 @@ class TicketConfigs extends React.Component {
                     <div className="card">
 
                         <div className="card-body text-center">
-                            <h3>Update Category</h3>
+                            <h3>Update Contact</h3>
                             <Row>
 
                                 <Col>
 
                                     <div className="input-group mb-3">
-                                        <input type="text" className="form-control" style={{ color: '#000000' }} placeholder="Category name" value={this.state.updated_category_name} onChange={e => this.handleChange(e, "updated_category_name")} />
+                                        <input type="text" className="form-control" style={{ color: '#000000' }} placeholder="First name" value={this.state.updated_first_name} onChange={e => this.handleChange(e, "updated_first_name")} />
                                     </div>
 
                                     <div className="input-group mb-3">
-                                        <input type="text" className="form-control" style={{ color: '#000000' }} placeholder="Description" value={this.state.updated_description} onChange={e => this.handleChange(e, "updated_description")} />
+                                        <input type="text" className="form-control" style={{ color: '#000000' }} placeholder="Last name" value={this.state.updated_last_name} onChange={e => this.handleChange(e, "updated_last_name")} />
                                     </div>
+
+                                    <div className="input-group mb-3">
+                                        <input type="text" className="form-control" style={{ color: '#000000' }} placeholder="Phone number. Start with 254..." value={this.state.updated_phone_number} onChange={e => this.handleChange(e, "updated_phone_number")} />
+                                    </div>
+
+                                    <div className="input-group mb-3">
+                                        <input type="text" className="form-control" style={{ color: '#000000' }} placeholder="National ID" value={this.state.updated_national_id} onChange={e => this.handleChange(e, "updated_national_id")} />
+                                    </div>
+
+                                    <div className="input-group mb-3">
+                                        <select className="form-control" style={{ color: '#000000' }} value={this.state.update_contact_group} onChange={e => this.handleChange(e, "update_contact_group")}>
+                                            <option value="">Select contact group</option>
+                                            {this.state.groups.map((group) => (
+                                                <option value={group.id} key={group.id}>{group.name}</option>
+                                            ))}
+                                        </select>
+                                    </div>
+
+
                                 </Col>
                             </Row>
                             <Row>
@@ -578,7 +842,7 @@ class TicketConfigs extends React.Component {
                                                     size="sm"
                                                     variant="primary"
                                                     onClick={() =>
-                                                        this.updateCategory()
+                                                        this.updateContact()
                                                     }
                                                 >
                                                     Save
@@ -603,10 +867,10 @@ class TicketConfigs extends React.Component {
                         <center>
                         </center>
                         <div className="card-body text-center">
-                            <h3>{this.state.category_name}</h3>
+                            <h3>{this.state.contact_name}</h3>
                             <br />
                             <br />
-                            <h4>Are you sure you want to delete this category?</h4>
+                            <h4>Are you sure you want to delete this contact?</h4>
 
 
                             <Row key={0}>
@@ -623,10 +887,10 @@ class TicketConfigs extends React.Component {
                                     size="sm"
                                     variant="primary"
                                     onClick={() =>
-                                        this.deleteCategory()
+                                        this.deleteContact()
                                     }
                                 >
-                                    Delete category
+                                    Delete contact
                                 </Button></Col>
                             </Row>
 
@@ -644,4 +908,4 @@ class TicketConfigs extends React.Component {
     }
 }
 
-export default TicketConfigs;
+export default BulkContactUpload;

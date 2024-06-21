@@ -22,6 +22,8 @@ const Tcr = React.lazy(() => import('./Views/Tcr'));
 const ContractTypes = React.lazy(() => import('./Views/ContractTypes'));
 const EmailAlertConfig = React.lazy(() => import('./Views/EmailAlertConfig'));
 const FileTemplates = React.lazy(() => import('./Views/FileTemplates'));
+const ContactGroups = React.lazy(() => import('./Views/ContactGroups'));
+const BulkContactUpload = React.lazy(() => import('./Views/BulkContactUpload'));
 
 
 const routes = [
@@ -34,6 +36,8 @@ const routes = [
     { path: '/farmers', exact: true, name: 'AppUsers', component: AppUsers },
     { path: '/sms/templates', exact: true, name: 'SmsTemplates', component: SmsTemplates },
     { path: '/sms/send', exact: true, name: 'SendSms', component: SendSms },
+    { path: '/sms/contactgroups', exact: true, name: 'ContactGroups', component: ContactGroups },
+    { path: '/sms/contactupload', exact: true, name: 'BulkContactUpload', component: BulkContactUpload },
     { path: '/tickets', exact: true, name: 'Tickets', component: Tickets },
     { path: '/ticketconfigs', exact: true, name: 'TicketConfigs', component: TicketConfigs },
     { path: '/lar', exact: true, name: 'Lar', component: Lar },
