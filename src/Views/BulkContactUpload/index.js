@@ -87,7 +87,9 @@ class BulkContactUpload extends React.Component {
             contact_name: '',
             contact_to_be_deleted: '',
             hidedialog: false,
+            bulk_contact_group: '',
             show_progress_status: false,
+            openBulk: false,
             pageNum: 0,
             pageCount: 1,
         }
@@ -209,6 +211,12 @@ class BulkContactUpload extends React.Component {
     }
     openAddDialog() {
         this.setState({ open: true });
+    }
+    openBulkDialog() {
+        this.setState({ openBulk: true });
+    }
+    closeBulkDialog() {
+        this.setState({ openBulk: false });
     }
 
     closeDeleteDialog() {
@@ -458,7 +466,7 @@ class BulkContactUpload extends React.Component {
     }
     uploadFile = async e => {
         const notification = this.notificationSystem.current;
-        
+        this.closeBulkDialog();
           //check permissions
           let privilegeList = [];
           let privileges = Authenticatonservice.getUser().data.systemUser.roles.privileges;
@@ -467,10 +475,10 @@ class BulkContactUpload extends React.Component {
               privilegeList.push(privileges[k].mprivileges.privilege_name);
           }
   
-          if(!privilegeList.includes("create_file_template")){
+          if(!privilegeList.includes("create_contact")){
               this.setState({ show_progress_status: false });
               notification.addNotification({
-                message: "You do not have the rights to create a template. Please contact your Systems Administrator",
+                message: "You do not have the rights to create a contact group. Please contact your Systems Administrator",
                 level: 'error',
                 autoDismiss: 5
               });  
@@ -483,7 +491,7 @@ class BulkContactUpload extends React.Component {
         const files = e.target.files;
         const formData = new FormData();
         formData.append("file", files[0]);
-        formData.append("group", this.state.selected_group);
+        formData.append("group", this.state.bulk_contact_group);
     
         // clear the value
         e.target.value = null;
@@ -499,8 +507,7 @@ class BulkContactUpload extends React.Component {
               autoDismiss: 5
             });
              this.setState({
-               new_filename:'',
-               new_filetype:'',
+               bulk_contact_group:'',
                show_actions:false,
              })
             // get uploaded clients
@@ -605,6 +612,18 @@ class BulkContactUpload extends React.Component {
                             <IconButton onClick={() =>
                         this.RemovePage()
                     } >
+                                                    <Button
+                                size="sm"
+                                variant="primary"
+                                onClick={() =>
+                                    this.openBulkDialog()
+                                }
+                            >
+                                Bulk upload
+                            </Button>
+                            <IconButton onClick={() =>
+                        this.RemovePage()
+                    } ></IconButton>
                         <ArrowBack style={{ color: "green" }} titleAccess='Previous' />
                     </IconButton>
 
@@ -902,6 +921,83 @@ class BulkContactUpload extends React.Component {
                     </div>
 
                 </Dialog>
+                <Dialog
+                    open={this.state.openBulk}
+                    onClose={this.closeBulkDialog.bind(this)}
+                    fullWidth
+
+                >
+
+                    <div className="card">
+
+                        <div className="card-body text-center">
+                            <h3>Bulk upload</h3>
+                            <Row>
+
+                                <Col>
+                                    <div className="input-group mb-3">
+                                        <select className="form-control" style={{ color: '#000000' }} value={this.state.bulk_contact_group} onChange={e => this.handleChange(e, "bulk_contact_group")}>
+                                            <option value="">Select contact group</option>
+                                            {this.state.groups.map((group) => (
+                                                <option value={group.id} key={group.id}>{group.name}</option>
+                                            ))}
+                                        </select>
+                                    </div>
+
+                                </Col>
+                            </Row>
+                            <Row>
+                                <Col>
+                                <Button
+                                                    size="sm"
+                                                    variant="secondary"
+                                                    onClick={() =>
+                                                        this.closeBulkDialog()
+                                                    }
+                                                >
+                                                    Dismiss
+                                                </Button>
+                                </Col>
+                                <Col>
+                                <input
+                      type="file"
+                      id="myfile"
+                      className="hidden"
+                      style={{
+                        display: "none",
+                        cursor: "pointer"
+                      }}
+                      onChange={e => this.uploadFile(e)}
+                    />
+                    <label
+                      htmlFor="myfile"
+                      style={{
+                        position: "relative",
+                        top: "3px",
+                        width: "193px",
+                        height: "34px",
+                        fontSize: "15px",
+                        textAlign: "center",
+                        backgroundColor: "rgb(0, 153, 51)",
+                        color: "white",
+                        borderRadius: ".25em",
+                        cursor: "pointer",
+                        padding: "6px 12px"
+                      }}
+                    >
+
+                      Upload File
+                    </label>
+                                </Col>
+                            </Row>
+                        </div>
+
+
+                    </div>
+
+
+                </Dialog>
+
             </Aux>
 
         );

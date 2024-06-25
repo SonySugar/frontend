@@ -596,7 +596,7 @@ class Dashboard extends React.Component {
             params["newpassword"] = this.state.password
             params["confirmpassword"] = this.state.confirmpassword
 
-            let result = await APIService.makePostRequest("authentication/customer/force_password_change", params);
+            let result = await APIService.makePostRequest("authentication/force_password_change", params);
 
             if (result.success) {
                 //Go to dashboar
