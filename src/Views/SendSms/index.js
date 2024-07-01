@@ -60,14 +60,20 @@ class SendSms extends React.Component {
             contact_list: [],
             template_list: [],
             appusers: [],
+            groups: [],
+            contacts: [],
+            filteredContacts: [],
+            show_contact_list: false,
             closesession: false,
             open_farmers_list: false,
             choose_from_template: false,
             show_message_box: false,
             close_farmers_list: false,
             show_btn: false,
+            open_other_list: false,
             message: "",
             selected_template: "",
+            selected_group: "",
             _notificationSystem: null,
             show_progress_status: false,
         }
@@ -77,6 +83,8 @@ class SendSms extends React.Component {
         this.checkLogin();
         await this.getTemplates();
         await this.getUsers();
+        await this.getContactGroups();
+        await this.getAllContacts();
         this.setState({ show_progress_status: false });
     }
     checkLogin() {
@@ -143,9 +151,9 @@ class SendSms extends React.Component {
         }
 
     }
-    async SendSms() {
+    async SendSms(usertype) {
         //call API
-        this.setState({ show_progress_status: true, open_farmers_list: false });
+        this.setState({ show_progress_status: true, open_farmers_list: false, open_other_list: false});
         const notification = this.notificationSystem.current;
         //check permissions
         let privilegeList = [];
@@ -164,12 +172,31 @@ class SendSms extends React.Component {
             });
         } else {
             let phoneNumbers = [];
+            if (usertype == "mobileappusers") {
             this.state.appusers.forEach(u => {
                 if (u.checked) {
                     let combinedData = u.phonenumber_one + "|" + u.firstname;
                     phoneNumbers.push(combinedData)
                 }
             });
+        }
+        if (usertype == "othercontacts") {
+            this.state.contacts.forEach(u => {
+                if (u.checked) {
+                    let combinedData = u.phonenumber + "|" + u.firstname;
+                    phoneNumbers.push(combinedData)
+                }
+            });
+        }
+
+        if(phoneNumbers.length == 0){
+            this.setState({ show_progress_status: false });
+            notification.addNotification({
+                message: "Please select at least one contact to send sms",
+                level: 'error',
+                autoDismiss: 5
+            });
+        }else{
             let params = {}
             let endpoint = "farmer/withtemplate/sendsms";
             if (this.state.choose_from_template) {
@@ -188,7 +215,7 @@ class SendSms extends React.Component {
                     level: 'success',
                     autoDismiss: 5
                 });
-                this.setState({ show_progress_status: false });
+                this.setState({ show_progress_status: false, selected_template: "", message: ""});
             } else {
                 this.setState({ show_progress_status: false });
                 notification.addNotification({
@@ -199,6 +226,45 @@ class SendSms extends React.Component {
             }
             this.setState({ appusers: [] });
             this.getUsers();
+        }
+    }
+    }
+    async getContactGroups() {
+        //call API
+        const notification = this.notificationSystem.current;
+        let apiResponse = await APIService.makeApiGetRequest("contactgroups");
+        if (apiResponse.status == 403) {
+            this.setState({ closesession: true });
+            notification.addNotification({
+                message: apiResponse.message,
+                level: 'error',
+                autoDismiss: 5
+            });
+        } else {
+
+            this.setState({ groups: apiResponse });
+
+        }
+
+    }
+    async getAllContacts() {
+        //call API
+        const notification = this.notificationSystem.current;
+        let apiResponse = await APIService.makeApiGetRequest("contacts");
+
+        if (apiResponse.status == 403) {
+            this.setState({ closesession: true });
+            notification.addNotification({
+                message: apiResponse.message,
+                level: 'error',
+                autoDismiss: 5
+            });
+
+        } else {
+
+            this.setState({ contacts: apiResponse, filteredContacts: apiResponse});
+
+
         }
     }
     handlerTypeChange(e) {
@@ -212,6 +278,9 @@ class SendSms extends React.Component {
     handleSelectionChange() {
         this.setState({ open_farmers_list: true });
     }
+    handleOtherSelectionChange() {
+        this.setState({ open_other_list: true });
+    }
     handleCheckChildElement = event => {
         let farmers = this.state.appusers;
         farmers.forEach(f => {
@@ -220,14 +289,41 @@ class SendSms extends React.Component {
         });
         this.setState({ appusers: farmers });
     };
+    handleCheckOthersChildElement = event => {
+        let contact = this.state.contacts;
+        contact.forEach(f => {
+            if (f.id == event.target.value)
+                f.checked = event.target.checked;
+        });
+        this.setState({ contacts: contact });
+    };
+
+    selectedGroup(e){
+        if(e.target.value == ''){
+            this.setState({ contacts: this.state.filteredContacts });
+        }
+        this.setState({ show_contact_list: true });
+        this.setState({ selected_group: e.target.value });
+        let contacts = this.state.filteredContacts;
+        let filtered = contacts.filter(c => c.contactgroup == e.target.value);
+        this.setState({ contacts: filtered });
+    }
     closeFarmersList() {
         this.setState({ open_farmers_list: false });
         //this.removeItemAll();
     };
+    closeOtherList() {
+        this.setState({ open_other_list: false });
+    }
     handleAllChecked = event => {
         let farmers = this.state.appusers;
         farmers.forEach(f => (f.checked = event.target.checked));
         this.setState({ appusers: farmers });
+    };
+    handleAllOthersChecked = event => {
+        let contact = this.state.contacts;
+        contact.forEach(f => (f.checked = event.target.checked));
+        this.setState({ contacts: contact });
     };
     render() {
         return (
@@ -307,7 +403,16 @@ class SendSms extends React.Component {
                                     this.handleSelectionChange()
                                 }
                             >
-                                Select recipients
+                                Select registered mobile app users
+                            </Button>)}
+                            {this.state.show_btn && (<Button
+                                size="sm"
+                                variant="primary"
+                                onClick={() =>
+                                    this.handleOtherSelectionChange()
+                                }
+                            >
+                                Select other contacts
                             </Button>)}
                         </Col>
                     </Row>
@@ -396,7 +501,86 @@ class SendSms extends React.Component {
                                                     size="sm"
                                                     variant="primary"
                                                     onClick={() =>
-                                                        this.SendSms()
+                                                        this.SendSms("mobileappusers")
+                                                    }
+                                                >
+                                                    Send
+                                                </Button>
+                                            </Td>
+                                        </Tr>
+                                    </Tbody>
+                                </Table>
+                            </Row>
+                        </div>
+                    </div>
+
+                </Dialog>
+                <Dialog
+                    open={this.state.open_other_list}
+                    onClose={this.closeOtherList.bind(this)}
+                    fullWidth
+                >
+                    <div className="card">
+                        <div className="card-body text-left">
+                                    <div className="input-group mb-3">
+                                        <select
+                                            className="form-control"
+                                            value={this.state.selected_group}
+                                            onChange={this.selectedGroup.bind(
+                                                this
+                                            )}
+                                        >
+                                            <option value="">
+                                                Select contact group
+                                            </option>
+                                            {this.state.groups.map((g, index) => (
+                                                <option value={g.id} key={index}>
+                                                    {g.name}
+                                                </option>
+                                            ))}
+                                        </select>
+
+                                    </div>
+                            <Row>
+                                <Table style={{ textAlign: "left" }}>
+                                    <Tbody>
+                                        <Tr key={0}>
+                                            <Td>
+                                                Check / Uncheck All
+                                            </Td>
+                                            <Td>
+                                                <input
+                                                    type="checkbox"
+                                                    onClick={this.handleAllOthersChecked}
+                                                    value="checkedall"
+                                                />{" "}
+
+                                            </Td>
+                                        </Tr>
+
+                                        {this.state.contacts.map(
+                                            (contact) => {
+
+                                                return (
+                                                    <FarmersCheckBox handleCheckChildElement={this.handleCheckOthersChildElement}
+                                                        {...contact}
+                                                    />
+                                                );
+                                            })
+
+
+                                        }
+                                        <Tr>
+                                            <Td></Td>
+                                            <Td></Td>
+                                            <Td></Td>
+
+                                            <Td>
+                                                <Button
+                                                    size="sm"
+                                                    variant="primary"
+                                                    onClick={() =>
+                                                        this.SendSms("othercontacts")
                                                     }
                                                 >
                                                     Send

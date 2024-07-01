@@ -223,7 +223,7 @@ class Tcr extends React.Component {
         const notification = this.notificationSystem.current;
         //check permissions
         let privilegeList = [];
-        let privileges = Authenticatonservice.getUser().data.user.roles.privileges;
+        let privileges = Authenticatonservice.getUser().data.systemUser.roles.privileges;
         for (let k in privileges) {
 
             privilegeList.push(privileges[k].mprivileges.privilege_name);
