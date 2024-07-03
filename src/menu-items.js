@@ -152,7 +152,7 @@ export default {
                         },
                         {
                             id: 'sendsms-page',
-                            title: 'Mobile App Users SMS',
+                            title: 'Send SMS',
                             type: 'item',
                             url: '/sms/send',
                             classes: 'nav-item',
@@ -173,6 +173,14 @@ export default {
                             url: '/sms/contactupload',
                             classes: 'nav-item',
                             icon: 'feather icon-upload'
+                        },
+                        {
+                            id: 'schedulesms-page',
+                            title: 'Schedule SMS',
+                            type: 'item',
+                            url: '/sms/schedule',
+                            classes: 'nav-item',
+                            icon: 'feather icon-clock'
                         },
 
                     ]

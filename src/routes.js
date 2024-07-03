@@ -15,6 +15,7 @@ const Department = React.lazy(() => import('./Views/Department'));
 const AppUsers = React.lazy(() => import('./Views/AppUsers'));
 const SmsTemplates = React.lazy(() => import('./Views/SmsTemplates'));
 const SendSms = React.lazy(() => import('./Views/SendSms'));
+const ScheduleSms = React.lazy(() => import('./Views/ScheduleSms'));
 const Tickets = React.lazy(() => import('./Views/Tickets'));
 const TicketConfigs = React.lazy(() => import('./Views/TicketConfigs'));
 const Lar = React.lazy(() => import('./Views/Lar'));
@@ -38,6 +39,7 @@ const routes = [
     { path: '/sms/send', exact: true, name: 'SendSms', component: SendSms },
     { path: '/sms/contactgroups', exact: true, name: 'ContactGroups', component: ContactGroups },
     { path: '/sms/contactupload', exact: true, name: 'BulkContactUpload', component: BulkContactUpload },
+    { path: '/sms/schedule', exact: true, name: 'ScheduleSms', component: ScheduleSms },
     { path: '/tickets', exact: true, name: 'Tickets', component: Tickets },
     { path: '/ticketconfigs', exact: true, name: 'TicketConfigs', component: TicketConfigs },
     { path: '/lar', exact: true, name: 'Lar', component: Lar },
