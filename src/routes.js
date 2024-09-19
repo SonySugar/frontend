@@ -25,6 +25,8 @@ const EmailAlertConfig = React.lazy(() => import('./Views/EmailAlertConfig'));
 const FileTemplates = React.lazy(() => import('./Views/FileTemplates'));
 const ContactGroups = React.lazy(() => import('./Views/ContactGroups'));
 const BulkContactUpload = React.lazy(() => import('./Views/BulkContactUpload'));
+const CustomerCategory = React.lazy(() => import('./Views/CustomerCategory'));
+const Products = React.lazy(() => import('./Views/Products'));
 
 
 const routes = [
@@ -47,6 +49,8 @@ const routes = [
     { path: '/contracttypes', exact: true, name: 'ContractTypes', component: ContractTypes },
     { path: '/settings/emailalert', exact: true, name: 'EmailAlertConfig', component: EmailAlertConfig },
     { path: '/settings/filetemplates', exact: true, name: 'FileTemplates', component: FileTemplates },
+    { path: '/customercategory', exact: true, name: 'CustomerCategory', component: CustomerCategory },
+    { path: '/products', exact: true, name: 'Products', component: Products },
 ];
 
 export default routes;

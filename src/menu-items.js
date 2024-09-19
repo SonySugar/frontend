@@ -52,7 +52,7 @@ export default {
                             url: '/settings/emailalert',
                             classes: 'nav-item',
                             icon: 'feather icon-mail'
-                        },
+                        }
 
 
                     ]
@@ -96,7 +96,15 @@ export default {
                             url: '/farmers',
                             classes: 'nav-item',
                             icon: 'feather icon-users'
-                        }
+                        },
+                        {
+                            id: 'custcategory-page',
+                            title: 'Customer Category',
+                            type: 'item',
+                            url: '/customercategory',
+                            classes: 'nav-item',
+                            icon: 'feather icon-users'
+                        },
 
                     ]
                 }
@@ -221,6 +229,33 @@ export default {
                 }
             ]
         },
+        
+        {
+            id: 'product-settings',
+            title: 'Product management',
+            type: 'group',
+            icon: 'icon-pages',
+            children: [
+                {
+                    id: 'basic_prod',
+                    title: 'Products',
+                    type: 'collapse',
+                    icon: 'feather icon-box',
+                    children: [
+
+                        {
+                            id: 'prod-page',
+                            title: 'Products',
+                            type: 'item',
+                            url: '/products',
+                            classes: 'nav-item',
+                            icon: 'feather icon-box'
+                        },
+
+                    ]
+                }
+            ]
+        },
         {
             id: 'lar-settings',
             title: 'LAR management',
@@ -249,7 +284,7 @@ export default {
                             url: '/lar',
                             classes: 'nav-item',
                             icon: 'feather icon-file'
-                        },
+                        }
 
                     ]
                 }
