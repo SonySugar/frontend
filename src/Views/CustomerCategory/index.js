@@ -287,7 +287,7 @@ class CustomerCategory extends React.Component {
                 <NotificationSystem ref={this.notificationSystem} style={custom_notification_style} />
                 <Row>
                     <Col>
-                        <Card title='Contact groups' isOption>
+                        <Card title='Customer category' isOption>
                             <Button
                                 size="sm"
                                 variant="secondary"

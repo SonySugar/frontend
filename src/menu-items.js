@@ -97,14 +97,6 @@ export default {
                             classes: 'nav-item',
                             icon: 'feather icon-users'
                         },
-                        {
-                            id: 'custcategory-page',
-                            title: 'Customer Category',
-                            type: 'item',
-                            url: '/customercategory',
-                            classes: 'nav-item',
-                            icon: 'feather icon-users'
-                        },
 
                     ]
                 }
@@ -254,6 +246,58 @@ export default {
 
                     ]
                 }
+            ]
+        },
+        {
+            id: 'customer-settings',
+            title: 'Registration management',
+            type: 'group',
+            icon: 'icon-pages',
+            children: [
+                {
+                    id: 'basic_custreg',
+                    title: 'Customer',
+                    type: 'collapse',
+                    icon: 'feather icon-box',
+                    children: [
+                        {
+                            id: 'custcategory-page',
+                            title: 'Customer Category',
+                            type: 'item',
+                            url: '/customercategory',
+                            classes: 'nav-item',
+                            icon: 'feather icon-users'
+                        },
+
+                        {
+                            id: 'cust_page',
+                            title: 'Customer',
+                            type: 'item',
+                            url: '/customer',
+                            classes: 'nav-item',
+                            icon: 'feather icon-users'
+                        },
+
+                    ]
+                },
+                {
+                    id: 'basic_compreg',
+                    title: 'Company',
+                    type: 'collapse',
+                    icon: 'feather icon-box',
+                    children: [
+
+                        {
+                            id: 'comp_page',
+                            title: 'Company',
+                            type: 'item',
+                            url: '/company',
+                            classes: 'nav-item',
+                            icon: 'feather icon-users'
+                        },
+
+                    ]
+                }                
             ]
         },
         {

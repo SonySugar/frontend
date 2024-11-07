@@ -27,6 +27,8 @@ const ContactGroups = React.lazy(() => import('./Views/ContactGroups'));
 const BulkContactUpload = React.lazy(() => import('./Views/BulkContactUpload'));
 const CustomerCategory = React.lazy(() => import('./Views/CustomerCategory'));
 const Products = React.lazy(() => import('./Views/Products'));
+const Customer = React.lazy(() => import('./Views/Customers'));
+const Company = React.lazy(() => import('./Views/Companies'));
 
 
 const routes = [
@@ -51,6 +53,8 @@ const routes = [
     { path: '/settings/filetemplates', exact: true, name: 'FileTemplates', component: FileTemplates },
     { path: '/customercategory', exact: true, name: 'CustomerCategory', component: CustomerCategory },
     { path: '/products', exact: true, name: 'Products', component: Products },
+    { path: '/customer', exact: true, name: 'Customer', component: Customer },
+    { path: '/company', exact: true, name: 'Company', component: Company },
 ];
 
 export default routes;
