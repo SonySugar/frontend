@@ -360,6 +360,32 @@ export default {
                 }
             ]
         },
+        {
+            id: 'order-requests',
+            title: 'Order request management',
+            type: 'group',
+            icon: 'icon-support',
+            children: [
+                {
+                    id: 'customer-orders',
+                    title: 'Customer Orders',
+                    type: 'collapse',
+                    icon: 'feather icon-shopping-cart',
+                    children: [
+
+                        {
+                            id: 'cust-order-page',
+                            title: 'Requests',
+                            type: 'item',
+                            url: '/customerorders',
+                            classes: 'nav-item',
+                            icon: 'feather icon-credit-card'
+                        },
+
+                    ]
+                }
+            ]
+        },
 
     ]
 }
