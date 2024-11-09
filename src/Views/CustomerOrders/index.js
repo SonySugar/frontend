@@ -80,6 +80,7 @@ class CustomerOrders extends React.Component {
             reason:'',
             showpaidamount:false,
             amountpaid:0,
+            wallet_balance:0,
             openReceiptUpload: false,
             requestid: '',
             file: null,
@@ -179,7 +180,7 @@ class CustomerOrders extends React.Component {
             receiptData.push(receiptParam)
         }
 
-        this.setState({ cart_items: items, requestid: row.id, fullnames: fullName, email:row.customer.email, phone:row.customer.phonenumber, lpos:lpoFileData, receipts:receiptData, dispatch_instruction:row.dispatch_instruction.description, orderstatus:row.orderstatus });
+        this.setState({ cart_items: items, requestid: row.id, fullnames: fullName, email:row.customer.email, phone:row.customer.phonenumber, lpos:lpoFileData, receipts:receiptData, dispatch_instruction:row.dispatch_instruction.description, orderstatus:row.orderstatus, wallet_balance:row.customer.wallet.balance });
 
     }
 
@@ -370,6 +371,7 @@ class CustomerOrders extends React.Component {
                     <h6>{this.state.fullnames}</h6>
                     <h6>{this.state.email}</h6>
                     <h6>{this.state.phone}</h6>
+                    <h6>Wallet balance: KES {this.state.wallet_balance}</h6>
                     <b>Dispatch instructions: </b><h6>{this.state.dispatch_instruction}</h6>
                 <Table>
                         <Thead>

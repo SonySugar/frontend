@@ -229,7 +229,7 @@ class Customers extends React.Component {
                 this.setState({ show_progress_status: false });
 
                 notification.addNotification({
-                    message: 'Please enter reason for rejecting customer registration',
+                    message: 'Please enter remarkds',
                     level: 'warning',
                     autoDismiss: 5
                 });
