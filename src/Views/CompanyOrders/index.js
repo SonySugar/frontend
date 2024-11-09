@@ -22,9 +22,10 @@ import DoneIcon from '@material-ui/icons/Done';
 import CloseIcon from '@material-ui/icons/Close';
 import ArrowForward from '@material-ui/icons/ArrowForward';
 import ArrowBack from '@material-ui/icons/ArrowBack';
-import { FaFileExcel, FaTimes, FaUserPlus, FaSave, FaDoorOpen, FaFilePdf } from 'react-icons/fa';
+import { FaDoorOpen } from 'react-icons/fa';
 import jsPDF from "jspdf";
 import "jspdf-autotable";
+import { format } from "date-fns";
 
 
 
@@ -65,7 +66,7 @@ place-items: center;
 z-index: 10;
 `;
 
-class CustomerOrders extends React.Component {
+class CompanyOrders extends React.Component {
     notificationSystem = React.createRef();
     constructor() {
         super();
@@ -119,7 +120,7 @@ class CustomerOrders extends React.Component {
     async getOrders(pagenum) {
         //call API
 
-        let endpoint = "customer/order/"+pagenum+"/3";
+        let endpoint = "company/order/"+pagenum+"/3";
         const notification = this.notificationSystem.current;
         let apiResponse = await APIService.makeApiGetRequest(endpoint);
 
@@ -163,7 +164,6 @@ class CustomerOrders extends React.Component {
             }
             items.push(orderItem);
         });
-        let fullName = row.customer.firstname + ' ' + row.customer.lastname;
         let lpoFileData = [];
         let receiptData = [];
         let param = {}
@@ -180,7 +180,7 @@ class CustomerOrders extends React.Component {
             receiptData.push(receiptParam)
         }
 
-        this.setState({ cart_items: items, requestid: row.id, fullnames: fullName, email:row.customer.email, phone:row.customer.phonenumber, lpos:lpoFileData, receipts:receiptData, dispatch_instruction:row.dispatch_instruction.description, orderstatus:row.orderstatus, wallet_balance:row.customer.wallet.balance });
+        this.setState({ cart_items: items, requestid: row.id, fullnames: row.company.companyname, email:row.company.email, phone:row.company.phonenumber, lpos:lpoFileData, receipts:receiptData, dispatch_instruction:row.dispatch_instruction.description, orderstatus:row.orderstatus, wallet_balance:row.company.wallet.balance });
 
     }
 
@@ -203,10 +203,12 @@ class CustomerOrders extends React.Component {
             });
         } else {
         this.setState({ show_progress_status: true });
+        const notification = this.notificationSystem.current;
+        //map.set('orders', prodOrders);
         let endpoint = "approve/reject/order";
         let params = {};
         params["status"] = this.state.orderstatus
-        params["type"] = "customer"
+        params["type"] = "company"
         params["reason"] = this.state.reason
         params["id"] = this.state.requestid
         params["totalpaid"] = this.state.amountpaid
@@ -327,7 +329,7 @@ class CustomerOrders extends React.Component {
                 <NotificationSystem ref={this.notificationSystem} style={custom_notification_style} />
 
 
-                <Card title='Customer orders' isOption>
+                <Card title='Company orders' isOption>
             
                     <IconButton onClick={() =>
                         this.RemovePage()
@@ -368,7 +370,7 @@ class CustomerOrders extends React.Component {
                                         <Td>
                                             {u.id}
                                         </Td>
-                                        <Td>{u.datecreated}</Td>
+                                        <Td>{format(new Date(u.datecreated), "yyyy-MM-dd")}</Td>
                                         <Td>
                                             {u.orderstatus}
                                         </Td>
@@ -571,4 +573,4 @@ class CustomerOrders extends React.Component {
     }
 }
 
-export default CustomerOrders;
+export default CompanyOrders;

@@ -39,8 +39,6 @@ class Navigation extends Component {
         this.setState({
             showNavContent: true
         });
-        //var role = Authenticatonservice.getUser().data.user.roles.name;
-        //console.log(">>>>>>>=====<<<<< "+role);
         
         let privilegeList = [];
         let privileges = Authenticatonservice.getUser().data.systemUser.roles.privileges;
@@ -51,21 +49,6 @@ class Navigation extends Component {
        
         this.state.new_items = navigation;
        
-         //Get nav items
-
-        //remove item from list
-        // if(role.includes("MERCHANT")){
-        //     this.removeById(navigation.items,"api-settings");
-        // }
-        // if(role.includes("MERCHANT")){
-        //     this.removeById(navigation.items,"user-settings");
-        // }
-        // if(role.includes("MERCHANT")){
-        //     this.removeById(navigation.items,"merchant-settings");
-        // }
-        // if(role.includes("SUPER_ADMIN")){
-        //     this.removeById(navigation.items,"user-merchant-settings");
-        // }
 
         if(!privilegeList.includes("view_system_settings")){
             this.removeById(navigation.items,"api-settings");
@@ -94,9 +77,9 @@ class Navigation extends Component {
         if(!privilegeList.includes("view_tcr")){
             this.removeById(navigation.items,"tcr-settings");
         }
-        // if(!privilegeList.includes("view_ticket_management")){
-        //     this.removeById(navigation.items,"ticket-settings");
-        // }
+        if(!privilegeList.includes("view_order")){
+            this.removeById(navigation.items,"order-settings");
+        }
 
         // if(!privilegeList.includes("view_audits")){
         //     this.removeById(navigation.items,"audit-settings");

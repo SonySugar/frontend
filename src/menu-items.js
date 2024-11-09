@@ -361,7 +361,7 @@ export default {
             ]
         },
         {
-            id: 'order-requests',
+            id: 'order-settings',
             title: 'Order request management',
             type: 'group',
             icon: 'icon-support',
@@ -378,6 +378,25 @@ export default {
                             title: 'Requests',
                             type: 'item',
                             url: '/customerorders',
+                            classes: 'nav-item',
+                            icon: 'feather icon-credit-card'
+                        },
+
+                    ]
+                },
+
+                {
+                    id: 'company-orders',
+                    title: 'Company Orders',
+                    type: 'collapse',
+                    icon: 'feather icon-shopping-cart',
+                    children: [
+
+                        {
+                            id: 'comp-order-page',
+                            title: 'Requests',
+                            type: 'item',
+                            url: '/companyorders',
                             classes: 'nav-item',
                             icon: 'feather icon-credit-card'
                         },
