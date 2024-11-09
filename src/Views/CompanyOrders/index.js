@@ -14,18 +14,14 @@ import Authenticatonservice from '../../service/Authenticatonservice';
 import CustomerAuthenticationservice from '../../service/CustomerAuthenticationservice';
 import { Table, Thead, Tbody, Tr, Th, Td } from 'react-super-responsive-table'
 import 'react-super-responsive-table/dist/SuperResponsiveTableStyle.css';
-import { CSVLink } from "react-csv";
 import EditIcon from '@material-ui/icons/Edit';
-import { Email, ShoppingCart, Visibility } from '@material-ui/icons';
-import DeleteIcon from '@material-ui/icons/Delete';
-import DoneIcon from '@material-ui/icons/Done';
-import CloseIcon from '@material-ui/icons/Close';
+import { Visibility } from '@material-ui/icons';
 import ArrowForward from '@material-ui/icons/ArrowForward';
 import ArrowBack from '@material-ui/icons/ArrowBack';
 import { FaDoorOpen } from 'react-icons/fa';
-import jsPDF from "jspdf";
-import "jspdf-autotable";
 import { format } from "date-fns";
+import "jspdf-autotable";
+
 
 
 
@@ -319,6 +315,13 @@ class CompanyOrders extends React.Component {
 
         this.setState({ orderstatus: status });
       }
+      formattoCurrency(number) {
+        let keS = new Intl.NumberFormat('en-US', {
+            style: 'currency',
+            currency: 'KES',
+        });
+        return keS.format(number);
+    }
         render() {
 
         return (
@@ -389,7 +392,7 @@ class CompanyOrders extends React.Component {
                     <h6>{this.state.fullnames}</h6>
                     <h6>{this.state.email}</h6>
                     <h6>{this.state.phone}</h6>
-                    <h6>Wallet balance: KES {this.state.wallet_balance}</h6>
+                    <h6>Wallet balance: KES {this.formattoCurrency(this.state.wallet_balance)}</h6>
                     <b>Dispatch instructions: </b><h6>{this.state.dispatch_instruction}</h6>
                 <Table>
                         <Thead>
@@ -422,13 +425,13 @@ class CompanyOrders extends React.Component {
                                             {u.unitofmeasure}
                                         </Td>
                                         <Td>
-                                            {u.price}
+                                            {this.formattoCurrency(u.price)}
                                         </Td>
                                         <Td>
                                             {u.quantity}
                                         </Td>
                                         <Td>
-                                            {u.total}
+                                            {this.formattoCurrency(u.total)}
                                         </Td>
                                     </Tr>
                                 )
@@ -442,7 +445,7 @@ class CompanyOrders extends React.Component {
                                 <Td></Td>
                                 <Td></Td>
                                 <Td><b>Net</b></Td>
-                                <Td>{this.state.cart_items.reduce((a, b) => a + (b['total'] || 0), 0)}</Td>
+                                <Td>{this.formattoCurrency(this.state.cart_items.reduce((a, b) => a + (b['total'] || 0), 0))}</Td>
                             </Tr>
                             <Tr style={{ border: '1px solid' }}>
                                 <Td></Td>
@@ -450,7 +453,7 @@ class CompanyOrders extends React.Component {
                                 <Td></Td>
                                 <Td></Td>
                                 <Td><b>Vat</b></Td>
-                                <Td>{this.state.cart_items.reduce((a, b) => a + (b['total'] || 0) * 16/100, 0)}</Td>
+                                <Td>{this.formattoCurrency(this.state.cart_items.reduce((a, b) => a + (b['total'] || 0) * 16/100, 0))}</Td>
                             </Tr>
                             <Tr style={{ border: '1px solid' }}>
                                 <Td></Td>
@@ -458,7 +461,7 @@ class CompanyOrders extends React.Component {
                                 <Td></Td>
                                 <Td></Td>
                                 <Td><b>Total</b></Td>
-                                <Td>{this.state.cart_items.reduce((a, b) => a + (b['total'] || 0) + (b['total'] || 0) * 16/100, 0)}</Td>
+                                <Td>{this.formattoCurrency(this.state.cart_items.reduce((a, b) => a + (b['total'] || 0) + (b['total'] || 0) * 16/100, 0))}</Td>
                             </Tr>
                             
                         </Tbody>
