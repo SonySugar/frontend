@@ -7,7 +7,7 @@ try{
         // Get some code from a GitHub repository
         git url: 'https://github.com/SonySugar/frontend.git',
             credentialsId: '7df9f0a5-f864-44aa-8f83-6d0e6fd009ff',
-            branch: 'main'
+            branch: 'production'
      }
     stage('Build docker') {
          dockerImage = docker.build("sonysugar-admin:${env.BUILD_NUMBER}")
