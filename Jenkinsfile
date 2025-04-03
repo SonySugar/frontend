@@ -16,7 +16,7 @@ try{
           echo "Docker Image Tag Name: ${dockerImageTag}"
           sh "docker stop sonysugar-admin || true && docker rm sonysugar-admin || true"
           sh "docker system prune -f"
-          sh "docker run --name sonysugar-admin --network host -it -d -e TZ=Africa/Nairobi -p 3000:3000 sonysugar-admin:${env.BUILD_NUMBER}"
+          sh "docker run --name sonysugar-admin --network host -it -d -e TZ=Africa/Nairobi -p 3001:3001 sonysugar-admin:${env.BUILD_NUMBER}"
     }
 }catch(e){
     currentBuild.result = "FAILED"
