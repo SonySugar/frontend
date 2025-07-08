@@ -619,7 +619,7 @@ class Tcr extends React.Component {
                     <div className="card">
 
                         <div className="card-body text-center">
-                            <h3>Update Land Aquisition Request</h3>
+                            <h3>Update Temporary Contract Request</h3>
                             <Row>
                                 <p><b style={{ color: 'brown' }} onClick={() => { this.showMoreDetails() }}>{this.state.showmoremessage}</b></p>
                             </Row>
