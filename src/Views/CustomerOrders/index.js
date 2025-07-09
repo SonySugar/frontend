@@ -174,7 +174,7 @@ class CustomerOrders extends React.Component {
             receiptData.push(receiptParam)
         }
 
-        this.setState({ cart_items: items, requestid: row.id, fullnames: fullName, email:row.customer.email, phone:row.customer.phonenumber, lpos:lpoFileData, receipts:receiptData, dispatch_instruction:row.dispatch_instruction.description, orderstatus:row.orderstatus, wallet_balance:row.customer.wallet.balance });
+        this.setState({ cart_items: items, requestid: row.id, fullnames: fullName, email:row.customer.email, phone:row.customer.phonenumber, lpos:lpoFileData, receipts:receiptData, dispatch_instruction:row.dispatch_instruction!=null ? row.dispatch_instruction.description : "NA" , orderstatus:row.orderstatus, wallet_balance:row.customer.wallet.balance });
 
     }
 
